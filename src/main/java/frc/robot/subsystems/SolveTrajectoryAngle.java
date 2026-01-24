@@ -1,0 +1,112 @@
+package frc.robot.subsystems;
+
+public class SolveTrajectoryAngle {
+  /**
+   * Newton-Raphson solver for t in these equasions: <br>
+   *
+   * <pre>
+   * physical distance of target varying with time, if the robot moves with <strong>contant velocity</strong>:</p>
+   *   hypot(xPos + xVel * t, yPos + yVel * t)
+   * ideal ball-to-hub travel distance varying with ball travel time: </p>
+   *   (4.905*t^2 + (goalHeight-shooterHeight))/tan(a)
+   * </pre>
+   *
+   * @param xPos [meters] horizontal (side-to-side) position of the hub <strong>relative to the
+   *     robot</strong>
+   * @param xVel [m/s] horizontal speed of the hub <strong>relative to the robot</strong>
+   * @param yPos [meters] vertical (driver station-to-driver station) position of the hub
+   *     <strong>relative to the robot</strong>
+   * @param yVel [m/s] vertical speed of the hub <strong>relative to the robot</strong>
+   * @return a double array with robot angle [degrees] at index 0 and shoot motor power [-1,1] at
+   *     index 1
+   */
+  public static double[] calculate(double xPos, double xVel, double yPos, double yVel) {
+    double t1 = System.nanoTime();
+    double ballSpeed = 7.35;
+    double shooterHeight = 1;
+    double goalHeight = 2;
+    double l = goalHeight - shooterHeight;
+
+    // non-intertal shot duration calculation
+    double guessV = 1.234;
+    double guessA = Math.asin(guessV / ballSpeed);
+
+    double a = solve(guessA, ballSpeed, xPos, yPos, xVel, yVel, l);
+    double t2 = System.nanoTime();
+    System.out.println("a = " + a);
+    System.out.println((t2 - t1) / 1000000 + " ms");
+
+    // double angle = Math.atan((yPos + yVel * t) / (xPos + xVel * t));
+    // if ((xPos + xVel * t) < 0)
+    //     angle += Math.PI;
+
+    // // calculated initial vertical velocity of the ball
+    // double velocity = 981 * t * t + 200 * (goalHeight - shooterHeight);
+    //        velocity /= 200 * t;
+
+    // // distance the ball would have traveled before hitting the ground
+    // double groundDistance = 10.0 / 981 / Math.tan(a) * (10*Math.pow(velocity,2) +
+    // Math.sqrt(2*(981*shooterHeight*Math.pow(velocity,2) + 50*Math.pow(velocity,4))));
+    // double power = 0/*regression line here */;
+    return new double[] {0.0, a};
+  }
+
+  private static double testingAngleToTime(double angle) {
+    return 0.0;
+  }
+  // Function f(x)
+  private static double f(
+      double x, double ballSpeed, double xPos, double yPos, double xVel, double yVel, double l) {
+
+    double t =
+        10
+            / 981.0
+            * (Math.sqrt(2 * (50 * Math.pow(ballSpeed * Math.sin(x), 2) - 981 * l))
+                + 10 * ballSpeed * Math.sin(x));
+    double physicalTravel = ballSpeed * Math.cos(x) * (t - testingAngleToTime(0.0));
+    double distance = Math.hypot(xPos + xVel * t, yPos + yVel * t);
+    return physicalTravel - distance;
+  }
+
+  // Numerical derivative f'(x)
+  private static double df(
+      double x, double ballSpeed, double xPos, double yPos, double xVel, double yVel, double l) {
+    double h = 1e-6;
+    return (f(x + h, ballSpeed, xPos, yPos, xVel, yVel, l)
+            - f(x - h, ballSpeed, xPos, yPos, xVel, yVel, l))
+        / (2 * h);
+  }
+
+  private static double solve(
+      double initialGuess,
+      double ballSpeed,
+      double xPos,
+      double yPos,
+      double xVel,
+      double yVel,
+      double l) {
+
+    double x = initialGuess;
+    int maxIter = 1000;
+    double tol = 1e-8;
+
+    for (int i = 0; i < maxIter; i++) {
+      double fx = f(x, ballSpeed, xPos, yPos, xVel, yVel, l);
+      double dfx = df(x, ballSpeed, xPos, yPos, xVel, yVel, l);
+
+      if (Math.abs(dfx) < 1e-12) {
+        throw new RuntimeException("Derivative too small");
+      }
+
+      double xNew = x - fx / dfx;
+
+      if (Math.abs(xNew - x) < tol) {
+        return xNew;
+      }
+
+      x = xNew;
+    }
+
+    throw new RuntimeException("Did not converge");
+  }
+}
