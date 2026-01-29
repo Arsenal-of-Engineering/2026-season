@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
+import frc.robot.commands.MoveArc;
 import frc.robot.subsystems.ShootMotors;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
@@ -25,6 +26,7 @@ import frc.robot.subsystems.drive.GyroIONavX;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOSpark;
+import frc.robot.subsystems.drive.QuestNavSubsystem;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -37,6 +39,8 @@ public class RobotContainer {
   // Subsystems
   private final Drive drive;
   private final ShootMotors m_shootMotors = new ShootMotors();
+  private QuestNavSubsystem m_questNav;
+  private MoveArc m_leftArc, m_rightArc;
 
   // Controller
   private final CommandXboxController controller = new CommandXboxController(0);
@@ -81,6 +85,8 @@ public class RobotContainer {
         break;
     }
 
+    m_questNav = new QuestNavSubsystem(drive);
+
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
 
@@ -104,6 +110,32 @@ public class RobotContainer {
     configureButtonBindings();
   }
 
+  public double getYSpeed() {
+    System.out.print("\nhmm...");
+    if (m_leftArc.isScheduled()) {
+      return m_leftArc.getYSpeed();
+    }
+    if (m_rightArc.isScheduled()) {
+      return m_rightArc.getYSpeed();
+    }
+    System.out.println("I think I will");
+    return -MathUtil.applyDeadband(controller.getLeftY(), .08);
+  }
+
+  public double getXSpeed() {
+    if (m_leftArc.isScheduled()) {
+      return m_leftArc.getXSpeed();
+    }
+    if (m_rightArc.isScheduled()) {
+      return m_rightArc.getXSpeed();
+    }
+    return -MathUtil.applyDeadband(controller.getLeftX(), .08);
+  }
+
+  public double getRotSpeed() {
+
+    return -controller.getRightX();
+  }
   /**
    * Use this method to define your button->command mappings. Buttons can be created by
    * instantiating a {@link GenericHID} or one of its subclasses ({@link
@@ -115,10 +147,7 @@ public class RobotContainer {
     // Default command, normal field-relative drive
     drive.setDefaultCommand(
         DriveCommands.joystickDrive(
-            drive,
-            () -> -MathUtil.applyDeadband(controller.getLeftY(), .08),
-            () -> -MathUtil.applyDeadband(controller.getLeftX(), .08),
-            () -> -controller.getRightX()));
+            drive, () -> getYSpeed(), () -> getXSpeed(), () -> getRotSpeed()));
 
     // Lock to 0° when A button is held
     // controller
@@ -140,6 +169,11 @@ public class RobotContainer {
 
     controller.x().onTrue(Commands.runOnce(() -> m_shootMotors.arm(1)));
     controller.x().onFalse(Commands.runOnce(() -> m_shootMotors.arm(0)));
+
+    m_leftArc = new MoveArc(drive, false);
+    m_rightArc = new MoveArc(drive, true);
+    controller.leftBumper().whileTrue(m_leftArc);
+    controller.rightBumper().whileTrue(m_rightArc);
 
     // Reset gyro to 0° when B button is pressed
     controller
