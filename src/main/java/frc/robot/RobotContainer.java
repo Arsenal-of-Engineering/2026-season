@@ -7,6 +7,8 @@
 
 package frc.robot;
 
+import static edu.wpi.first.units.Units.RPM;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -18,7 +20,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
-import frc.robot.subsystems.ShootMotors;
+import frc.robot.subsystems.OneWheelShooter;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIONavX;
@@ -36,7 +38,7 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 public class RobotContainer {
   // Subsystems
   private final Drive drive;
-  private final ShootMotors m_shootMotors = new ShootMotors();
+  private final OneWheelShooter m_oneShootMotor = new OneWheelShooter();
 
   // Controller
   private final CommandXboxController controller = new CommandXboxController(0);
@@ -121,7 +123,7 @@ public class RobotContainer {
             () -> -controller.getRightX()));
 
     // Lock to 0° when A button is held
-    // controller 
+    // controller
     //     .a()
     //     .whileTrue(
     //         DriveCommands.joystickDriveAtAngle(
@@ -135,11 +137,7 @@ public class RobotContainer {
     // controller.x().onTrue(Commands.runOnce(() -> m_shootMotors.shoot(-1)));
     // controller.x().onFalse(Commands.runOnce(() -> m_shootMotors.shoot(0)));
 
-    controller.y().onTrue(Commands.runOnce(() -> m_shootMotors.shoot(1)));
-    controller.y().onFalse(Commands.runOnce(() -> m_shootMotors.shoot(0)));
-
-    controller.x().onTrue(Commands.runOnce(() -> m_shootMotors.arm(1)));
-    controller.x().onFalse(Commands.runOnce(() -> m_shootMotors.arm(0)));
+    controller.y().whileTrue(m_oneShootMotor.runSpeed(RPM.of(3000.0)));
 
     // Reset gyro to 0° when B button is pressed
     controller
