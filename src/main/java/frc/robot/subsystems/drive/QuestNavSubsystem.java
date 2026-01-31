@@ -5,6 +5,7 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Rotation3d.*;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
@@ -14,8 +15,9 @@ import gg.questnav.questnav.PoseFrame;
 import gg.questnav.questnav.QuestNav;
 
 public class QuestNavSubsystem extends SubsystemBase {
-  QuestNav questNav = new QuestNav();
-  final Transform3d ROBOT_TO_QUEST = new Transform3d(0.2, 0.2, 0, null);
+  QuestNav questNav;
+  final Transform3d ROBOT_TO_QUEST = new Transform3d(0.2, 0.2, 0, new Rotation3d(0, 0, 0));
+  final Transform3d QUEST_TO_ROBOT = new Transform3d(-0.2, -0.2, -0, new Rotation3d(0, 0, 0));
   Drive driveSubsystem;
   final Matrix<N3, N1> QUESTNAV_STD_DEVS =
       VecBuilder.fill(
@@ -26,19 +28,30 @@ public class QuestNavSubsystem extends SubsystemBase {
 
   public QuestNavSubsystem(/*maybe add robot pose info here */ Drive driveSubsystem) {
     this.driveSubsystem = driveSubsystem;
+    questNav = new QuestNav();
     // Assume this is the requested reset pose
-    Pose3d robotPose = new Pose3d(0, 0, 0, new Rotation3d(0, 0, 0));
 
+    Pose3d robotPose = new Pose3d(0, 0, 0, new Rotation3d(0, 0, 0));
+    System.out.println("\n-\n-\n-\n-\n-\n-\n-\n-\n-\n-\n-\n-\n-\n-\n-" + robotPose.getRotation());
     resetPose(robotPose);
   }
 
   public void resetPose(Pose3d newPose) {
-    newPose = newPose.transformBy(ROBOT_TO_QUEST);
-    questNav.setPose(newPose);
+    System.out.println("sigma " + ROBOT_TO_QUEST.getRotation());
+    Pose3d newerPose = newPose.transformBy(ROBOT_TO_QUEST);
+    if (questNav == null) {
+      System.out.println("racial slur");
+      return;
+    }
+    questNav.setPose(newerPose);
   }
 
   @Override
   public void periodic() {
+    if (questNav == null) {
+      System.out.println("homophobic slur");
+      return;
+    }
     questNav.commandPeriodic();
 
     // First, Declare our geometrical transform from the robot center to the Quest
@@ -58,10 +71,10 @@ public class QuestNavSubsystem extends SubsystemBase {
         double timestamp = questFrame.dataTimestamp();
 
         // Transform by the mount pose to get your robot pose
-        Pose3d robotPose = questPose.transformBy(ROBOT_TO_QUEST.inverse());
+        Pose3d robotPose = questPose.transformBy(QUEST_TO_ROBOT);
 
         Pose2d realRobotPose =
-            new Pose2d(robotPose.getX(), -robotPose.getY(), driveSubsystem.getRotation());
+            new Pose2d(robotPose.getX(), -robotPose.getY(), robotPose.getRotation().toRotation2d());
 
         // Add the measurement to our estimator
         driveSubsystem.addVisionMeasurement(realRobotPose, timestamp, QUESTNAV_STD_DEVS);
@@ -75,7 +88,6 @@ public class QuestNavSubsystem extends SubsystemBase {
       SmartDashboard.putBoolean("QuestNav", true);
     } else {
       SmartDashboard.putBoolean("QuestNav", false);
-      System.out.println("Mr Quest: \"I'm dead :P\"");
     }
   }
 }

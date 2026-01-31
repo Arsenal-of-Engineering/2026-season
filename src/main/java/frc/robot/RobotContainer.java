@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.MoveArc;
+import frc.robot.commands.Rotate;
 import frc.robot.subsystems.ShootMotors;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
@@ -41,6 +42,7 @@ public class RobotContainer {
   private final ShootMotors m_shootMotors = new ShootMotors();
   private QuestNavSubsystem m_questNav;
   private MoveArc m_leftArc, m_rightArc;
+  private Rotate m_rotate;
 
   // Controller
   private final CommandXboxController controller = new CommandXboxController(0);
@@ -111,14 +113,13 @@ public class RobotContainer {
   }
 
   public double getYSpeed() {
-    System.out.print("\nhmm...");
     if (m_leftArc.isScheduled()) {
       return m_leftArc.getYSpeed();
     }
     if (m_rightArc.isScheduled()) {
       return m_rightArc.getYSpeed();
     }
-    System.out.println("I think I will");
+
     return -MathUtil.applyDeadband(controller.getLeftY(), .08);
   }
 
@@ -129,10 +130,14 @@ public class RobotContainer {
     if (m_rightArc.isScheduled()) {
       return m_rightArc.getXSpeed();
     }
+
     return -MathUtil.applyDeadband(controller.getLeftX(), .08);
   }
 
   public double getRotSpeed() {
+    if (m_rotate.isScheduled()) {
+      return m_rotate.getSpeed();
+    }
 
     return -controller.getRightX();
   }
@@ -170,8 +175,10 @@ public class RobotContainer {
     controller.x().onTrue(Commands.runOnce(() -> m_shootMotors.arm(1)));
     controller.x().onFalse(Commands.runOnce(() -> m_shootMotors.arm(0)));
 
-    m_leftArc = new MoveArc(drive, false);
-    m_rightArc = new MoveArc(drive, true);
+    m_rotate = new Rotate(drive);
+    m_leftArc = new MoveArc(drive, m_rotate, false);
+    m_rightArc = new MoveArc(drive, m_rotate, true);
+    controller.leftTrigger().whileTrue(m_rotate);
     controller.leftBumper().whileTrue(m_leftArc);
     controller.rightBumper().whileTrue(m_rightArc);
 
