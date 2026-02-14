@@ -49,10 +49,10 @@ public class RobotContainer {
 
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
-  private MoveMotors m_intakeMotor = new MoveMotors(9);
-  private MoveMotors m_conveyorMotor = new MoveMotors(12);
-  private MoveMotors m_feederMotor = new MoveMotors(11);
-  private Joystick m_joystick = new Joystick(1);
+  private MoveMotors m_intakeMotor = new MoveMotors(Constants.intakeMotorCanId);
+  private MoveMotors m_conveyorMotor = new MoveMotors(Constants.conveyorMotorCanId);
+  private MoveMotors m_feederMotor = new MoveMotors(Constants.feederMotorCanId);
+  private Joystick m_joystick = new Joystick(Constants.joystickId);
 
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
