@@ -17,6 +17,8 @@ import edu.wpi.first.wpilibj.RobotBase;
 public final class Constants {
   public static final int shooterMotorCanId = 11;
 
+  public static final boolean shooterIsInstalled = true;
+
   public static final Mode simMode = Mode.SIM;
   public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : simMode;
 

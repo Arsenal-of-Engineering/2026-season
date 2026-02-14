@@ -1,6 +1,8 @@
-package frc.robot.subsystems.Shooter;
+package frc.robot.subsystems.shooter;
 
 import static edu.wpi.first.units.Units.RPM;
+
+import org.littletonrobotics.junction.Logger;
 
 import com.revrobotics.PersistMode;
 import com.revrobotics.ResetMode;
@@ -16,6 +18,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
 public class OneWheelShooter extends SubsystemBase {
+  private final FlywheelIO _io;
+  private final FlywheelIOInputsAutoLogged _inputs = new FlywheelIOInputsAutoLogged();
   private final double kP = 0.0004;
   private final double kI = 0;
   private final double kD = 0;
@@ -24,18 +28,16 @@ public class OneWheelShooter extends SubsystemBase {
   private SparkMax shootMotor = new SparkMax(Constants.shooterMotorCanId, MotorType.kBrushless);
   private SparkClosedLoopController shootMotorPID = shootMotor.getClosedLoopController();
 
-  public OneWheelShooter() {
-    SparkMaxConfig config = new SparkMaxConfig();
-    config.closedLoop.pid(kP, kI, kD)
-        .outputRange(0, 1)
-        .feedForward
-        .kV(kV);
-    config.idleMode(IdleMode.kCoast);
-    config.closedLoop.maxMotion.maxAcceleration(maxAcc);
-
-    shootMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+  public OneWheelShooter(FlywheelIO io) {
+    _io = io;
   }
 
+  @Override
+  public void periodic() {
+      _io.updateInputs(_inputs);
+      Logger.processInputs("Shooter",_inputs);
+  }
+  
   public Command runSpeed(AngularVelocity speed) {
     return startEnd(
         () -> {shootMotorPID.setSetpoint(speed.in(RPM), ControlType.kMAXMotionVelocityControl);},

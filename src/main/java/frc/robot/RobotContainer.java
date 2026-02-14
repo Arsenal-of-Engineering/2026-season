@@ -20,7 +20,9 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
-import frc.robot.subsystems.OneWheelShooter;
+import frc.robot.subsystems.shooter.FlywheelIO;
+import frc.robot.subsystems.shooter.FlywheelIOSpark;
+import frc.robot.subsystems.shooter.OneWheelShooter;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIONavX;
@@ -38,7 +40,10 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 public class RobotContainer {
   // Subsystems
   private final Drive drive;
-  private final OneWheelShooter m_oneShootMotor = new OneWheelShooter();
+  private final OneWheelShooter m_oneShootMotor= new OneWheelShooter(
+          Constants.shooterIsInstalled 
+            ? new FlywheelIOSpark(Constants.shooterMotorCanId, false)
+            : new FlywheelIO(){} );
 
   // Controller
   private final CommandXboxController controller = new CommandXboxController(0);
