@@ -14,12 +14,16 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
+import frc.robot.subsystems.MoveMotors;
 import frc.robot.subsystems.OneWheelShooter;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
@@ -45,6 +49,11 @@ public class RobotContainer {
 
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
+  private MoveMotors m_intakeMotor = new MoveMotors(9);
+  private MoveMotors m_conveyorMotor = new MoveMotors(12);
+  private MoveMotors m_feederMotor = new MoveMotors(11);
+  private Joystick m_joystick = new Joystick(1);
+
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -149,6 +158,15 @@ public class RobotContainer {
                             new Pose2d(drive.getPose().getTranslation(), Rotation2d.kZero)),
                     drive)
                 .ignoringDisable(true));
+    new JoystickButton(m_joystick, 2)
+      .onTrue(new InstantCommand(() -> {m_feederMotor.algae(1); m_conveyorMotor.algae(1);}));
+       
+    new JoystickButton(m_joystick, 2)
+      .onFalse(new InstantCommand(() -> {m_feederMotor.algae(0); m_conveyorMotor.algae(0);}));
+    new JoystickButton(m_joystick, 3)
+      .onTrue(new InstantCommand(() -> m_intakeMotor.algae(1)));
+    new JoystickButton(m_joystick, 3)
+      .onFalse(new InstantCommand(() -> m_intakeMotor.algae(0)));
   }
 
   /**
