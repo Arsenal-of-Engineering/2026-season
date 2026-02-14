@@ -32,7 +32,8 @@ public class QuestNavSubsystem extends SubsystemBase {
     // Assume this is the requested reset pose
 
     Pose3d robotPose = new Pose3d(0, 0, 0, new Rotation3d(0, 0, 0));
-    System.out.println("\n-\n-\n-\n-\n-\n-\n-\n-\n-\n-\n-\n-\n-\n-\n-" + robotPose.getRotation());
+    // System.out.println("\n-\n-\n-\n-\n-\n-\n-\n-\n-\n-\n-\n-\n-\n-\n-" +
+    // robotPose.getRotation());
     resetPose(robotPose);
   }
 
@@ -40,7 +41,7 @@ public class QuestNavSubsystem extends SubsystemBase {
     System.out.println("sigma " + ROBOT_TO_QUEST.getRotation());
     Pose3d newerPose = newPose.transformBy(ROBOT_TO_QUEST);
     if (questNav == null) {
-      System.out.println("racial slur");
+      System.out.println("quest not found (rs)");
       return;
     }
     questNav.setPose(newerPose);
@@ -49,7 +50,7 @@ public class QuestNavSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     if (questNav == null) {
-      System.out.println("homophobic slur");
+      System.out.println("quest not found (hs)");
       return;
     }
     questNav.commandPeriodic();

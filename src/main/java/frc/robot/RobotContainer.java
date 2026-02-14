@@ -8,14 +8,19 @@
 package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.MoveArc;
@@ -43,6 +48,7 @@ public class RobotContainer {
   private QuestNavSubsystem m_questNav;
   private MoveArc m_leftArc, m_rightArc;
   private Rotate m_rotate;
+  
 
   // Controller
   private final CommandXboxController controller = new CommandXboxController(0);
@@ -52,6 +58,7 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
+    ConfigureNamedCommands();
     switch (Constants.currentMode) {
       case REAL:
         // Real robot, instantiate hardware IO implementations
@@ -90,6 +97,7 @@ public class RobotContainer {
     m_questNav = new QuestNavSubsystem(drive);
 
     // Set up auto routines
+
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
 
     // Set up SysId routines
@@ -107,7 +115,6 @@ public class RobotContainer {
         "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
     autoChooser.addOption(
         "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-
     // Configure the button bindings
     configureButtonBindings();
   }
@@ -174,6 +181,7 @@ public class RobotContainer {
 
     controller.x().onTrue(Commands.runOnce(() -> m_shootMotors.arm(1)));
     controller.x().onFalse(Commands.runOnce(() -> m_shootMotors.arm(0)));
+    
 
     m_rotate = new Rotate(drive);
     m_leftArc = new MoveArc(drive, m_rotate, false);
@@ -192,8 +200,17 @@ public class RobotContainer {
                             new Pose2d(drive.getPose().getTranslation(), Rotation2d.kZero)),
                     drive)
                 .ignoringDisable(true));
+    
   }
 
+  private void ConfigureNamedCommands() {
+    NamedCommands.registerCommand(
+        "Shoot", new InstantCommand(() -> System.out.println("Im shooting it")));
+    NamedCommands.registerCommand(
+        "Intake", new InstantCommand(() -> System.out.println("im intaking fuel")));
+    NamedCommands.registerCommand(
+        "Climb", new InstantCommand(() -> System.out.println("surely there is a climb design")));
+  }
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
    *
