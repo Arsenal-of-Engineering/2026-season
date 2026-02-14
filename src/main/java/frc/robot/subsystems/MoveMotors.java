@@ -8,7 +8,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class MoveMotors extends SubsystemBase {
     private SparkMax TheMotor;
     public MoveMotors(int id){TheMotor = new SparkMax(id, MotorType.kBrushless);}
-    public void algae(double speed) {
+    public void move(double speed) {
         //explode
         TheMotor.set(speed);
     }

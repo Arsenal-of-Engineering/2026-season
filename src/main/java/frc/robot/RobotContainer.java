@@ -159,14 +159,22 @@ public class RobotContainer {
                     drive)
                 .ignoringDisable(true));
     new JoystickButton(m_joystick, 2)
-      .onTrue(new InstantCommand(() -> {m_feederMotor.algae(1); m_conveyorMotor.algae(1);}));
+      .onTrue(new InstantCommand(() -> {m_feederMotor.move(1); m_conveyorMotor.move(1);}));
        
     new JoystickButton(m_joystick, 2)
-      .onFalse(new InstantCommand(() -> {m_feederMotor.algae(0); m_conveyorMotor.algae(0);}));
-    new JoystickButton(m_joystick, 3)
-      .onTrue(new InstantCommand(() -> m_intakeMotor.algae(1)));
-    new JoystickButton(m_joystick, 3)
-      .onFalse(new InstantCommand(() -> m_intakeMotor.algae(0)));
+      .onFalse(new InstantCommand(() -> {m_feederMotor.move(0); m_conveyorMotor.move(0);}));
+    new JoystickButton(m_joystick, 1)
+      .onTrue(new InstantCommand(() -> m_intakeMotor.move(1)));
+    new JoystickButton(m_joystick, 1)
+      .onFalse(new InstantCommand(() -> m_intakeMotor.move(0)));
+    new JoystickButton(m_joystick, 5)
+      .onTrue(new InstantCommand(() -> {m_feederMotor.move(-1); m_conveyorMotor.move(1);}));
+    new JoystickButton(m_joystick, 5)
+      .onFalse(new InstantCommand(() -> {m_feederMotor.move(0); m_conveyorMotor.move(0);}));
+    new JoystickButton(m_joystick, 6)
+      .onTrue(new InstantCommand(() -> m_intakeMotor.move(-1)));
+    new JoystickButton(m_joystick, 6)
+      .onFalse(new InstantCommand(() -> m_intakeMotor.move(0)));
   }
 
   /**
