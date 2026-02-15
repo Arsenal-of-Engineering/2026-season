@@ -204,23 +204,27 @@ public class RobotContainer {
                             new Pose2d(drive.getPose().getTranslation(), Rotation2d.kZero)),
                     drive)
                 .ignoringDisable(true));
-    new JoystickButton(m_joystick, 2)
-      .onTrue(new InstantCommand(() -> {m_feederMotor.set(1); m_conveyorMotor.set(1);}));
-       
-    new JoystickButton(m_joystick, 2)
-      .onFalse(new InstantCommand(() -> {m_feederMotor.set(0); m_conveyorMotor.set(0);}));
-    new JoystickButton(m_joystick, 1)
-      .onTrue(new InstantCommand(() -> m_intakeMotor.set(1)));
-    new JoystickButton(m_joystick, 1)
-      .onFalse(new InstantCommand(() -> m_intakeMotor.set(0)));
-    new JoystickButton(m_joystick, 5)
-      .onTrue(new InstantCommand(() -> {m_feederMotor.set(-1); m_conveyorMotor.set(1);}));
-    new JoystickButton(m_joystick, 5)
-      .onFalse(new InstantCommand(() -> {m_feederMotor.set(0); m_conveyorMotor.set(0);}));
-    new JoystickButton(m_joystick, 6)
-      .onTrue(new InstantCommand(() -> m_intakeMotor.set(-1)));
-    new JoystickButton(m_joystick, 6)
-      .onFalse(new InstantCommand(() -> m_intakeMotor.set(0)));
+
+    // configure joystick buttons (<1st arg>) to do <2nd arg> on press and <3rd arg> on release.
+    joystickInstantToggle(1, () -> m_intakeMotor.set(1), () -> m_intakeMotor.set(0));
+    joystickInstantToggle(2, () -> {m_feederMotor.set(1); m_conveyorMotor.set(1);}, () -> {m_feederMotor.set(0); m_conveyorMotor.set(0);});
+    joystickInstantToggle(5, () -> {m_feederMotor.set(-1); m_conveyorMotor.set(-1);}, () -> {m_feederMotor.set(0); m_conveyorMotor.set(0);});
+    joystickInstantToggle(6, () -> m_intakeMotor.set(-1), () -> m_intakeMotor.set(0));
+    joystickInstantToggle(8, () -> m_intakeMotor.set(-1), () -> m_intakeMotor.set(0));
+    joystickInstantToggle(10, () -> m_pacerMotor.set(-1), () -> m_pacerMotor.set(0));
+  }
+
+  /**
+   * Runs an instant command when the joystick button is pressed and released
+   * @param button The button that must be pressed
+   * @param onTrue The action to run when the button is just pressed
+   * @param onFalse The action to run when the button is just released
+   */
+  private void joystickInstantToggle(int button, Runnable onTrue, Runnable onFalse){
+    new JoystickButton(m_joystick, button)
+      .onTrue(new InstantCommand(onTrue));
+    new JoystickButton(m_joystick, button)
+      .onFalse(new InstantCommand(onFalse));
   }
 
   private void ConfigureNamedCommands() {
