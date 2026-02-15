@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RepeatCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -49,10 +50,11 @@ public class RobotContainer {
 
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
-  private MoveMotors m_intakeMotor = new MoveMotors(Constants.intakeMotorCanId);
-  private MoveMotors m_conveyorMotor = new MoveMotors(Constants.conveyorMotorCanId);
-  private MoveMotors m_feederMotor = new MoveMotors(Constants.feederMotorCanId);
-  private Joystick m_joystick = new Joystick(Constants.joystickId);
+  private MoveMotors m_intakeMotor = new MoveMotors(Constants.kIntakeMotorCanId);
+  private MoveMotors m_aimingMotor = new MoveMotors(Constants.kIntakeMotorCanId, -45 * Constants.kAimingDegreesPerRotation, 45 * Constants.kAimingDegreesPerRotation);
+  private MoveMotors m_conveyorMotor = new MoveMotors(Constants.kConveyorMotorCanId);
+  private MoveMotors m_feederMotor = new MoveMotors(Constants.kFeederMotorCanId);
+  private Joystick m_joystick = new Joystick(Constants.kJoystickId);
 
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
@@ -145,6 +147,8 @@ public class RobotContainer {
     // controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
     // controller.x().onTrue(Commands.runOnce(() -> m_shootMotors.shoot(-1)));
     // controller.x().onFalse(Commands.runOnce(() -> m_shootMotors.shoot(0)));
+    controller.leftBumper().whileTrue(new RepeatCommand(new InstantCommand(() -> m_aimingMotor.move(-.25))));
+    controller.rightBumper().whileTrue(new RepeatCommand(new InstantCommand(() -> m_aimingMotor.move(.25))));
 
     controller.y().whileTrue(m_oneShootMotor.runSpeed(RPM.of(3000.0)));
 
