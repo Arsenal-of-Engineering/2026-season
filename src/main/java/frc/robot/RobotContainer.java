@@ -26,7 +26,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.MoveArc;
-import frc.robot.commands.Rotate;
+import frc.robot.commands.AimTurret;
 import frc.robot.subsystems.ShootMotors;
 import edu.wpi.first.wpilibj2.command.RepeatCommand;
 import frc.robot.subsystems.SimpleMoveMotor;
@@ -53,7 +53,7 @@ public class RobotContainer {
   private final ShootMotors m_shootMotors = new ShootMotors();
   private QuestNavSubsystem m_questNav;
   private MoveArc m_leftArc, m_rightArc;
-  private Rotate m_rotate;
+  private AimTurret m_rotate;
   
   private final OneWheelShooter m_oneShootMotor = new OneWheelShooter();
 
@@ -67,6 +67,7 @@ public class RobotContainer {
   private SimpleMoveMotor m_aimingMotor = new SimpleMoveMotor(Constants.kAimingMotorCanId, -45 * Constants.kAimingDegreesPerRotation, 45 * Constants.kAimingDegreesPerRotation);
   private SimpleMoveMotor m_conveyorMotor = new SimpleMoveMotor(Constants.kConveyorMotorCanId);
   private SimpleMoveMotor m_feederMotor = new SimpleMoveMotor(Constants.kFeederMotorCanId);
+  private AimTurret m_aimTurret = new AimTurret(m_aimingMotor);
   private Joystick m_joystick = new Joystick(Constants.kJoystickId);
 
 
