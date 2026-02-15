@@ -53,4 +53,17 @@ public class SparkUtil {
       }
     }
   }
+
+  /** Return a value from a Spark (or the default if the value is invalid). */
+  public static double ifOkOrDefault(
+      SparkBase spark, DoubleSupplier supplier, double defaultValue) {
+    double value = supplier.getAsDouble();
+    if (spark.getLastError() == REVLibError.kOk) {
+      return value;
+    } else {
+      sparkStickyFault = true;
+      return defaultValue;
+    }
+  }
+
 }
