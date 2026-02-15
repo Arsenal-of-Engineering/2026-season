@@ -14,12 +14,17 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RepeatCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
+import frc.robot.subsystems.MoveMotors;
 import frc.robot.subsystems.OneWheelShooter;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
@@ -45,6 +50,12 @@ public class RobotContainer {
 
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
+  private MoveMotors m_intakeMotor = new MoveMotors(Constants.kIntakeMotorCanId);
+  private MoveMotors m_aimingMotor = new MoveMotors(Constants.kIntakeMotorCanId, -45 * Constants.kAimingDegreesPerRotation, 45 * Constants.kAimingDegreesPerRotation);
+  private MoveMotors m_conveyorMotor = new MoveMotors(Constants.kConveyorMotorCanId);
+  private MoveMotors m_feederMotor = new MoveMotors(Constants.kFeederMotorCanId);
+  private Joystick m_joystick = new Joystick(Constants.kJoystickId);
+
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -136,6 +147,8 @@ public class RobotContainer {
     // controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
     // controller.x().onTrue(Commands.runOnce(() -> m_shootMotors.shoot(-1)));
     // controller.x().onFalse(Commands.runOnce(() -> m_shootMotors.shoot(0)));
+    controller.leftBumper().whileTrue(new RepeatCommand(new InstantCommand(() -> m_aimingMotor.move(-.25))));
+    controller.rightBumper().whileTrue(new RepeatCommand(new InstantCommand(() -> m_aimingMotor.move(.25))));
 
     controller.y().whileTrue(m_oneShootMotor.runSpeed(RPM.of(3000.0)));
 
@@ -149,6 +162,23 @@ public class RobotContainer {
                             new Pose2d(drive.getPose().getTranslation(), Rotation2d.kZero)),
                     drive)
                 .ignoringDisable(true));
+    new JoystickButton(m_joystick, 2)
+      .onTrue(new InstantCommand(() -> {m_feederMotor.move(1); m_conveyorMotor.move(1);}));
+       
+    new JoystickButton(m_joystick, 2)
+      .onFalse(new InstantCommand(() -> {m_feederMotor.move(0); m_conveyorMotor.move(0);}));
+    new JoystickButton(m_joystick, 1)
+      .onTrue(new InstantCommand(() -> m_intakeMotor.move(1)));
+    new JoystickButton(m_joystick, 1)
+      .onFalse(new InstantCommand(() -> m_intakeMotor.move(0)));
+    new JoystickButton(m_joystick, 5)
+      .onTrue(new InstantCommand(() -> {m_feederMotor.move(-1); m_conveyorMotor.move(1);}));
+    new JoystickButton(m_joystick, 5)
+      .onFalse(new InstantCommand(() -> {m_feederMotor.move(0); m_conveyorMotor.move(0);}));
+    new JoystickButton(m_joystick, 6)
+      .onTrue(new InstantCommand(() -> m_intakeMotor.move(-1)));
+    new JoystickButton(m_joystick, 6)
+      .onFalse(new InstantCommand(() -> m_intakeMotor.move(0)));
   }
 
   /**

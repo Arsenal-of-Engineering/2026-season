@@ -15,8 +15,13 @@ import edu.wpi.first.wpilibj.RobotBase;
  * (log replay from a file).
  */
 public final class Constants {
-  public static final int shooterMotorCanId = 11;
-
+  public static final double kAimingDegreesPerRotation = 6.48;
+  public static final int kAimingMotorCanId = 13;
+  public static final int kShooterMotorCanId = 11;
+  public static final int kConveyorMotorCanId = 10;
+  public static final int kIntakeMotorCanId = 9;
+  public static final int kFeederMotorCanId = 12;
+  public static final int kJoystickId = 1;
   public static final Mode simMode = Mode.SIM;
   public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : simMode;
 
