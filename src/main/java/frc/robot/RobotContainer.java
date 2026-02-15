@@ -7,6 +7,8 @@
 
 package frc.robot;
 
+import static edu.wpi.first.units.Units.RPM;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.MathUtil;
@@ -26,6 +28,9 @@ import frc.robot.commands.DriveCommands;
 import frc.robot.commands.MoveArc;
 import frc.robot.commands.Rotate;
 import frc.robot.subsystems.ShootMotors;
+import edu.wpi.first.wpilibj2.command.RepeatCommand;
+import frc.robot.subsystems.MoveMotors;
+import frc.robot.subsystems.OneWheelShooter;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIONavX;
@@ -49,12 +54,19 @@ public class RobotContainer {
   private MoveArc m_leftArc, m_rightArc;
   private Rotate m_rotate;
   
+  private final OneWheelShooter m_oneShootMotor = new OneWheelShooter();
 
   // Controller
   private final CommandXboxController controller = new CommandXboxController(0);
 
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
+  private MoveMotors m_intakeMotor = new MoveMotors(Constants.kIntakeMotorCanId);
+  private MoveMotors m_aimingMotor = new MoveMotors(Constants.kIntakeMotorCanId, -45 * Constants.kAimingDegreesPerRotation, 45 * Constants.kAimingDegreesPerRotation);
+  private MoveMotors m_conveyorMotor = new MoveMotors(Constants.kConveyorMotorCanId);
+  private MoveMotors m_feederMotor = new MoveMotors(Constants.kFeederMotorCanId);
+  private Joystick m_joystick = new Joystick(Constants.kJoystickId);
+
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -175,20 +187,10 @@ public class RobotContainer {
     // controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
     // controller.x().onTrue(Commands.runOnce(() -> m_shootMotors.shoot(-1)));
     // controller.x().onFalse(Commands.runOnce(() -> m_shootMotors.shoot(0)));
+    controller.leftBumper().whileTrue(new RepeatCommand(new InstantCommand(() -> m_aimingMotor.move(-.25))));
+    controller.rightBumper().whileTrue(new RepeatCommand(new InstantCommand(() -> m_aimingMotor.move(.25))));
 
-    controller.y().onTrue(Commands.runOnce(() -> m_shootMotors.shoot(1)));
-    controller.y().onFalse(Commands.runOnce(() -> m_shootMotors.shoot(0)));
-
-    controller.x().onTrue(Commands.runOnce(() -> m_shootMotors.arm(1)));
-    controller.x().onFalse(Commands.runOnce(() -> m_shootMotors.arm(0)));
-    
-
-    m_rotate = new Rotate(drive);
-    m_leftArc = new MoveArc(drive, m_rotate, false);
-    m_rightArc = new MoveArc(drive, m_rotate, true);
-    controller.leftTrigger().whileTrue(m_rotate);
-    controller.leftBumper().whileTrue(m_leftArc);
-    controller.rightBumper().whileTrue(m_rightArc);
+    controller.y().whileTrue(m_oneShootMotor.runSpeed(RPM.of(3000.0)));
 
     // Reset gyro to 0° when B button is pressed
     controller
@@ -200,7 +202,23 @@ public class RobotContainer {
                             new Pose2d(drive.getPose().getTranslation(), Rotation2d.kZero)),
                     drive)
                 .ignoringDisable(true));
-    
+    new JoystickButton(m_joystick, 2)
+      .onTrue(new InstantCommand(() -> {m_feederMotor.move(1); m_conveyorMotor.move(1);}));
+       
+    new JoystickButton(m_joystick, 2)
+      .onFalse(new InstantCommand(() -> {m_feederMotor.move(0); m_conveyorMotor.move(0);}));
+    new JoystickButton(m_joystick, 1)
+      .onTrue(new InstantCommand(() -> m_intakeMotor.move(1)));
+    new JoystickButton(m_joystick, 1)
+      .onFalse(new InstantCommand(() -> m_intakeMotor.move(0)));
+    new JoystickButton(m_joystick, 5)
+      .onTrue(new InstantCommand(() -> {m_feederMotor.move(-1); m_conveyorMotor.move(1);}));
+    new JoystickButton(m_joystick, 5)
+      .onFalse(new InstantCommand(() -> {m_feederMotor.move(0); m_conveyorMotor.move(0);}));
+    new JoystickButton(m_joystick, 6)
+      .onTrue(new InstantCommand(() -> m_intakeMotor.move(-1)));
+    new JoystickButton(m_joystick, 6)
+      .onFalse(new InstantCommand(() -> m_intakeMotor.move(0)));
   }
 
   private void ConfigureNamedCommands() {
