@@ -16,9 +16,9 @@ import edu.wpi.first.wpilibj.RobotBase;
  */
 public final class Constants {
   public static final int shooterMotorCanId = 11;
-  public static final int conveyorMotorCanId = 12;
+  public static final int conveyorMotorCanId = 10;
   public static final int intakeMotorCanId = 9;
-  public static final int feederMotorCanId = 10;
+  public static final int feederMotorCanId = 12;
   public static final int joystickId = 1;
   public static final Mode simMode = Mode.SIM;
   public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : simMode;
