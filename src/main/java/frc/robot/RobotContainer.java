@@ -29,15 +29,16 @@ import frc.robot.commands.MoveArc;
 import frc.robot.commands.Rotate;
 import frc.robot.subsystems.ShootMotors;
 import edu.wpi.first.wpilibj2.command.RepeatCommand;
-import frc.robot.subsystems.MoveMotors;
+import frc.robot.subsystems.SimpleMoveMotor;
 import frc.robot.subsystems.OneWheelShooter;
+import frc.robot.subsystems.QuestNavSubsystem;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIONavX;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOSpark;
-import frc.robot.subsystems.drive.QuestNavSubsystem;
+
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -61,10 +62,11 @@ public class RobotContainer {
 
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
-  private MoveMotors m_intakeMotor = new MoveMotors(Constants.kIntakeMotorCanId);
-  private MoveMotors m_aimingMotor = new MoveMotors(Constants.kIntakeMotorCanId, -45 * Constants.kAimingDegreesPerRotation, 45 * Constants.kAimingDegreesPerRotation);
-  private MoveMotors m_conveyorMotor = new MoveMotors(Constants.kConveyorMotorCanId);
-  private MoveMotors m_feederMotor = new MoveMotors(Constants.kFeederMotorCanId);
+  private SimpleMoveMotor m_intakeMotor = new SimpleMoveMotor(Constants.kIntakeMotorCanId);
+  private SimpleMoveMotor m_pacerMotor = new SimpleMoveMotor(Constants.kPacerMotorCanId);
+  private SimpleMoveMotor m_aimingMotor = new SimpleMoveMotor(Constants.kAimingMotorCanId, -45 * Constants.kAimingDegreesPerRotation, 45 * Constants.kAimingDegreesPerRotation);
+  private SimpleMoveMotor m_conveyorMotor = new SimpleMoveMotor(Constants.kConveyorMotorCanId);
+  private SimpleMoveMotor m_feederMotor = new SimpleMoveMotor(Constants.kFeederMotorCanId);
   private Joystick m_joystick = new Joystick(Constants.kJoystickId);
 
 
@@ -187,8 +189,8 @@ public class RobotContainer {
     // controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
     // controller.x().onTrue(Commands.runOnce(() -> m_shootMotors.shoot(-1)));
     // controller.x().onFalse(Commands.runOnce(() -> m_shootMotors.shoot(0)));
-    controller.leftBumper().whileTrue(new RepeatCommand(new InstantCommand(() -> m_aimingMotor.move(-.25))));
-    controller.rightBumper().whileTrue(new RepeatCommand(new InstantCommand(() -> m_aimingMotor.move(.25))));
+    controller.leftBumper().whileTrue(new RepeatCommand(new InstantCommand(() -> m_aimingMotor.set(-.25))));
+    controller.rightBumper().whileTrue(new RepeatCommand(new InstantCommand(() -> m_aimingMotor.set(.25))));
 
     controller.y().whileTrue(m_oneShootMotor.runSpeed(RPM.of(3000.0)));
 
@@ -203,22 +205,22 @@ public class RobotContainer {
                     drive)
                 .ignoringDisable(true));
     new JoystickButton(m_joystick, 2)
-      .onTrue(new InstantCommand(() -> {m_feederMotor.move(1); m_conveyorMotor.move(1);}));
+      .onTrue(new InstantCommand(() -> {m_feederMotor.set(1); m_conveyorMotor.set(1);}));
        
     new JoystickButton(m_joystick, 2)
-      .onFalse(new InstantCommand(() -> {m_feederMotor.move(0); m_conveyorMotor.move(0);}));
+      .onFalse(new InstantCommand(() -> {m_feederMotor.set(0); m_conveyorMotor.set(0);}));
     new JoystickButton(m_joystick, 1)
-      .onTrue(new InstantCommand(() -> m_intakeMotor.move(1)));
+      .onTrue(new InstantCommand(() -> m_intakeMotor.set(1)));
     new JoystickButton(m_joystick, 1)
-      .onFalse(new InstantCommand(() -> m_intakeMotor.move(0)));
+      .onFalse(new InstantCommand(() -> m_intakeMotor.set(0)));
     new JoystickButton(m_joystick, 5)
-      .onTrue(new InstantCommand(() -> {m_feederMotor.move(-1); m_conveyorMotor.move(1);}));
+      .onTrue(new InstantCommand(() -> {m_feederMotor.set(-1); m_conveyorMotor.set(1);}));
     new JoystickButton(m_joystick, 5)
-      .onFalse(new InstantCommand(() -> {m_feederMotor.move(0); m_conveyorMotor.move(0);}));
+      .onFalse(new InstantCommand(() -> {m_feederMotor.set(0); m_conveyorMotor.set(0);}));
     new JoystickButton(m_joystick, 6)
-      .onTrue(new InstantCommand(() -> m_intakeMotor.move(-1)));
+      .onTrue(new InstantCommand(() -> m_intakeMotor.set(-1)));
     new JoystickButton(m_joystick, 6)
-      .onFalse(new InstantCommand(() -> m_intakeMotor.move(0)));
+      .onFalse(new InstantCommand(() -> m_intakeMotor.set(0)));
   }
 
   private void ConfigureNamedCommands() {
