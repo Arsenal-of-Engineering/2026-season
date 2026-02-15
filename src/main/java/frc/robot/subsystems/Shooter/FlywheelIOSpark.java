@@ -59,12 +59,17 @@ SparkUtil.tryUntilOk(_motor,kMaxSparkAttempts,
 
     @Override
     public void updateInputs(FlywheelIOInputs inputs) {
-        SparkUtil.sparkStickyFault=false;
         FlywheelIOData previous =inputs.data;
         inputs.data = new FlywheelIOData(
-            SparkUtil.ifOkOrDefault(_motor, _controller::getMAXMotionSetpointVelocity, previous.velocitySetpoint()),
-            SparkUtil.ifOkOrDefault(_motor, _encoder::getVelocity, previous.velocityRPM()),
-            SparkUtil.ifOkOrDefault(_motor,_motor::getAppliedOutput, previous.appliedVoltage())
+            SparkUtil.ifOkOrDefault(_motor, 
+                _controller::getMAXMotionSetpointVelocity, 
+                previous.velocitySetpoint()),
+            SparkUtil.ifOkOrDefault(_motor, 
+                _encoder::getVelocity, 
+                previous.velocityRPM()),
+            SparkUtil.ifOkOrDefault(_motor,
+                _motor::getAppliedOutput, 
+                previous.appliedVoltage())
             );       
     }
 
