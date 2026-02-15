@@ -17,9 +17,11 @@ import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.units.measure.AngularVelocity;
+import frc.robot.util.SparkUtil;
 
 public class FlywheelIOSpark  implements FlywheelIO {
     private final double kMaxAccelleration=20000;
+    private final int kMaxSparkAttempts=5;
 
     private final SparkBase _motor ;
     private final SparkBaseConfig _config;
@@ -38,8 +40,18 @@ public class FlywheelIOSpark  implements FlywheelIO {
         _config.closedLoop
                 .outputRange(0, 1)
                 .maxMotion.maxAcceleration(kMaxAccelleration);
-        // send the settings to the Spark
-        _motor.configure(_config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        // configure update rates for inputs we're reading
+        int updatePeriodMs= 20; // standard robot periodic rate
+        _config.signals
+            .primaryEncoderPositionAlwaysOn(true)
+            .primaryEncoderPositionPeriodMs(updatePeriodMs)
+            .appliedOutputPeriodMs(updatePeriodMs);
+
+// send the settings to the Spark
+SparkUtil.tryUntilOk(_motor,kMaxSparkAttempts, 
+    () -> _motor.configure(_config, 
+            ResetMode.kResetSafeParameters, 
+            PersistMode.kPersistParameters));
 
         _encoder = _motor.getEncoder();
         _controller = _motor.getClosedLoopController();
@@ -47,25 +59,32 @@ public class FlywheelIOSpark  implements FlywheelIO {
 
     @Override
     public void updateInputs(FlywheelIOInputs inputs) {
+        SparkUtil.sparkStickyFault=false;
+        FlywheelIOData previous =inputs.data;
         inputs.data = new FlywheelIOData(
-            _controller.getMAXMotionSetpointVelocity(),
-            _encoder.getVelocity(), 
-            _motor.getAppliedOutput()
+            SparkUtil.ifOkOrDefault(_motor, _controller::getMAXMotionSetpointVelocity, previous.velocitySetpoint()),
+            SparkUtil.ifOkOrDefault(_motor, _encoder::getVelocity, previous.velocityRPM()),
+            SparkUtil.ifOkOrDefault(_motor,_motor::getAppliedOutput, previous.appliedVoltage())
             );       
     }
 
     @Override
     public void setPid(double kP, double kI, double kD){
         _config.closedLoop.pid(kP,kI,kD);
-        _motor.configure(_config, ResetMode.kNoResetSafeParameters, 
-            PersistMode.kNoPersistParameters);
+        SparkUtil.tryUntilOk(_motor, kMaxSparkAttempts, 
+            () -> _motor.configure(_config, 
+                        ResetMode.kNoResetSafeParameters, 
+                        PersistMode.kNoPersistParameters)
+        );
     }
 
     @Override
     public void setSpeed(AngularVelocity speed){
-        _controller.setSetpoint(
-            speed.in(RPM),
-            ControlType.kMAXMotionVelocityControl);
+        SparkUtil.tryUntilOk(_motor, kMaxSparkAttempts,
+        () -> _controller.setSetpoint(
+                speed.in(RPM),
+                ControlType.kMAXMotionVelocityControl)
+        );
     }
 
 }

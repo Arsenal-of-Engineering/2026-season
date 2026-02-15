@@ -13,7 +13,7 @@ public interface FlywheelIO{
 
     record FlywheelIOData(
         double velocitySetpoint,
-        double velocityRadsPerSecond,
+        double velocityRPM,
         double appliedVoltage
     ){}
 
