@@ -67,6 +67,7 @@ public class RobotContainer {
   private SimpleMoveMotor m_aimingMotor = new SimpleMoveMotor(Constants.kAimingMotorCanId, -90 / Constants.kAimingDegreesPerRotation, 0 / Constants.kAimingDegreesPerRotation);
   private SimpleMoveMotor m_conveyorMotor = new SimpleMoveMotor(Constants.kConveyorMotorCanId);
   private SimpleMoveMotor m_feederMotor = new SimpleMoveMotor(Constants.kFeederMotorCanId);
+  private SimpleMoveMotor m_angleMotor = new SimpleMoveMotor(Constants.kAngleMotorCanId, -1, 1);
   private AimTurret m_aimTurret = new AimTurret(m_aimingMotor);
   private Joystick m_joystick = new Joystick(Constants.kJoystickId);
   private AimTarget m_aimTarget;
@@ -221,6 +222,8 @@ public class RobotContainer {
     joystickInstantToggle(6, () -> m_intakeMotor.set(-1), () -> m_intakeMotor.set(0));
     joystickInstantToggle(8, () -> m_pacerMotor.set(-1), () -> m_pacerMotor.set(0));
     joystickInstantToggle(10, () -> m_pacerMotor.set(-1), () -> m_pacerMotor.set(0));
+    joystickInstantToggle(7, () -> m_angleMotor.set(.05), () -> m_angleMotor.set(0));
+    joystickInstantToggle(8, () -> m_angleMotor.set(-.05), () -> m_angleMotor.set(0));
   }
 
   /**

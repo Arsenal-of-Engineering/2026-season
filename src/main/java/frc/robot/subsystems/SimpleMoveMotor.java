@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class SimpleMoveMotor extends SubsystemBase {
@@ -27,6 +28,11 @@ public class SimpleMoveMotor extends SubsystemBase {
         }
         //explode
         theMotor.set(speed);
+    }
+
+    @Override
+    public void periodic() {
+        SmartDashboard.putNumber("encoder " + theMotor.getDeviceId(), getEncoderPosition());
     }
 
     public double getEncoderPosition(){

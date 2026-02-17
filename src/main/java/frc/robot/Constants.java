@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.RobotBase;
 public final class Constants {
   public static final double kAimingDegreesPerRotation = 6.48;
   public static final int kAimingMotorCanId = 13;
+  public static final int kAngleMotorCanId = 15;
   public static final int kShooterMotorCanId = 11;
   public static final int kConveyorMotorCanId = 10;
   public static final int kIntakeMotorCanId = 9;
