@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import edu.wpi.first.math.util.Units;
+
 public class SolveTrajectoryPower {
   /**
    * Newton-Raphson solver for t in these equasions: <br>
@@ -17,7 +19,7 @@ public class SolveTrajectoryPower {
    * @param yPos [meters] vertical (driver station-to-driver station) position of the hub
    *     <strong>relative to the robot</strong>
    * @param yVel [m/s] vertical speed of the hub <strong>relative to the robot</strong>
-   * @return a double array with robot angle [degrees] at index 0 and shoot motor power [-1,1] at
+   * @return a double array with field relative turret angle [degrees] at index 0 and shoot motor velocity [rpm] at
    *     index 1
    */
   public static double[] calculate(double xPos, double xVel, double yPos, double yVel) {
@@ -44,22 +46,17 @@ public class SolveTrajectoryPower {
     double angle = Math.atan((yPos + yVel * t) / (xPos + xVel * t));
     if ((xPos + xVel * t) < 0) angle += Math.PI;
 
-    // calculated initial vertical velocity of the ball
+    // calculated initial vertical velocity [m/s] of the ball
     double velocity = 981 * t * t + 200 * (goalHeight - shooterHeight);
     velocity /= 200 * t;
+    
+    // convert into tangential velocity [m/s]
+    velocity /= Math.sin(a);
 
-    // distance the ball would have traveled before hitting the ground
-    double groundDistance =
-        10.0
-            / 981
-            / Math.tan(a)
-            * (10 * Math.pow(velocity, 2)
-                + Math.sqrt(
-                    2
-                        * (981 * shooterHeight * Math.pow(velocity, 2)
-                            + 50 * Math.pow(velocity, 4))));
-    double power = 0 /*regression line here */;
-    return new double[] {angle, power};
+    // convert m/s to rpm when diameter = 4 inches
+    double rpm = velocity / (Math.PI * Units.inchesToMeters(4)) / 60;
+    
+    return new double[] {angle, rpm};
   }
 
   private static double testingAngleToTime(double angle) {

@@ -26,8 +26,8 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.MoveArc;
+import frc.robot.commands.AimTarget;
 import frc.robot.commands.AimTurret;
-import frc.robot.subsystems.ShootMotors;
 import edu.wpi.first.wpilibj2.command.RepeatCommand;
 import frc.robot.subsystems.SimpleMoveMotor;
 import frc.robot.subsystems.OneWheelShooter;
@@ -50,7 +50,7 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 public class RobotContainer {
   // Subsystems
   private final Drive drive;
-  private final ShootMotors m_shootMotors = new ShootMotors();
+  // private final ShootMotors m_shootMotors = new ShootMotors();
   private QuestNavSubsystem m_questNav;
   private MoveArc m_leftArc, m_rightArc;
   private AimTurret m_rotate;
@@ -64,11 +64,12 @@ public class RobotContainer {
   private final LoggedDashboardChooser<Command> autoChooser;
   private SimpleMoveMotor m_intakeMotor = new SimpleMoveMotor(Constants.kIntakeMotorCanId);
   private SimpleMoveMotor m_pacerMotor = new SimpleMoveMotor(Constants.kPacerMotorCanId);
-  private SimpleMoveMotor m_aimingMotor = new SimpleMoveMotor(Constants.kAimingMotorCanId, -45 * Constants.kAimingDegreesPerRotation, 45 * Constants.kAimingDegreesPerRotation);
+  private SimpleMoveMotor m_aimingMotor = new SimpleMoveMotor(Constants.kAimingMotorCanId, -90 / Constants.kAimingDegreesPerRotation, 0 / Constants.kAimingDegreesPerRotation);
   private SimpleMoveMotor m_conveyorMotor = new SimpleMoveMotor(Constants.kConveyorMotorCanId);
   private SimpleMoveMotor m_feederMotor = new SimpleMoveMotor(Constants.kFeederMotorCanId);
   private AimTurret m_aimTurret = new AimTurret(m_aimingMotor);
   private Joystick m_joystick = new Joystick(Constants.kJoystickId);
+  private AimTarget m_aimTarget;
 
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
@@ -130,36 +131,39 @@ public class RobotContainer {
         "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
     autoChooser.addOption(
         "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+
+    m_aimTarget = new AimTarget(m_aimTurret, m_oneShootMotor, drive);
+
     // Configure the button bindings
     configureButtonBindings();
   }
 
   public double getYSpeed() {
-    if (m_leftArc.isScheduled()) {
-      return m_leftArc.getYSpeed();
-    }
-    if (m_rightArc.isScheduled()) {
-      return m_rightArc.getYSpeed();
-    }
+    // if (m_leftArc.isScheduled()) {
+    //   return m_leftArc.getYSpeed();
+    // }
+    // if (m_rightArc.isScheduled()) {
+    //   return m_rightArc.getYSpeed();
+    // }
 
     return -MathUtil.applyDeadband(controller.getLeftY(), .08);
   }
 
   public double getXSpeed() {
-    if (m_leftArc.isScheduled()) {
-      return m_leftArc.getXSpeed();
-    }
-    if (m_rightArc.isScheduled()) {
-      return m_rightArc.getXSpeed();
-    }
+    // if (m_leftArc.isScheduled()) {
+    //   return m_leftArc.getXSpeed();
+    // }
+    // if (m_rightArc.isScheduled()) {
+    //   return m_rightArc.getXSpeed();
+    // }
 
     return -MathUtil.applyDeadband(controller.getLeftX(), .08);
   }
 
   public double getRotSpeed() {
-    if (m_rotate.isScheduled()) {
-      return m_rotate.getSpeed();
-    }
+    // if (m_rotate.isScheduled()) {
+    //   return m_rotate.getSpeed();
+    // }
 
     return -controller.getRightX();
   }
@@ -192,6 +196,8 @@ public class RobotContainer {
     // controller.x().onFalse(Commands.runOnce(() -> m_shootMotors.shoot(0)));
     controller.leftBumper().whileTrue(new RepeatCommand(new InstantCommand(() -> m_aimingMotor.set(-.25))));
     controller.rightBumper().whileTrue(new RepeatCommand(new InstantCommand(() -> m_aimingMotor.set(.25))));
+    controller.leftBumper().onFalse(new RepeatCommand(new InstantCommand(() -> m_aimingMotor.set(0))));
+    controller.rightBumper().onFalse(new RepeatCommand(new InstantCommand(() -> m_aimingMotor.set(0))));
 
     controller.y().whileTrue(m_oneShootMotor.runSpeed(RPM.of(3000.0)));
 
@@ -206,12 +212,14 @@ public class RobotContainer {
                     drive)
                 .ignoringDisable(true));
 
+    controller.a().whileTrue(m_aimTarget);
+
     // configure joystick buttons (<1st arg>) to do <2nd arg> on press and <3rd arg> on release.
     joystickInstantToggle(1, () -> m_intakeMotor.set(1), () -> m_intakeMotor.set(0));
-    joystickInstantToggle(2, () -> {m_feederMotor.set(1); m_conveyorMotor.set(1);}, () -> {m_feederMotor.set(0); m_conveyorMotor.set(0);});
-    joystickInstantToggle(5, () -> {m_feederMotor.set(-1); m_conveyorMotor.set(-1);}, () -> {m_feederMotor.set(0); m_conveyorMotor.set(0);});
+    joystickInstantToggle(2, () -> {m_feederMotor.set(-1); m_conveyorMotor.set(1);}, () -> {m_feederMotor.set(0); m_conveyorMotor.set(0);});
+    joystickInstantToggle(5, () -> {m_feederMotor.set(1); m_conveyorMotor.set(-1);}, () -> {m_feederMotor.set(0); m_conveyorMotor.set(0);});
     joystickInstantToggle(6, () -> m_intakeMotor.set(-1), () -> m_intakeMotor.set(0));
-    joystickInstantToggle(8, () -> m_intakeMotor.set(-1), () -> m_intakeMotor.set(0));
+    joystickInstantToggle(8, () -> m_pacerMotor.set(-1), () -> m_pacerMotor.set(0));
     joystickInstantToggle(10, () -> m_pacerMotor.set(-1), () -> m_pacerMotor.set(0));
   }
 

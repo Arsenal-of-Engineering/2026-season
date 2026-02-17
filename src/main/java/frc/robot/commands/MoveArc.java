@@ -5,11 +5,11 @@ import frc.robot.subsystems.drive.Drive;
 
 public class MoveArc extends Command {
   private Drive m_drive;
-  private Rotate m_rotate;
+  private AimTurret m_rotate;
   private boolean right;
   private double xSpeed, ySpeed = 0;
 
-  public MoveArc(Drive drive, Rotate m_Rotate, boolean isRight) {
+  public MoveArc(Drive drive, AimTurret m_Rotate, boolean isRight) {
     m_drive = drive;
     m_rotate = m_Rotate;
     right = isRight;
@@ -30,6 +30,7 @@ public class MoveArc extends Command {
     xSpeed = -Math.sin(a) / 3 * (right ? -1 : 1);
     ySpeed = -Math.cos(a) / 3 * (right ? -1 : 1);
     System.out.println("lemme get uhh.. " + ySpeed + " and a uhm " + xSpeed);
+    
   }
 
   public double getXSpeed() {

@@ -16,6 +16,7 @@ public class SimpleMoveMotor extends SubsystemBase {
     }
 
     public void set(double speed) {
+        // don't move past encoder
         if (encoderRage != null){
             if (speed < 0 && theMotor.getAbsoluteEncoder().getPosition() < encoderRage[0]){
                 speed = 0;
