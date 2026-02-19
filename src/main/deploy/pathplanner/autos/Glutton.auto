@@ -9,12 +9,6 @@
           "data": {
             "commands": [
               {
-                "type": "named",
-                "data": {
-                  "name": "Shoot"
-                }
-              },
-              {
                 "type": "sequential",
                 "data": {
                   "commands": [
@@ -37,15 +31,22 @@
           }
         },
         {
-          "type": "path",
+          "type": "parallel",
           "data": {
-            "pathName": "Glutton Climb"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Climb"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Shoot"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Glutton Climb"
+                }
+              }
+            ]
           }
         }
       ]
