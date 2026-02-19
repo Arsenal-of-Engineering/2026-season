@@ -5,10 +5,12 @@ import com.revrobotics.spark.SparkMax;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 
 public class SimpleMoveMotor extends SubsystemBase {
     private SparkMax theMotor;
     private double[] encoderRage = null;
+    private double speed = 0;
     public SimpleMoveMotor(int id){theMotor = new SparkMax(id, MotorType.kBrushless);}
 
     public SimpleMoveMotor(int id, double encoderMin, double encoderMax){
@@ -16,27 +18,43 @@ public class SimpleMoveMotor extends SubsystemBase {
         encoderRage = new double[]{encoderMin,encoderMax};
     }
 
-    public void set(double speed) {
+    public void set(double newSpeed) {
         // don't move past encoder
         if (encoderRage != null){
-            if (speed < 0 && theMotor.getAbsoluteEncoder().getPosition() < encoderRage[0]){
-                speed = 0;
+            if (newSpeed < 0 && theMotor.getEncoder().getPosition() < encoderRage[0]){
+                newSpeed = 0;
             }
-            if (speed > 0 && theMotor.getAbsoluteEncoder().getPosition() > encoderRage[1]){
-                speed = 0;
+            if (newSpeed > 0 && theMotor.getEncoder().getPosition() > encoderRage[1]){
+                newSpeed = 0;
             }
         }
+        System.out.println("and I'm gooning it " + newSpeed + " times");
         //explode
-        theMotor.set(speed);
+        theMotor.set(newSpeed);
+        speed = newSpeed;
     }
 
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("encoder " + theMotor.getDeviceId(), getEncoderPosition());
+        if (theMotor.getDeviceId() == Constants.kAimingMotorCanId){
+            SmartDashboard.putNumber("encoder " + theMotor.getDeviceId(), getEncoderPosition() * Constants.kAimingDegreesPerRotation);
+        } else {
+            SmartDashboard.putNumber("encoder " + theMotor.getDeviceId(), getEncoderPosition());   
+        }
+        if (encoderRage != null){
+            if (speed < 0 && theMotor.getEncoder().getPosition() < encoderRage[0]){
+                speed = 0;
+                theMotor.set(0);
+            }
+            if (speed > 0 && theMotor.getEncoder().getPosition() > encoderRage[1]){
+                speed = 0;
+                theMotor.set(0);
+            }
+        }
     }
 
     public double getEncoderPosition(){
-        return theMotor.getAbsoluteEncoder().getPosition();
+        return theMotor.getEncoder().getPosition();
     }
 
     public double[] getEncoderRange(){

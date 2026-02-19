@@ -15,7 +15,7 @@ import edu.wpi.first.wpilibj.RobotBase;
  * (log replay from a file).
  */
 public final class Constants {
-  public static final double kAimingDegreesPerRotation = 6.48;
+  public static final double kAimingDegreesPerRotation = 4.86;
   public static final int kAimingMotorCanId = 13;
   public static final int kAngleMotorCanId = 15;
   public static final int kShooterMotorCanId = 11;

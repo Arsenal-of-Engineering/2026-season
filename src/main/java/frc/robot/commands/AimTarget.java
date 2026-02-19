@@ -39,6 +39,7 @@ public class AimTarget extends Command {
   }
 
   public void execute() {
+
     Pose2d robotPose = m_drive.getPose();
     
     double[] robotGoal = SolveTrajectoryPower.calculate(robotPose.getX(), robotPose.getY(), 0, 0);
@@ -46,10 +47,10 @@ public class AimTarget extends Command {
     AngularVelocity shooterVelocity = RPM.of(robotGoal[1]);
     //m_oneWheelShooter.setSpeed(shooterVelocity);
     SmartDashboard.putNumber("shooter vel", robotGoal[1]);
-
+  
     double turretTarget = robotGoal[0] - robotPose.getRotation().getDegrees();
     SmartDashboard.putNumber("turret deg", turretTarget);
-    //SmartDashboard.putBoolean("Turret Check", m_aimTurret.setTarget(turretTarget));
+    SmartDashboard.putBoolean("Turret Check", m_aimTurret.setTarget(-turretTarget));
 
     if (Math.abs(m_aimTurret.getRotation() - robotGoal[0]) < 7.5){
         SmartDashboard.putBoolean("Ready on Aim", true);

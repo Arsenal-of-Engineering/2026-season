@@ -2,6 +2,7 @@ package frc.robot.commands;
 
 import edu.wpi.first.epilogue.*;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
@@ -13,9 +14,9 @@ import frc.robot.subsystems.SimpleMoveMotor;
 import frc.robot.subsystems.drive.Drive;
 
 public class AimTurret extends Command {
-  private ProfiledPIDController profiledRotatePID =
-      new ProfiledPIDController(
-          .015, 0.015, 0.00005, new TrapezoidProfile.Constraints(1, .25), .02);
+  private PIDController rotatePID =
+      new PIDController(
+          .02, 0.0, 0.00, .02);
   private SimpleMoveMotor m_aimingMotor;
   /** Goal encoder value */
   private double target = 0;
@@ -31,22 +32,19 @@ public class AimTurret extends Command {
    * @return If the target was successfully changed
   */
   public boolean setTarget(double degrees) {
-    double targetEncoder = degrees / Constants.kAimingDegreesPerRotation;
-    if (m_aimingMotor.getEncoderRange() != null){
-      if (targetEncoder < m_aimingMotor.getEncoderRange()[0] || targetEncoder > m_aimingMotor.getEncoderRange()[1])
-        return false;
-    } else {
-      System.out.println("!!! Could not find encoder range for aiming motor. Continuing...");
-    }
+    double targetEncoder = degrees;
+    if (targetEncoder < -85 || targetEncoder > 0)
+      return false;
     
     target = targetEncoder;
     return true;
   }
 
   public void execute() {
-    double current = m_aimingMotor.getEncoderPosition();
+    System.out.println("im 6 feet from the edge");
+    double current = m_aimingMotor.getEncoderPosition() * Constants.kAimingDegreesPerRotation;
 
-    speed = MathUtil.clamp(profiledRotatePID.calculate(current, target), -1, 1);
+    speed = MathUtil.clamp(rotatePID.calculate(current, target), -1, 1);
 
     m_aimingMotor.set(speed);
   }
@@ -56,6 +54,6 @@ public class AimTurret extends Command {
   }
 
   public double getRotation(){
-    return m_aimingMotor.getEncoderPosition() / Constants.kAimingDegreesPerRotation;
+    return m_aimingMotor.getEncoderPosition() * Constants.kAimingDegreesPerRotation;
   }
 }

@@ -23,11 +23,15 @@ public class SolveTrajectoryPower {
    *     index 1
    */
   public static double[] calculate(double xPos, double xVel, double yPos, double yVel) {
-    double t1 = System.nanoTime();
-    double a = Math.PI / 3;
-    double shooterHeight = 1;
+    // hub position
+    xPos = 4.634 - xPos;
+    yPos = 4.029 - yPos;
+    long t1 = System.nanoTime();
+    double a = Math.PI / 2.5;
+    double shooterHeight = Units.inchesToMeters(27);
     double goalHeight = 2;
     double l = goalHeight - shooterHeight;
+
 
     // non-intertal shot duration calculation
     double guessV = 3 * Math.sqrt(109 * Math.tan(a) / 2) * Math.hypot(xPos, yPos);
@@ -38,13 +42,17 @@ public class SolveTrajectoryPower {
             * (Math.sqrt(2 * (50 * Math.pow(guessV, 2) - 981 * (goalHeight - shooterHeight)))
                 + 10 * guessV);
 
+
     double t = solve(guessT, a, xPos, yPos, xVel, yVel, l);
-    double t2 = System.nanoTime();
+    long t2 = System.nanoTime();
     System.out.println("t = " + t);
-    System.out.println((t2 - t1) / 1000000 + " ms");
+    System.out.println((t2 - t1) / 1000000.0 + " ms");
+
 
     double angle = Math.atan((yPos + yVel * t) / (xPos + xVel * t));
     if ((xPos + xVel * t) < 0) angle += Math.PI;
+
+    angle *= 180 / Math.PI;
 
     // calculated initial vertical velocity [m/s] of the ball
     double velocity = 981 * t * t + 200 * (goalHeight - shooterHeight);
@@ -54,7 +62,7 @@ public class SolveTrajectoryPower {
     velocity /= Math.sin(a);
 
     // convert m/s to rpm when diameter = 4 inches
-    double rpm = velocity / (Math.PI * Units.inchesToMeters(4)) / 60;
+    double rpm = velocity / (Math.PI * Units.inchesToMeters(4)) * 60;
     
     return new double[] {angle, rpm};
   }
@@ -102,6 +110,6 @@ public class SolveTrajectoryPower {
       x = xNew;
     }
 
-    throw new RuntimeException("Did not converge");
+    return x;
   }
 }

@@ -64,10 +64,10 @@ public class RobotContainer {
   private final LoggedDashboardChooser<Command> autoChooser;
   private SimpleMoveMotor m_intakeMotor = new SimpleMoveMotor(Constants.kIntakeMotorCanId);
   private SimpleMoveMotor m_pacerMotor = new SimpleMoveMotor(Constants.kPacerMotorCanId);
-  private SimpleMoveMotor m_aimingMotor = new SimpleMoveMotor(Constants.kAimingMotorCanId, -90 / Constants.kAimingDegreesPerRotation, 0 / Constants.kAimingDegreesPerRotation);
+  private SimpleMoveMotor m_aimingMotor = new SimpleMoveMotor(Constants.kAimingMotorCanId);
   private SimpleMoveMotor m_conveyorMotor = new SimpleMoveMotor(Constants.kConveyorMotorCanId);
   private SimpleMoveMotor m_feederMotor = new SimpleMoveMotor(Constants.kFeederMotorCanId);
-  private SimpleMoveMotor m_angleMotor = new SimpleMoveMotor(Constants.kAngleMotorCanId, -1, 1);
+  private SimpleMoveMotor m_angleMotor = new SimpleMoveMotor(Constants.kAngleMotorCanId);
   private AimTurret m_aimTurret = new AimTurret(m_aimingMotor);
   private Joystick m_joystick = new Joystick(Constants.kJoystickId);
   private AimTarget m_aimTarget;
@@ -213,7 +213,8 @@ public class RobotContainer {
                     drive)
                 .ignoringDisable(true));
 
-    controller.a().whileTrue(m_aimTarget);
+    controller.a().onTrue(new InstantCommand(() -> m_aimTurret.setTarget(m_aimTurret.getRotation())));
+    controller.a().whileTrue(m_aimTarget.alongWith(m_aimTurret));
 
     // configure joystick buttons (<1st arg>) to do <2nd arg> on press and <3rd arg> on release.
     joystickInstantToggle(1, () -> m_intakeMotor.set(1), () -> m_intakeMotor.set(0));
@@ -222,8 +223,9 @@ public class RobotContainer {
     joystickInstantToggle(6, () -> m_intakeMotor.set(-1), () -> m_intakeMotor.set(0));
     joystickInstantToggle(8, () -> m_pacerMotor.set(-1), () -> m_pacerMotor.set(0));
     joystickInstantToggle(10, () -> m_pacerMotor.set(-1), () -> m_pacerMotor.set(0));
-    joystickInstantToggle(7, () -> m_angleMotor.set(.05), () -> m_angleMotor.set(0));
-    joystickInstantToggle(8, () -> m_angleMotor.set(-.05), () -> m_angleMotor.set(0));
+    joystickInstantToggle(7, () -> m_angleMotor.set(.15), () -> m_angleMotor.set(0));
+    joystickInstantToggle(9, () -> m_angleMotor.set(-.15), () -> m_angleMotor.set(0));
+    joystickInstantToggle(11, () -> m_oneShootMotor.setSpeed(RPM.of(4000)), () -> m_oneShootMotor.setSpeed(RPM.of(0)));
   }
 
   /**
@@ -246,6 +248,8 @@ public class RobotContainer {
         "Intake", new InstantCommand(() -> System.out.println("im intaking fuel")));
     NamedCommands.registerCommand(
         "Climb", new InstantCommand(() -> System.out.println("surely there is a climb design")));
+    NamedCommands.registerCommand("Shoot", m_aimTurret);
+    NamedCommands.registerCommand("Intake, Conveyer, Feeder", new InstantCommand(() -> {m_conveyorMotor.set(1.0); m_feederMotor.set(-1);m_intakeMotor.set(1.0);}));
   }
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.

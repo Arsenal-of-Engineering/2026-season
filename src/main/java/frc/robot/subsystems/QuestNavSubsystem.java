@@ -17,8 +17,8 @@ import gg.questnav.questnav.QuestNav;
 
 public class QuestNavSubsystem extends SubsystemBase {
   QuestNav questNav;
-  final Transform3d ROBOT_TO_QUEST = new Transform3d(0.2, 0.2, 0, new Rotation3d(0, 0, 0));
-  final Transform3d QUEST_TO_ROBOT = new Transform3d(-0.2, -0.2, -0, new Rotation3d(0, 0, 0));
+  final Transform3d ROBOT_TO_QUEST = new Transform3d(9 * .0254, 9 * .0254, 0, new Rotation3d(0, 0, 0));
+  final Transform3d QUEST_TO_ROBOT = new Transform3d(-9 * .0254, -9 * .0254, -0, new Rotation3d(0, 0, 0));
   Drive driveSubsystem;
   final Matrix<N3, N1> QUESTNAV_STD_DEVS =
       VecBuilder.fill(
