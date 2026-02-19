@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -37,7 +38,7 @@ import frc.robot.subsystems.drive.GyroIONavX;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOSpark;
-import frc.robot.subsystems.drive.QuestNavSubsystem;
+import frc.robot.subsystems.QuestNavSubsystem;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -65,7 +66,7 @@ public class RobotContainer {
   private MoveMotors m_aimingMotor = new MoveMotors(Constants.kIntakeMotorCanId, -45 * Constants.kAimingDegreesPerRotation, 45 * Constants.kAimingDegreesPerRotation);
   private MoveMotors m_conveyorMotor = new MoveMotors(Constants.kConveyorMotorCanId);
   private MoveMotors m_feederMotor = new MoveMotors(Constants.kFeederMotorCanId);
-  private Joystick m_joystick = new Joystick(Constants.kJoystickId);
+  private CommandJoystick m_joystick = new CommandJoystick(Constants.kJoystickId);
 
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
@@ -202,23 +203,18 @@ public class RobotContainer {
                             new Pose2d(drive.getPose().getTranslation(), Rotation2d.kZero)),
                     drive)
                 .ignoringDisable(true));
-    new JoystickButton(m_joystick, 2)
-      .onTrue(new InstantCommand(() -> {m_feederMotor.move(1); m_conveyorMotor.move(1);}));
-       
-    new JoystickButton(m_joystick, 2)
-      .onFalse(new InstantCommand(() -> {m_feederMotor.move(0); m_conveyorMotor.move(0);}));
-    new JoystickButton(m_joystick, 1)
-      .onTrue(new InstantCommand(() -> m_intakeMotor.move(1)));
-    new JoystickButton(m_joystick, 1)
-      .onFalse(new InstantCommand(() -> m_intakeMotor.move(0)));
-    new JoystickButton(m_joystick, 5)
-      .onTrue(new InstantCommand(() -> {m_feederMotor.move(-1); m_conveyorMotor.move(1);}));
-    new JoystickButton(m_joystick, 5)
-      .onFalse(new InstantCommand(() -> {m_feederMotor.move(0); m_conveyorMotor.move(0);}));
-    new JoystickButton(m_joystick, 6)
-      .onTrue(new InstantCommand(() -> m_intakeMotor.move(-1)));
-    new JoystickButton(m_joystick, 6)
-      .onFalse(new InstantCommand(() -> m_intakeMotor.move(0)));
+    m_joystick.button(2)
+      .onTrue(Commands.runOnce(() -> {m_feederMotor.move(1); m_conveyorMotor.move(1);}))
+      .onFalse(Commands.runOnce(() -> {m_feederMotor.move(0); m_conveyorMotor.move(0);}));
+    m_joystick.button(1)
+      .onTrue(Commands.runOnce(() -> m_intakeMotor.move(1)))
+      .onFalse(Commands.runOnce(() -> m_intakeMotor.move(0)));
+    m_joystick.button(5)
+      .onTrue(Commands.runOnce(() -> {m_feederMotor.move(-1); m_conveyorMotor.move(1);}))
+      .onFalse(Commands.runOnce(() -> {m_feederMotor.move(0); m_conveyorMotor.move(0);}));
+    m_joystick.button(6)
+      .onTrue(Commands.runOnce(() -> m_intakeMotor.move(-1)))
+      .onFalse(Commands.runOnce(() -> m_intakeMotor.move(0)));
   }
 
   private void ConfigureNamedCommands() {
