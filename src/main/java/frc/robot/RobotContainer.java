@@ -13,10 +13,13 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -51,7 +54,7 @@ public class RobotContainer {
   // Subsystems
   private final Drive drive;
   // private final ShootMotors m_shootMotors = new ShootMotors();
-  private QuestNavSubsystem m_questNav;
+  private static QuestNavSubsystem m_questNav;
   private MoveArc m_leftArc, m_rightArc;
   private AimTurret m_rotate;
   
@@ -75,7 +78,9 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
+
     ConfigureNamedCommands();
+
     switch (Constants.currentMode) {
       case REAL:
         // Real robot, instantiate hardware IO implementations
@@ -248,8 +253,14 @@ public class RobotContainer {
         "Intake", new InstantCommand(() -> System.out.println("im intaking fuel")));
     NamedCommands.registerCommand(
         "Climb", new InstantCommand(() -> System.out.println("surely there is a climb design")));
+
     NamedCommands.registerCommand("Shoot", m_aimTurret);
-    NamedCommands.registerCommand("Intake, Conveyer, Feeder", new InstantCommand(() -> {m_conveyorMotor.set(1.0); m_feederMotor.set(-1);m_intakeMotor.set(1.0);}));
+    NamedCommands.registerCommand("Intake", new InstantCommand(() -> {m_conveyorMotor.set(1.0); m_feederMotor.set(-1);m_intakeMotor.set(1.0);}));
+  }
+
+  public static void resetQuestPose(Pose2d pose){
+
+    m_questNav.resetPose(new Pose3d(pose));
   }
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
@@ -257,6 +268,11 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return autoChooser.get();
-  }
+    var alliance = DriverStation.getAlliance();
+    return autoChooser.get().handleInterrupt(
+        () -> {
+                DriveCommands.joystickDrive(drive, 0, 0, 0);
+                
+        });
+    }
 }

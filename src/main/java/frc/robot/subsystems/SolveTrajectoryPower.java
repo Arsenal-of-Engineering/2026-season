@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class SolveTrajectoryPower {
   /**
@@ -63,6 +64,9 @@ public class SolveTrajectoryPower {
 
     // convert m/s to rpm when diameter = 4 inches
     double rpm = velocity / (Math.PI * Units.inchesToMeters(4)) * 60;
+
+    double distance = Math.hypot((yPos + yVel * t), (xPos + xVel * t));
+    SmartDashboard.putNumber("distance to hub", distance);
     
     return new double[] {angle, rpm};
   }
