@@ -226,7 +226,7 @@ public class RobotContainer {
     joystickInstantToggle(2, () -> {m_feederMotor.set(-1); m_conveyorMotor.set(1);}, () -> {m_feederMotor.set(0); m_conveyorMotor.set(0);});
     joystickInstantToggle(5, () -> {m_feederMotor.set(1); m_conveyorMotor.set(-1);}, () -> {m_feederMotor.set(0); m_conveyorMotor.set(0);});
     joystickInstantToggle(6, () -> m_intakeMotor.set(-1), () -> m_intakeMotor.set(0));
-    joystickInstantToggle(8, () -> m_pacerMotor.set(-1), () -> m_pacerMotor.set(0));
+    joystickInstantToggle(8, () -> m_pacerMotor.set(1), () -> m_pacerMotor.set(0));
     joystickInstantToggle(10, () -> m_pacerMotor.set(-1), () -> m_pacerMotor.set(0));
     joystickInstantToggle(7, () -> m_angleMotor.set(.15), () -> m_angleMotor.set(0));
     joystickInstantToggle(9, () -> m_angleMotor.set(-.15), () -> m_angleMotor.set(0));
