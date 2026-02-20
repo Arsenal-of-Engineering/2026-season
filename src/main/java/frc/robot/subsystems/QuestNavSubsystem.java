@@ -17,8 +17,8 @@ import gg.questnav.questnav.QuestNav;
 
 public class QuestNavSubsystem extends SubsystemBase {
   QuestNav questNav;
-  final Transform3d ROBOT_TO_QUEST = new Transform3d(0.2, 0.2, 0, new Rotation3d(0, 0, 0));
-  final Transform3d QUEST_TO_ROBOT = new Transform3d(-0.2, -0.2, -0, new Rotation3d(0, 0, 0));
+  final Transform3d ROBOT_TO_QUEST = new Transform3d(9 * .0254, 9 * .0254, 0, new Rotation3d(0, 0, 0));
+  final Transform3d QUEST_TO_ROBOT = new Transform3d(-9 * .0254, -9 * .0254, -0, new Rotation3d(0, 0, 0));
   Drive driveSubsystem;
   final Matrix<N3, N1> QUESTNAV_STD_DEVS =
       VecBuilder.fill(
@@ -32,14 +32,13 @@ public class QuestNavSubsystem extends SubsystemBase {
     questNav = new QuestNav();
     // Assume this is the requested reset pose
 
-    Pose3d robotPose = new Pose3d(0, 0, 0, new Rotation3d(0, 0, 0));
-    // System.out.println("\n-\n-\n-\n-\n-\n-\n-\n-\n-\n-\n-\n-\n-\n-\n-" +
-    // robotPose.getRotation());
-    resetPose(robotPose);
+    // Pose3d robotPose = new Pose3d(0, 0, 0, new Rotation3d(0, 0, 0));
+    // // System.out.println("\n-\n-\n-\n-\n-\n-\n-\n-\n-\n-\n-\n-\n-\n-\n-" +
+    // // robotPose.getRotation());
+    // resetPose(robotPose);
   }
 
   public void resetPose(Pose3d newPose) {
-    System.out.println("sigma " + ROBOT_TO_QUEST.getRotation());
     Pose3d newerPose = newPose.transformBy(ROBOT_TO_QUEST);
     if (questNav == null) {
       System.out.println("quest not found (rs)");
