@@ -43,6 +43,7 @@ public class AimTarget extends Command {
     }
     rpmSelection.setDefaultOption("" + 4000, 4000);
     rpmSelection.close();
+    SmartDashboard.putData("rpm chooser", rpmSelection);
   }
 
   public void execute() {

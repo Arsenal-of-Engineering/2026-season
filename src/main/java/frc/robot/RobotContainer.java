@@ -208,15 +208,15 @@ public class RobotContainer {
     controller.y().whileTrue(m_oneShootMotor.runSpeed(RPM.of(3000.0)));
 
     // Reset gyro to 0° when B button is pressed
-    controller
-        .b()
-        .onTrue(
-            Commands.runOnce(
-                    () ->
-                        drive.setPose(
-                            new Pose2d(drive.getPose().getTranslation(), Rotation2d.kZero)),
-                    drive)
-                .ignoringDisable(true));
+    // controller
+    //     .b()
+    //     .onTrue(
+    //         Commands.runOnce(
+    //                 () ->
+    //                     drive.setPose(
+    //                         new Pose2d(drive.getPose().getTranslation(), Rotation2d.kZero)),
+    //                 drive)
+    //             .ignoringDisable(true));
 
     controller.a().onTrue(new InstantCommand(() -> m_aimTurret.setTarget(m_aimTurret.getRotation())));
     controller.a().whileTrue(m_aimTarget.alongWith(m_aimTurret));
@@ -256,6 +256,7 @@ public class RobotContainer {
 
     NamedCommands.registerCommand("Shoot", m_aimTurret);
     NamedCommands.registerCommand("Intake", new InstantCommand(() -> {m_conveyorMotor.set(1.0); m_feederMotor.set(-1);m_intakeMotor.set(1.0);}));
+    NamedCommands.registerCommand("Process", new InstantCommand(() -> {m_conveyorMotor.set(1.0);m_feederMotor.set(-1);}));
   }
 
   public static void resetQuestPose(Pose2d pose){

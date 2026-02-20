@@ -25,8 +25,8 @@ public class SolveTrajectoryPower {
    */
   public static double[] calculate(double xPos, double xVel, double yPos, double yVel) {
     // hub position
-    xPos = 4.634 - xPos;
-    yPos = 4.029 - yPos;
+    xPos = 4.029 - xPos;
+    yPos =  4.634 - yPos;
     long t1 = System.nanoTime();
     double a = Math.PI / 2.5;
     double shooterHeight = Units.inchesToMeters(27);

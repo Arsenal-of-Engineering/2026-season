@@ -9,22 +9,22 @@ import frc.robot.Constants;
 
 public class SimpleMoveMotor extends SubsystemBase {
     private SparkMax theMotor;
-    private double[] encoderRage = null;
+    private double[] encoderRange = null;
     private double speed = 0;
     public SimpleMoveMotor(int id){theMotor = new SparkMax(id, MotorType.kBrushless);}
 
     public SimpleMoveMotor(int id, double encoderMin, double encoderMax){
         theMotor = new SparkMax(id, MotorType.kBrushless);
-        encoderRage = new double[]{encoderMin,encoderMax};
+        encoderRange = new double[]{encoderMin,encoderMax};
     }
 
     public void set(double newSpeed) {
         // don't move past encoder
-        if (encoderRage != null){
-            if (newSpeed < 0 && theMotor.getEncoder().getPosition() < encoderRage[0]){
+        if (encoderRange != null){
+            if (newSpeed < 0 && theMotor.getEncoder().getPosition() < encoderRange[0]){
                 newSpeed = 0;
             }
-            if (newSpeed > 0 && theMotor.getEncoder().getPosition() > encoderRage[1]){
+            if (newSpeed > 0 && theMotor.getEncoder().getPosition() > encoderRange[1]){
                 newSpeed = 0;
             }
         }
@@ -41,12 +41,12 @@ public class SimpleMoveMotor extends SubsystemBase {
         } else {
             SmartDashboard.putNumber("encoder " + theMotor.getDeviceId(), getEncoderPosition());   
         }
-        if (encoderRage != null){
-            if (speed < 0 && theMotor.getEncoder().getPosition() < encoderRage[0]){
+        if (encoderRange != null){
+            if (speed < 0 && theMotor.getEncoder().getPosition() < encoderRange[0]){
                 speed = 0;
                 theMotor.set(0);
             }
-            if (speed > 0 && theMotor.getEncoder().getPosition() > encoderRage[1]){
+            if (speed > 0 && theMotor.getEncoder().getPosition() > encoderRange[1]){
                 speed = 0;
                 theMotor.set(0);
             }
@@ -58,6 +58,6 @@ public class SimpleMoveMotor extends SubsystemBase {
     }
 
     public double[] getEncoderRange(){
-        return encoderRage;
+        return encoderRange;
     }
 }
