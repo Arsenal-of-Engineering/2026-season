@@ -38,13 +38,14 @@ public class QuestNavSubsystem extends SubsystemBase {
     // resetPose(robotPose);
   }
 
-  public void resetPose(Pose3d newPose) {
-    Pose3d newerPose = newPose.transformBy(ROBOT_TO_QUEST);
+  public void resetPose(Pose2d newPose) {
+    Pose2d flippedPose = new Pose2d(newPose.getX(), -newPose.getY(), newPose.getRotation());
+    Pose3d setPose = new Pose3d(flippedPose).transformBy(ROBOT_TO_QUEST);
     if (questNav == null) {
       System.out.println("quest not found (rs)");
       return;
     }
-    questNav.setPose(newerPose);
+    questNav.setPose(setPose);
   }
 
   @Override

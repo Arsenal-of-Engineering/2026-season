@@ -167,9 +167,9 @@ public class RobotContainer {
   }
 
   public double getRotSpeed() {
-    // if (m_rotate.isScheduled()) {
-    //   return m_rotate.getSpeed();
-    // }
+    if (m_aimTarget.isScheduled() && m_aimTarget.isRotationCorrecting()) {
+      return m_aimTarget.getCorrectionSpeed();
+    }
 
     return -controller.getRightX();
   }
@@ -221,6 +221,8 @@ public class RobotContainer {
     controller.a().onTrue(new InstantCommand(() -> m_aimTurret.setTarget(m_aimTurret.getRotation())));
     controller.a().whileTrue(m_aimTarget.alongWith(m_aimTurret));
 
+    
+
     // configure joystick buttons (<1st arg>) to do <2nd arg> on press and <3rd arg> on release.
     joystickInstantToggle(1, () -> m_intakeMotor.set(1), () -> m_intakeMotor.set(0));
     joystickInstantToggle(2, () -> {m_feederMotor.set(-1); m_conveyorMotor.set(1);}, () -> {m_feederMotor.set(0); m_conveyorMotor.set(0);});
@@ -261,7 +263,7 @@ public class RobotContainer {
 
   public static void resetQuestPose(Pose2d pose){
 
-    m_questNav.resetPose(new Pose3d(pose));
+    m_questNav.resetPose(pose);
   }
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.

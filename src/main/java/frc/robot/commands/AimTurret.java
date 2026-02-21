@@ -52,8 +52,15 @@ public class AimTurret extends Command {
   public double getSpeed() {
     return speed;
   }
-
+  /**
+   * @return the rotation of the turret in degrees (-90,0)
+   */
   public double getRotation(){
     return m_aimingMotor.getEncoderPosition() * Constants.kAimingDegreesPerRotation;
+  }
+
+  @Override
+  public void end(boolean interrupted) {
+      m_aimingMotor.set(0);
   }
 }

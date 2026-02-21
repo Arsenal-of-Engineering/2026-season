@@ -6,6 +6,7 @@ import static frc.robot.subsystems.drive.DriveConstants.robotMOI;
 
 import edu.wpi.first.epilogue.*;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -24,6 +25,7 @@ import frc.robot.subsystems.OneWheelShooter;
 import frc.robot.subsystems.SimpleMoveMotor;
 import frc.robot.subsystems.SolveTrajectoryPower;
 import frc.robot.subsystems.drive.Drive;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 /**
  * Uses the robots position and velocity to calculate and set a shooting angle for the turret, then start shooting when locked
  */
@@ -32,13 +34,19 @@ public class AimTarget extends Command {
   private Drive m_drive;
   private OneWheelShooter m_oneWheelShooter;
   private SendableChooser<Integer> rpmSelection = new SendableChooser<>();
+  private boolean isRotationCorrection = false;
+  private double turretTarget = 0;
+  private PIDController rotatePID =
+      new PIDController(
+          .02, 0.0, 0.00, .02);
 
   public AimTarget(AimTurret aimTurret, OneWheelShooter oneWheelShooter, Drive drive) {
+    rotatePID.setSetpoint(-45);
     m_aimTurret = aimTurret;
     m_oneWheelShooter = oneWheelShooter;
     m_drive = drive;
     addRequirements(m_oneWheelShooter);
-    for(int i = 4000; i <= 20000; i+= 1000){
+    for(int i = 2000; i <= 7000; i+= 500){
       rpmSelection.addOption("" + i, i);
     }
     rpmSelection.setDefaultOption("" + 4000, 4000);
@@ -49,8 +57,12 @@ public class AimTarget extends Command {
   public void execute() {
 
     Pose2d robotPose = m_drive.getPose();
+
+    ChassisSpeeds chassisSpeeds = m_drive.getChassisSpeeds();
     
-    double[] robotGoal = SolveTrajectoryPower.calculate(robotPose.getX(), robotPose.getY(), 0, 0);
+    SmartDashboard.putNumber("vx", chassisSpeeds.vxMetersPerSecond);
+    SmartDashboard.putNumber("vy", chassisSpeeds.vyMetersPerSecond);
+    double[] robotGoal = SolveTrajectoryPower.calculate(robotPose.getX(), chassisSpeeds.vxMetersPerSecond, robotPose.getY(), chassisSpeeds.vyMetersPerSecond);
 
     AngularVelocity shooterVelocity = RPM.of(robotGoal[1]);
     m_oneWheelShooter.setSpeed(RPM.of(rpmSelection.getSelected()));
@@ -58,9 +70,11 @@ public class AimTarget extends Command {
     
     SmartDashboard.putNumber("shooter vel", robotGoal[1]);
   
-    double turretTarget = robotGoal[0] - robotPose.getRotation().getDegrees();
+    turretTarget = robotGoal[0] - robotPose.getRotation().getDegrees();
     SmartDashboard.putNumber("turret deg", turretTarget);
-    SmartDashboard.putBoolean("Turret Check", m_aimTurret.setTarget(-turretTarget));
+    
+    isRotationCorrection = !m_aimTurret.setTarget(-turretTarget);
+    
 
     if (Math.abs(m_aimTurret.getRotation() - robotGoal[0]) < 7.5){
         SmartDashboard.putBoolean("Ready on Aim", true);
@@ -70,7 +84,16 @@ public class AimTarget extends Command {
     
   }
 
+  public double getCorrectionSpeed(){
+    if (!isRotationCorrection) return 0.0;
+    return rotatePID.calculate(turretTarget);
+  }
+
   public void end(boolean interrupted){
     m_oneWheelShooter.setSpeed(RPM.of(0));
+  }
+
+  public boolean isRotationCorrecting(){
+    return isRotationCorrection;
   }
 }

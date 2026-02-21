@@ -25,8 +25,8 @@ public class SolveTrajectoryPower {
    */
   public static double[] calculate(double xPos, double xVel, double yPos, double yVel) {
     // hub position
-    xPos = 4.029 - xPos;
-    yPos =  4.634 - yPos;
+    xPos =  4.634 - xPos;
+    yPos = 4.029 - yPos;
     long t1 = System.nanoTime();
     double a = Math.PI / 2.5;
     double shooterHeight = Units.inchesToMeters(27);
@@ -49,8 +49,8 @@ public class SolveTrajectoryPower {
     System.out.println("t = " + t);
     System.out.println((t2 - t1) / 1000000.0 + " ms");
 
-
-    double angle = Math.atan((yPos + yVel * t) / (xPos + xVel * t));
+    
+    double angle = Math.atan((yPos + yVel * t) / -(xPos + xVel * t));
     if ((xPos + xVel * t) < 0) angle += Math.PI;
 
     angle *= 180 / Math.PI;
@@ -65,6 +65,8 @@ public class SolveTrajectoryPower {
     // convert m/s to rpm when diameter = 4 inches
     double rpm = velocity / (Math.PI * Units.inchesToMeters(4)) * 60;
 
+    System.out.println("I think im " + xPos + " when 4-y");
+    System.out.println("I think im " + yPos + " when 4.6-x");
     double distance = Math.hypot((yPos + yVel * t), (xPos + xVel * t));
     SmartDashboard.putNumber("distance to hub", distance);
     
@@ -78,7 +80,7 @@ public class SolveTrajectoryPower {
   private static double f(
       double x, double a, double xPos, double yPos, double xVel, double yVel, double l) {
     double left = Math.tan(a) * Math.hypot(xPos + xVel * x, yPos + yVel * x);
-    double right = 4.905 * Math.pow(x - testingAngleToTime(1), 2) + l;
+    double right = 4.905 * Math.pow(x, 2) + l;
     return left - right;
   }
 
