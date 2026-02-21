@@ -33,6 +33,7 @@ public class AimTarget extends Command {
   private AimTurret m_aimTurret;
   private Drive m_drive;
   private OneWheelShooter m_oneWheelShooter;
+  private SimpleMoveMotor m_pacerMotor;
   private SendableChooser<Integer> rpmSelection = new SendableChooser<>();
   private boolean isRotationCorrection = false;
   private double turretTarget = 0;
@@ -40,7 +41,8 @@ public class AimTarget extends Command {
       new PIDController(
           .02, 0.0, 0.00, .02);
 
-  public AimTarget(AimTurret aimTurret, OneWheelShooter oneWheelShooter, Drive drive) {
+  public AimTarget(SimpleMoveMotor pacerMotor, AimTurret aimTurret, OneWheelShooter oneWheelShooter, Drive drive) {
+    m_pacerMotor = pacerMotor;
     rotatePID.setSetpoint(-45);
     m_aimTurret = aimTurret;
     m_oneWheelShooter = oneWheelShooter;
@@ -62,7 +64,7 @@ public class AimTarget extends Command {
     
     SmartDashboard.putNumber("vx", chassisSpeeds.vxMetersPerSecond);
     SmartDashboard.putNumber("vy", chassisSpeeds.vyMetersPerSecond);
-    double[] robotGoal = SolveTrajectoryPower.calculate(robotPose.getX(), chassisSpeeds.vxMetersPerSecond, robotPose.getY(), chassisSpeeds.vyMetersPerSecond);
+    double[] robotGoal = SolveTrajectoryPower.calculate(robotPose.getX(), chassisSpeeds.vyMetersPerSecond, robotPose.getY(), chassisSpeeds.vxMetersPerSecond);
 
     AngularVelocity shooterVelocity = RPM.of(robotGoal[1]);
     m_oneWheelShooter.setSpeed(RPM.of(rpmSelection.getSelected()));
@@ -76,8 +78,9 @@ public class AimTarget extends Command {
     isRotationCorrection = !m_aimTurret.setTarget(-turretTarget);
     
 
-    if (Math.abs(m_aimTurret.getRotation() - robotGoal[0]) < 7.5){
+    if (Math.abs(m_aimTurret.getRotation() + turretTarget) < 7.5){
         SmartDashboard.putBoolean("Ready on Aim", true);
+        m_pacerMotor.set(-1);
     } else {
         SmartDashboard.putBoolean("Ready on Aim", false);
     }
@@ -91,6 +94,7 @@ public class AimTarget extends Command {
 
   public void end(boolean interrupted){
     m_oneWheelShooter.setSpeed(RPM.of(0));
+    m_pacerMotor.set(0);
   }
 
   public boolean isRotationCorrecting(){

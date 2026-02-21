@@ -6,6 +6,7 @@ import com.revrobotics.PersistMode;
 import com.revrobotics.ResetMode;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkClosedLoopController;
+import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
@@ -21,7 +22,7 @@ public class OneWheelShooter extends SubsystemBase {
   private final double kD = 0;
   private final double kV = 0.00014; // FeedFoward
   private final double maxAcc = 20000.0;
-  private SparkMax shootMotor = new SparkMax(Constants.kShooterMotorCanId, MotorType.kBrushless);
+  private SparkFlex shootMotor = new SparkFlex(Constants.kShooterMotorCanId, MotorType.kBrushless);
   private SparkClosedLoopController shootMotorPID = shootMotor.getClosedLoopController();
 
   public OneWheelShooter() {

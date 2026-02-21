@@ -13,6 +13,12 @@
         {
           "type": "named",
           "data": {
+            "name": "Hood Down"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
             "name": "Process"
           }
         },
@@ -20,6 +26,25 @@
           "type": "named",
           "data": {
             "name": "Shoot"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Aim"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Shoot"
+                }
+              }
+            ]
           }
         }
       ]

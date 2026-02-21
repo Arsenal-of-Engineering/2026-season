@@ -24,7 +24,7 @@ public class QuestNavSubsystem extends SubsystemBase {
       VecBuilder.fill(
           0.01, // Trust down to 1cm in X direction
           0.01, // Trust down to 1cm in Y direction
-          180 // Trust down to 2 degrees rotational
+          .2 // Trust down to 2 degrees rotational
           );
 
   public QuestNavSubsystem(/*maybe add robot pose info here */ Drive driveSubsystem) {
@@ -39,7 +39,7 @@ public class QuestNavSubsystem extends SubsystemBase {
   }
 
   public void resetPose(Pose2d newPose) {
-    Pose2d flippedPose = new Pose2d(newPose.getX(), -newPose.getY(), newPose.getRotation());
+    Pose2d flippedPose = new Pose2d(newPose.getX(), newPose.getY(), newPose.getRotation());
     Pose3d setPose = new Pose3d(flippedPose).transformBy(ROBOT_TO_QUEST);
     if (questNav == null) {
       System.out.println("quest not found (rs)");
@@ -76,7 +76,7 @@ public class QuestNavSubsystem extends SubsystemBase {
         Pose3d robotPose = questPose.transformBy(QUEST_TO_ROBOT);
 
         Pose2d realRobotPose =
-            new Pose2d(robotPose.getX(), -robotPose.getY(), robotPose.getRotation().toRotation2d());
+            new Pose2d(robotPose.getX(), robotPose.getY(), robotPose.getRotation().toRotation2d());
 
         // Add the measurement to our estimator
         driveSubsystem.addVisionMeasurement(realRobotPose, timestamp, QUESTNAV_STD_DEVS);

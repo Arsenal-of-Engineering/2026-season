@@ -50,7 +50,7 @@ public class SolveTrajectoryPower {
     System.out.println((t2 - t1) / 1000000.0 + " ms");
 
     
-    double angle = Math.atan((yPos + yVel * t) / -(xPos + xVel * t));
+    double angle = Math.atan((yPos + yVel * t) / (xPos + xVel * t));
     if ((xPos + xVel * t) < 0) angle += Math.PI;
 
     angle *= 180 / Math.PI;
