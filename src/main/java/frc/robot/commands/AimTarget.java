@@ -10,6 +10,9 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.AngularVelocityUnit;
 import edu.wpi.first.units.Units;
@@ -26,6 +29,7 @@ import frc.robot.subsystems.SimpleMoveMotor;
 import frc.robot.subsystems.SolveTrajectoryPower;
 import frc.robot.subsystems.drive.Drive;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.geometry.Transform2d;
 /**
  * Uses the robots position and velocity to calculate and set a shooting angle for the turret, then start shooting when locked
  */
@@ -40,6 +44,7 @@ public class AimTarget extends Command {
   private PIDController rotatePID =
       new PIDController(
           .02, 0.0, 0.00, .02);
+  final Transform2d ROBOT_TO_SHOOTER = new Transform2d(8 * .0254, -8 * .0254, new Rotation2d());
 
   public AimTarget(SimpleMoveMotor pacerMotor, AimTurret aimTurret, OneWheelShooter oneWheelShooter, Drive drive) {
     m_pacerMotor = pacerMotor;
@@ -64,7 +69,10 @@ public class AimTarget extends Command {
     
     SmartDashboard.putNumber("vx", chassisSpeeds.vxMetersPerSecond);
     SmartDashboard.putNumber("vy", chassisSpeeds.vyMetersPerSecond);
-    double[] robotGoal = SolveTrajectoryPower.calculate(robotPose.getX(), chassisSpeeds.vyMetersPerSecond, robotPose.getY(), chassisSpeeds.vxMetersPerSecond);
+
+    Pose2d turretPose = robotPose.transformBy(ROBOT_TO_SHOOTER);
+
+    double[] robotGoal = SolveTrajectoryPower.calculate(turretPose.getX(), chassisSpeeds.vyMetersPerSecond, turretPose.getY(), chassisSpeeds.vxMetersPerSecond);
 
     AngularVelocity shooterVelocity = RPM.of(robotGoal[1]);
     m_oneWheelShooter.setSpeed(RPM.of(rpmSelection.getSelected()));
