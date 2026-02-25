@@ -274,7 +274,7 @@ public class RobotContainer {
   }
 
   public static void resetQuestPose(Pose2d pose){
-
+    System.out.println("I'm reseting the " + m_questNav);
     m_questNav.resetPose(pose);
   }
   /**

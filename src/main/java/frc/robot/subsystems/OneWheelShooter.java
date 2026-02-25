@@ -28,7 +28,7 @@ public class OneWheelShooter extends SubsystemBase {
   public OneWheelShooter() {
     SparkMaxConfig config = new SparkMaxConfig();
     config.closedLoop.pid(kP, kI, kD)
-        .outputRange(0, 1)
+        .outputRange(-1, 1)
         .feedForward
         .kV(kV);
     config.idleMode(IdleMode.kCoast);
@@ -39,11 +39,11 @@ public class OneWheelShooter extends SubsystemBase {
 
   public Command runSpeed(AngularVelocity speed) {
     return startEnd(
-        () -> {shootMotorPID.setSetpoint(speed.in(RPM), ControlType.kMAXMotionVelocityControl);},
+        () -> {shootMotorPID.setSetpoint(-speed.in(RPM), ControlType.kMAXMotionVelocityControl);},
         () -> {shootMotorPID.setSetpoint(0.0, ControlType.kMAXMotionVelocityControl);});
   }
 
   public void setSpeed(AngularVelocity speed) {
-    shootMotorPID.setSetpoint(speed.in(RPM), ControlType.kMAXMotionVelocityControl);
+    shootMotorPID.setSetpoint(-speed.in(RPM), ControlType.kMAXMotionVelocityControl);
   }
 }

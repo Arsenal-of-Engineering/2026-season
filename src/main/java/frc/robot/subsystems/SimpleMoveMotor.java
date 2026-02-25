@@ -28,7 +28,7 @@ public class SimpleMoveMotor extends SubsystemBase {
                 newSpeed = 0;
             }
         }
-        System.out.println("and I'm gooning it " + newSpeed + " times");
+        // System.out.println("and I'm gooning it " + newSpeed + " times");
         //explode
         theMotor.set(newSpeed);
         speed = newSpeed;
@@ -36,11 +36,11 @@ public class SimpleMoveMotor extends SubsystemBase {
 
     @Override
     public void periodic() {
-        if (theMotor.getDeviceId() == Constants.kAimingMotorCanId){
-            SmartDashboard.putNumber("encoder " + theMotor.getDeviceId(), getEncoderPosition() * Constants.kAimingDegreesPerRotation);
-        } else {
-            SmartDashboard.putNumber("encoder " + theMotor.getDeviceId(), getEncoderPosition());   
-        }
+        // if (theMotor.getDeviceId() == Constants.kAimingMotorCanId){
+        //     SmartDashboard.putNumber("encoder " + theMotor.getDeviceId(), getEncoderPosition() * Constants.kAimingDegreesPerRotation);
+        // } else {
+        //     SmartDashboard.putNumber("encoder " + theMotor.getDeviceId(), getEncoderPosition());   
+        // }
         if (encoderRange != null){
             if (speed < 0 && theMotor.getEncoder().getPosition() < encoderRange[0]){
                 speed = 0;

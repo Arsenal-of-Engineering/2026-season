@@ -48,7 +48,7 @@ public class AimTarget extends Command {
     m_oneWheelShooter = oneWheelShooter;
     m_drive = drive;
     addRequirements(m_oneWheelShooter);
-    for(int i = 2000; i <= 7000; i+= 500){
+    for(int i = 2000; i <= 7000; i+= 250){
       rpmSelection.addOption("" + i, i);
     }
     rpmSelection.setDefaultOption("" + 4000, 4000);
