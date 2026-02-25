@@ -3,41 +3,32 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 6.598,
-        "y": 1.806
+        "x": 1.735,
+        "y": 3.445
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.882409638554217,
-        "y": 2.0570843373493983
+        "x": 1.5909143016646035,
+        "y": 4.4699068554535915
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 1.243481927710843,
-        "y": 5.958277108433736
+        "x": 1.4401807228915664,
+        "y": 5.980132530120482
       },
       "prevControl": {
-        "x": 1.4292530120481926,
-        "y": 3.3246987951807228
+        "x": 1.5407794726584982,
+        "y": 5.25257238161243
       },
       "nextControl": null,
       "isLocked": false,
       "linkedName": null
     }
   ],
-  "rotationTargets": [
-    {
-      "waypointRelativePos": 0.16812749003984206,
-      "rotationDegrees": 45.0
-    },
-    {
-      "waypointRelativePos": 0.48207171314741104,
-      "rotationDegrees": 45.0
-    }
-  ],
+  "rotationTargets": [],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],
@@ -54,10 +45,10 @@
     "rotation": 0.0
   },
   "reversed": false,
-  "folder": "RB Auto 2",
+  "folder": "Ryan' Auto 1",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 11.56
   },
   "useDefaultConstraints": true
 }

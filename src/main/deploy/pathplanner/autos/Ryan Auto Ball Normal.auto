@@ -7,7 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "RB Go Shoot 1"
+            "pathName": "RtB Go Shoot 1"
           }
         },
         {
@@ -19,7 +19,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "RB Ball Eat 1"
+            "pathName": "RtB Ball Eat 1"
           }
         },
         {
@@ -29,7 +29,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "RB Intake 1"
+                  "pathName": "RtB Intake 1"
                 }
               },
               {
@@ -50,7 +50,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "RB Climb 1"
+            "pathName": "RtB Climb 1"
           }
         }
       ]

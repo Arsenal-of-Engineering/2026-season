@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.642,
-        "y": 4.789
+        "x": 6.598,
+        "y": 1.806
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.0028433734939757,
-        "y": 4.8982891566265065
+        "x": 4.882409638554217,
+        "y": 2.0570843373493983
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 6.598060240963856,
-        "y": 6.144048192771083
+        "x": 1.243481927710843,
+        "y": 5.958277108433736
       },
       "prevControl": {
-        "x": 6.840129571891196,
-        "y": 6.206517697526525
+        "x": 1.4292530120481926,
+        "y": 3.3246987951807228
       },
       "nextControl": null,
       "isLocked": false,
@@ -30,11 +30,11 @@
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 0.2645161290322586,
+      "waypointRelativePos": 0.16812749003984206,
       "rotationDegrees": 45.0
     },
     {
-      "waypointRelativePos": 0.6458781362007193,
+      "waypointRelativePos": 0.48207171314741104,
       "rotationDegrees": 45.0
     }
   ],
@@ -51,10 +51,10 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 90.0
+    "rotation": 0.0
   },
   "reversed": false,
-  "folder": "RB Auto 2",
+  "folder": "Rhyhan' Auto 2",
   "idealStartingState": {
     "velocity": 0,
     "rotation": 0.0

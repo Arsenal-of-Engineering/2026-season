@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.735,
-        "y": 3.445
+        "x": 7.545,
+        "y": 1.151
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.5909143016646035,
-        "y": 4.4699068554535915
+        "x": 7.695000357283165,
+        "y": 1.350999732037127
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 1.4401807228915664,
-        "y": 5.980132530120482
+        "x": 7.647,
+        "y": 2.872
       },
       "prevControl": {
-        "x": 1.5407794726584982,
-        "y": 5.25257238161243
+        "x": 7.668841606411627,
+        "y": 2.5006417575583386
       },
       "nextControl": null,
       "isLocked": false,
@@ -42,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": -90.0
   },
   "reversed": false,
-  "folder": "RB Auto 1",
+  "folder": "Right Baller",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 11.56
+    "rotation": -90.0
   },
   "useDefaultConstraints": true
 }

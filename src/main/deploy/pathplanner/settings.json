@@ -4,10 +4,12 @@
   "holonomicMode": true,
   "pathFolders": [
     "Left (Glutton)",
-    "Sussex",
-    "RB Auto 1",
-    "RB Auto 2",
-    "Right Moves"
+    "Left Baller",
+    "Ryan' Auto 1",
+    "Rhyhan' Auto 2",
+    "Right Baller",
+    "Right Moves",
+    "Sussex"
   ],
   "autoFolders": [],
   "defaultMaxVel": 3.0,

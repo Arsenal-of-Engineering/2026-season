@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.6912891566265067,
-        "y": 5.258903614457831
+        "x": 1.243,
+        "y": 5.958
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.9581181710510456,
-        "y": 5.3765842001024895
+        "x": 1.3680448245875652,
+        "y": 5.27881700853973
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 2.6422289156626504,
-        "y": 4.789012048192771
+        "x": 1.560385542168675,
+        "y": 4.384686746987952
       },
       "prevControl": {
-        "x": 2.8698096609125217,
-        "y": 4.8924867039859326
+        "x": 1.5093048384235426,
+        "y": 4.646460797268434
       },
       "nextControl": null,
       "isLocked": false,
@@ -45,7 +45,7 @@
     "rotation": 0.0
   },
   "reversed": false,
-  "folder": "RB Auto 2",
+  "folder": "Rhyhan' Auto 2",
   "idealStartingState": {
     "velocity": 0,
     "rotation": 0.0
