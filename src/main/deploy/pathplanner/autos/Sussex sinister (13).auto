@@ -13,12 +13,6 @@
         {
           "type": "named",
           "data": {
-            "name": "Hood Down"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
             "name": "Process"
           }
         },

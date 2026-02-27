@@ -113,4 +113,7 @@ public class AimTarget extends Command {
   public boolean isRotationCorrecting(){
     return isRotationCorrection;
   }
+  public AngularVelocity getRPMSelection(){
+    return RPM.of(rpmSelection.getSelected());
+  }
 }
