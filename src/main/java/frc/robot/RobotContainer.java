@@ -75,7 +75,7 @@ public class RobotContainer {
   private SimpleMoveMotor m_conveyorMotor = new SimpleMoveMotor(Constants.kConveyorMotorCanId);
   private SimpleMoveMotor m_feederMotor = new SimpleMoveMotor(Constants.kFeederMotorCanId);
   private SimpleMoveMotor m_angleMotor = new SimpleMoveMotor(Constants.kAngleMotorCanId);
-  private AimTurret m_aimTurret = new AimTurret(m_aimingMotor);
+  private AimTurret m_aimTurret = new AimTurret(m_aimingMotor, m_angleMotor);
   private Joystick m_joystick = new Joystick(Constants.kJoystickId);
   private AimTarget m_aimTarget;
 

@@ -44,7 +44,7 @@ public class AimTarget extends Command {
   private PIDController rotatePID =
       new PIDController(
           .02, 0.0, 0.00, .02);
-  final Transform2d ROBOT_TO_SHOOTER = new Transform2d(8 * .0254, -8 * .0254, new Rotation2d());
+  final Transform2d ROBOT_TO_SHOOTER = new Transform2d(8 * .0254, 8 * .0254, new Rotation2d());
 
   public AimTarget(SimpleMoveMotor pacerMotor, AimTurret aimTurret, OneWheelShooter oneWheelShooter, Drive drive) {
     m_pacerMotor = pacerMotor;
@@ -71,6 +71,8 @@ public class AimTarget extends Command {
     SmartDashboard.putNumber("vy", chassisSpeeds.vyMetersPerSecond);
 
     Pose2d turretPose = robotPose.transformBy(ROBOT_TO_SHOOTER);
+    SmartDashboard.putNumber("TurrX", turretPose.getX());
+    SmartDashboard.putNumber("TurrY", turretPose.getY());
 
     double[] robotGoal = SolveTrajectoryPower.calculate(turretPose.getX(), chassisSpeeds.vyMetersPerSecond, turretPose.getY(), chassisSpeeds.vxMetersPerSecond);
 
@@ -84,11 +86,14 @@ public class AimTarget extends Command {
     SmartDashboard.putNumber("turret deg", turretTarget);
     
     isRotationCorrection = !m_aimTurret.setTarget(-turretTarget);
+    m_aimTurret.setAngleTarget(robotGoal[2]);
     
 
     if (Math.abs(m_aimTurret.getRotation() + turretTarget) < 7.5){
         SmartDashboard.putBoolean("Ready on Aim", true);
-        m_pacerMotor.set(-1);
+        if (m_oneWheelShooter.isAtSetpoint()){
+          m_pacerMotor.set(-1);
+        }
     } else {
         SmartDashboard.putBoolean("Ready on Aim", false);
     }

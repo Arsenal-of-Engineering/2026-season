@@ -14,19 +14,17 @@ public class SolveTrajectoryPower {
    *   (4.905*t^2 + (goalHeight-shooterHeight))/tan(a)
    * </pre>
    *
-   * @param xPos [meters] horizontal (side-to-side) position of the hub <strong>relative to the
-   *     robot</strong>
-   * @param xVel [m/s] horizontal speed of the hub <strong>relative to the robot</strong>
+   * @param xPos [meters] horizontal (side-to-side) position of the hub
+   * @param xVel [m/s] horizontal speed of the hub
    * @param yPos [meters] vertical (driver station-to-driver station) position of the hub
-   *     <strong>relative to the robot</strong>
-   * @param yVel [m/s] vertical speed of the hub <strong>relative to the robot</strong>
-   * @return a double array with field relative turret angle [degrees] at index 0 and shoot motor velocity [rpm] at
-   *     index 1
+   * @param yVel [m/s] vertical speed of the hub
+   * @return a double array with field relative turret angle [degrees] at index 0, shoot motor velocity [rpm] at
+   *     index 1, and angle motor encoder at index 2
    */
   public static double[] calculate(double xPos, double xVel, double yPos, double yVel) {
     // hub position
     xPos =  4.634 - xPos;
-    yPos = 4.029 - yPos;
+    yPos = 4 - yPos;
     long t1 = System.nanoTime();
     double a = Math.PI / 2.5;
     double shooterHeight = Units.inchesToMeters(27);
@@ -55,27 +53,36 @@ public class SolveTrajectoryPower {
 
     angle *= 180 / Math.PI;
 
-    // calculated initial vertical velocity [m/s] of the ball
-    double velocity = 981 * t * t + 200 * (goalHeight - shooterHeight);
-    velocity /= 200 * t;
+    // // calculated initial vertical velocity [m/s] of the ball
+    // double velocity = 981 * t * t + 200 * (goalHeight - shooterHeight);
+    // velocity /= 200 * t;
     
-    // convert into tangential velocity [m/s]
-    velocity /= Math.sin(a);
+    // // convert into tangential velocity [m/s]
+    // velocity /= Math.sin(a);
 
-    // convert m/s to rpm when diameter = 4 inches
-    double rpm = velocity / (Math.PI * Units.inchesToMeters(4)) * 60;
+    // // convert m/s to rpm when diameter = 4 inches
+    // double rpm = velocity / (Math.PI * Units.inchesToMeters(4)) * 60;
 
-    System.out.println("I think im " + xPos + " when 4-y");
-    System.out.println("I think im " + yPos + " when 4.6-x");
     double distance = Math.hypot((yPos + yVel * t), (xPos + xVel * t));
     SmartDashboard.putNumber("distance to hub", distance);
+
+    // regression line from google sheets
+    double rpm = 411 * distance + 1989;
     
-    return new double[] {angle, rpm};
+    // (angle motor)
+    double churro = 0;
+    if (distance >= 2.5){
+      // regression line from google sheets
+        churro = 2.52*distance -1.16;
+    }
+
+    return new double[] {angle, rpm, churro};
   }
 
   private static double testingAngleToTime(double angle) {
     return 0.0;
   }
+
   // Function f(x)
   private static double f(
       double x, double a, double xPos, double yPos, double xVel, double yVel, double l) {
