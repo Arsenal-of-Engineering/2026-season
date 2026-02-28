@@ -19,6 +19,7 @@ import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.ImmutableAngularVelocity;
 import edu.wpi.first.wpilibj.AddressableLED;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 // import frc.robot.ShuffleboardInfo;
@@ -36,6 +37,7 @@ import edu.wpi.first.math.geometry.Transform2d;
 public class AimTarget extends Command {
   private AimTurret m_aimTurret;
   private Drive m_drive;
+  private Timer timer = new Timer();
   private OneWheelShooter m_oneWheelShooter;
   private SimpleMoveMotor m_pacerMotor;
   private SendableChooser<Integer> rpmSelection = new SendableChooser<>();
@@ -53,6 +55,7 @@ public class AimTarget extends Command {
     m_oneWheelShooter = oneWheelShooter;
     m_drive = drive;
     addRequirements(m_oneWheelShooter);
+    addRequirements(m_pacerMotor);
     for(int i = 2000; i <= 7000; i+= 250){
       rpmSelection.addOption("" + i, i);
     }
@@ -60,7 +63,10 @@ public class AimTarget extends Command {
     rpmSelection.close();
     SmartDashboard.putData("rpm chooser", rpmSelection);
   }
-
+  @Override
+  public void initialize() {
+    timer.restart();
+  }
   public void execute() {
 
     Pose2d robotPose = m_drive.getPose();
@@ -74,11 +80,11 @@ public class AimTarget extends Command {
     SmartDashboard.putNumber("TurrX", turretPose.getX());
     SmartDashboard.putNumber("TurrY", turretPose.getY());
 
-    double[] robotGoal = SolveTrajectoryPower.calculate(turretPose.getX(), chassisSpeeds.vyMetersPerSecond, turretPose.getY(), chassisSpeeds.vxMetersPerSecond);
+    double[] robotGoal = SolveTrajectoryPower.calculate(turretPose.getX(), -chassisSpeeds.vxMetersPerSecond, turretPose.getY(), -chassisSpeeds.vyMetersPerSecond * 2);
 
     AngularVelocity shooterVelocity = RPM.of(robotGoal[1]);
-    m_oneWheelShooter.setSpeed(RPM.of(rpmSelection.getSelected()));
-    //m_oneWheelShooter.setSpeed(shooterVelocity);
+    //m_oneWheelShooter.setSpeed(RPM.of(rpmSelection.getSelected()));
+    m_oneWheelShooter.setSpeed(shooterVelocity);
     
     SmartDashboard.putNumber("shooter vel", robotGoal[1]);
   
@@ -91,7 +97,8 @@ public class AimTarget extends Command {
 
     if (Math.abs(m_aimTurret.getRotation() + turretTarget) < 7.5){
         SmartDashboard.putBoolean("Ready on Aim", true);
-        if (m_oneWheelShooter.isAtSetpoint()){
+        if (m_oneWheelShooter.isAtSetpoint() && timer.get() > 1){
+          System.out.println("THE FINTENSS GRAM PACER IS " + timer.get());
           m_pacerMotor.set(-1);
         }
     } else {
@@ -108,6 +115,7 @@ public class AimTarget extends Command {
   public void end(boolean interrupted){
     m_oneWheelShooter.setSpeed(RPM.of(0));
     m_pacerMotor.set(0);
+    timer.stop();
   }
 
   public boolean isRotationCorrecting(){

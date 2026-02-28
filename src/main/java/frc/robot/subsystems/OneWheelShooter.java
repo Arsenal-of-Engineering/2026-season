@@ -48,6 +48,6 @@ public class OneWheelShooter extends SubsystemBase {
   }
 
   public boolean isAtSetpoint(){
-    return shootMotorPID.isAtSetpoint();
+    return shootMotorPID.isAtSetpoint() && shootMotorPID.getSetpoint() != 0;
   }
 }

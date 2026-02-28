@@ -16,11 +16,11 @@ import frc.robot.subsystems.drive.Drive;
 public class AimTurret extends Command {
   private PIDController rotatePID =
       new PIDController(
-          .02, 0.0, 0.00, .02);
+          .03, 0.0, 0.00, .02);
   private SimpleMoveMotor m_aimingMotor;
   private PIDController anglePID =
       new PIDController(
-          .003, 0.0, 0.00, .02);
+          .05, 0.01, 0.00, .02);
   private SimpleMoveMotor m_angleMotor;
   /** Goal encoder value */
   private double target = 0;
@@ -56,7 +56,6 @@ public class AimTurret extends Command {
   }
 
   public void execute() {
-    System.out.println("im 6 feet from the edge");
     double current = m_aimingMotor.getEncoderPosition() * Constants.kAimingDegreesPerRotation;
 
     speed = MathUtil.clamp(rotatePID.calculate(current, target), -1, 1);

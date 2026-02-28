@@ -237,8 +237,8 @@ public class RobotContainer {
     
 
     // configure joystick buttons (<1st arg>) to do <2nd arg> on press and <3rd arg> on release.
-    joystickInstantToggle(1, () -> {m_intakeMotor.set(1); m_conveyorMotor.set(.5);}, () -> {m_intakeMotor.set(0);m_conveyorMotor.set(0);});
-    joystickInstantToggle(6, () -> {m_intakeMotor.set(-1); m_conveyorMotor.set(-.5);}, () -> {m_intakeMotor.set(0);m_conveyorMotor.set(0);});
+    joystickInstantToggle(1, () -> {m_intakeMotor.set(1); m_conveyorMotor.set(1);}, () -> {m_intakeMotor.set(0);m_conveyorMotor.set(0);});
+    joystickInstantToggle(6, () -> {m_intakeMotor.set(-1); m_conveyorMotor.set(-1);}, () -> {m_intakeMotor.set(0);m_conveyorMotor.set(0);});
     joystickInstantToggle(2, () -> m_feederMotor.set(-1), () -> m_feederMotor.set(0));
     joystickInstantToggle(5, () -> m_feederMotor.set(1), () -> m_feederMotor.set(0));
     joystickInstantToggle(8, () -> m_pacerMotor.set(1), () -> m_pacerMotor.set(0));

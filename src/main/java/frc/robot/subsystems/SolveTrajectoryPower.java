@@ -26,8 +26,8 @@ public class SolveTrajectoryPower {
     xPos =  4.634 - xPos;
     yPos = 4 - yPos;
     long t1 = System.nanoTime();
-    double a = Math.PI / 2.5;
-    double shooterHeight = Units.inchesToMeters(27);
+    double a = 66 * Math.PI /180.0;
+    double shooterHeight = .65; //meters
     double goalHeight = 2;
     double l = goalHeight - shooterHeight;
 
@@ -67,11 +67,11 @@ public class SolveTrajectoryPower {
     SmartDashboard.putNumber("distance to hub", distance);
 
     // regression line from google sheets
-    double rpm = 411 * distance + 1989;
+    double rpm = 411 * distance + 1989 + 175;
     
     // (angle motor)
     double churro = 0;
-    if (distance >= 2.5){
+    if (distance >= 2){
       // regression line from google sheets
         churro = 2.52*distance -1.16;
     }
@@ -86,6 +86,7 @@ public class SolveTrajectoryPower {
   // Function f(x)
   private static double f(
       double x, double a, double xPos, double yPos, double xVel, double yVel, double l) {
+    a = getAngle(Math.hypot(xPos + xVel * x, yPos + yVel * x));
     double left = Math.tan(a) * Math.hypot(xPos + xVel * x, yPos + yVel * x);
     double right = 4.905 * Math.pow(x, 2) + l;
     return left - right;
@@ -97,6 +98,17 @@ public class SolveTrajectoryPower {
     double h = 1e-6;
     return (f(x + h, a, xPos, yPos, xVel, yVel, l) - f(x - h, a, xPos, yPos, xVel, yVel, l))
         / (2 * h);
+  }
+
+  private static double getAngle(double distanceToHub){
+    double churro = 0;
+    if (distanceToHub >= 2){
+      // regression line from google sheets
+        churro = 2.52*distanceToHub -1.16;
+    }
+
+    // interp between 0 = 66 degrees and 20 = 50 degrees
+    return (66 - 16*(churro/20)) * Math.PI / 180.0;
   }
 
   private static double solve(
