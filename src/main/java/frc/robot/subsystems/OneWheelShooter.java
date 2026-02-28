@@ -6,6 +6,7 @@ import com.revrobotics.PersistMode;
 import com.revrobotics.ResetMode;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkClosedLoopController;
+import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
@@ -21,13 +22,13 @@ public class OneWheelShooter extends SubsystemBase {
   private final double kD = 0;
   private final double kV = 0.00014; // FeedFoward
   private final double maxAcc = 20000.0;
-  private SparkMax shootMotor = new SparkMax(Constants.kShooterMotorCanId, MotorType.kBrushless);
+  private SparkFlex shootMotor = new SparkFlex(Constants.kShooterMotorCanId, MotorType.kBrushless);
   private SparkClosedLoopController shootMotorPID = shootMotor.getClosedLoopController();
 
   public OneWheelShooter() {
     SparkMaxConfig config = new SparkMaxConfig();
     config.closedLoop.pid(kP, kI, kD)
-        .outputRange(0, 1)
+        .outputRange(-1, 1)
         .feedForward
         .kV(kV);
     config.idleMode(IdleMode.kCoast);
@@ -38,11 +39,15 @@ public class OneWheelShooter extends SubsystemBase {
 
   public Command runSpeed(AngularVelocity speed) {
     return startEnd(
-        () -> {shootMotorPID.setSetpoint(speed.in(RPM), ControlType.kMAXMotionVelocityControl);},
+        () -> {shootMotorPID.setSetpoint(-speed.in(RPM), ControlType.kMAXMotionVelocityControl);},
         () -> {shootMotorPID.setSetpoint(0.0, ControlType.kMAXMotionVelocityControl);});
   }
 
   public void setSpeed(AngularVelocity speed) {
-    shootMotorPID.setSetpoint(speed.in(RPM), ControlType.kMAXMotionVelocityControl);
+    shootMotorPID.setSetpoint(-speed.in(RPM), ControlType.kMAXMotionVelocityControl);
+  }
+
+  public boolean isAtSetpoint(){
+    return shootMotorPID.isAtSetpoint() && shootMotorPID.getSetpoint() != 0;
   }
 }

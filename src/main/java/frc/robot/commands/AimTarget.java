@@ -6,15 +6,20 @@ import static frc.robot.subsystems.drive.DriveConstants.robotMOI;
 
 import edu.wpi.first.epilogue.*;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.AngularVelocityUnit;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.ImmutableAngularVelocity;
 import edu.wpi.first.wpilibj.AddressableLED;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 // import frc.robot.ShuffleboardInfo;
@@ -24,53 +29,99 @@ import frc.robot.subsystems.OneWheelShooter;
 import frc.robot.subsystems.SimpleMoveMotor;
 import frc.robot.subsystems.SolveTrajectoryPower;
 import frc.robot.subsystems.drive.Drive;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.geometry.Transform2d;
 /**
  * Uses the robots position and velocity to calculate and set a shooting angle for the turret, then start shooting when locked
  */
 public class AimTarget extends Command {
   private AimTurret m_aimTurret;
   private Drive m_drive;
+  private Timer timer = new Timer();
   private OneWheelShooter m_oneWheelShooter;
+  private SimpleMoveMotor m_pacerMotor;
   private SendableChooser<Integer> rpmSelection = new SendableChooser<>();
+  private boolean isRotationCorrection = false;
+  private double turretTarget = 0;
+  private PIDController rotatePID =
+      new PIDController(
+          .02, 0.0, 0.00, .02);
+  final Transform2d ROBOT_TO_SHOOTER = new Transform2d(8 * .0254, 8 * .0254, new Rotation2d());
 
-  public AimTarget(AimTurret aimTurret, OneWheelShooter oneWheelShooter, Drive drive) {
+  public AimTarget(SimpleMoveMotor pacerMotor, AimTurret aimTurret, OneWheelShooter oneWheelShooter, Drive drive) {
+    m_pacerMotor = pacerMotor;
+    rotatePID.setSetpoint(-45);
     m_aimTurret = aimTurret;
     m_oneWheelShooter = oneWheelShooter;
     m_drive = drive;
     addRequirements(m_oneWheelShooter);
-    for(int i = 4000; i <= 20000; i+= 1000){
+    addRequirements(m_pacerMotor);
+    for(int i = 2000; i <= 7000; i+= 250){
       rpmSelection.addOption("" + i, i);
     }
     rpmSelection.setDefaultOption("" + 4000, 4000);
     rpmSelection.close();
     SmartDashboard.putData("rpm chooser", rpmSelection);
   }
-
+  @Override
+  public void initialize() {
+    timer.restart();
+  }
   public void execute() {
 
     Pose2d robotPose = m_drive.getPose();
+
+    ChassisSpeeds chassisSpeeds = m_drive.getChassisSpeeds();
     
-    double[] robotGoal = SolveTrajectoryPower.calculate(robotPose.getX(), robotPose.getY(), 0, 0);
+    SmartDashboard.putNumber("vx", chassisSpeeds.vxMetersPerSecond);
+    SmartDashboard.putNumber("vy", chassisSpeeds.vyMetersPerSecond);
+
+    Pose2d turretPose = robotPose.transformBy(ROBOT_TO_SHOOTER);
+    SmartDashboard.putNumber("TurrX", turretPose.getX());
+    SmartDashboard.putNumber("TurrY", turretPose.getY());
+
+    double[] robotGoal = SolveTrajectoryPower.calculate(turretPose.getX(), -chassisSpeeds.vxMetersPerSecond, turretPose.getY(), -chassisSpeeds.vyMetersPerSecond * 2);
 
     AngularVelocity shooterVelocity = RPM.of(robotGoal[1]);
-    m_oneWheelShooter.setSpeed(RPM.of(rpmSelection.getSelected()));
-    //m_oneWheelShooter.setSpeed(shooterVelocity);
+    //m_oneWheelShooter.setSpeed(RPM.of(rpmSelection.getSelected()));
+    m_oneWheelShooter.setSpeed(shooterVelocity);
     
     SmartDashboard.putNumber("shooter vel", robotGoal[1]);
   
-    double turretTarget = robotGoal[0] - robotPose.getRotation().getDegrees();
+    turretTarget = robotGoal[0] - robotPose.getRotation().getDegrees();
     SmartDashboard.putNumber("turret deg", turretTarget);
-    SmartDashboard.putBoolean("Turret Check", m_aimTurret.setTarget(-turretTarget));
+    
+    isRotationCorrection = !m_aimTurret.setTarget(-turretTarget);
+    m_aimTurret.setAngleTarget(robotGoal[2]);
+    
 
-    if (Math.abs(m_aimTurret.getRotation() - robotGoal[0]) < 7.5){
+    if (Math.abs(m_aimTurret.getRotation() + turretTarget) < 7.5){
         SmartDashboard.putBoolean("Ready on Aim", true);
+        if (m_oneWheelShooter.isAtSetpoint() && timer.get() > 1){
+          System.out.println("THE FINTENSS GRAM PACER IS " + timer.get());
+          m_pacerMotor.set(-1);
+        }
     } else {
         SmartDashboard.putBoolean("Ready on Aim", false);
     }
     
   }
 
+  public double getCorrectionSpeed(){
+    if (!isRotationCorrection) return 0.0;
+    return rotatePID.calculate(turretTarget);
+  }
+
   public void end(boolean interrupted){
     m_oneWheelShooter.setSpeed(RPM.of(0));
+    m_pacerMotor.set(0);
+    timer.stop();
+  }
+
+  public boolean isRotationCorrecting(){
+    return isRotationCorrection;
+  }
+  public AngularVelocity getRPMSelection(){
+    return RPM.of(rpmSelection.getSelected());
   }
 }

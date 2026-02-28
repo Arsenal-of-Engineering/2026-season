@@ -11,6 +11,9 @@ import static edu.wpi.first.units.Units.RPM;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
+
+import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.cscore.HttpCamera;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -19,6 +22,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -71,7 +75,7 @@ public class RobotContainer {
   private SimpleMoveMotor m_conveyorMotor = new SimpleMoveMotor(Constants.kConveyorMotorCanId);
   private SimpleMoveMotor m_feederMotor = new SimpleMoveMotor(Constants.kFeederMotorCanId);
   private SimpleMoveMotor m_angleMotor = new SimpleMoveMotor(Constants.kAngleMotorCanId);
-  private AimTurret m_aimTurret = new AimTurret(m_aimingMotor);
+  private AimTurret m_aimTurret = new AimTurret(m_aimingMotor, m_angleMotor);
   private Joystick m_joystick = new Joystick(Constants.kJoystickId);
   private AimTarget m_aimTarget;
 
@@ -79,7 +83,8 @@ public class RobotContainer {
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
 
-    ConfigureNamedCommands();
+    
+    
 
     switch (Constants.currentMode) {
       case REAL:
@@ -117,8 +122,11 @@ public class RobotContainer {
     }
 
     m_questNav = new QuestNavSubsystem(drive);
+    m_aimTarget = new AimTarget(m_pacerMotor, m_aimTurret, m_oneShootMotor, drive);
 
     // Set up auto routines
+
+    ConfigureNamedCommands();
 
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
 
@@ -138,10 +146,14 @@ public class RobotContainer {
     autoChooser.addOption(
         "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
-    m_aimTarget = new AimTarget(m_aimTurret, m_oneShootMotor, drive);
+    
 
     // Configure the button bindings
     configureButtonBindings();
+
+    // Put the USB camera into network tables to show in SmartDashboard
+    var camera0 = CameraServer.startAutomaticCapture();
+    CameraServer.addCamera(camera0);
   }
 
   public double getYSpeed() {
@@ -152,7 +164,7 @@ public class RobotContainer {
     //   return m_rightArc.getYSpeed();
     // }
 
-    return -MathUtil.applyDeadband(controller.getLeftY(), .08);
+    return -MathUtil.applyDeadband(controller.getLeftY(), .1);
   }
 
   public double getXSpeed() {
@@ -163,13 +175,13 @@ public class RobotContainer {
     //   return m_rightArc.getXSpeed();
     // }
 
-    return -MathUtil.applyDeadband(controller.getLeftX(), .08);
+    return -MathUtil.applyDeadband(controller.getLeftX(), .1);
   }
 
   public double getRotSpeed() {
-    // if (m_rotate.isScheduled()) {
-    //   return m_rotate.getSpeed();
-    // }
+    if (m_aimTarget.isScheduled() && m_aimTarget.isRotationCorrecting()) {
+      return m_aimTarget.getCorrectionSpeed();
+    }
 
     return -controller.getRightX();
   }
@@ -218,19 +230,22 @@ public class RobotContainer {
     //                 drive)
     //             .ignoringDisable(true));
 
-    controller.a().onTrue(new InstantCommand(() -> m_aimTurret.setTarget(m_aimTurret.getRotation())));
-    controller.a().whileTrue(m_aimTarget.alongWith(m_aimTurret));
+    
+    controller.rightTrigger(.5).onTrue(new InstantCommand(() -> m_aimTurret.setTarget(m_aimTurret.getRotation())));
+    controller.rightTrigger(.5).whileTrue(m_aimTarget.alongWith(m_aimTurret));
+
+    
 
     // configure joystick buttons (<1st arg>) to do <2nd arg> on press and <3rd arg> on release.
-    joystickInstantToggle(1, () -> m_intakeMotor.set(1), () -> m_intakeMotor.set(0));
-    joystickInstantToggle(2, () -> {m_feederMotor.set(-1); m_conveyorMotor.set(1);}, () -> {m_feederMotor.set(0); m_conveyorMotor.set(0);});
-    joystickInstantToggle(5, () -> {m_feederMotor.set(1); m_conveyorMotor.set(-1);}, () -> {m_feederMotor.set(0); m_conveyorMotor.set(0);});
-    joystickInstantToggle(6, () -> m_intakeMotor.set(-1), () -> m_intakeMotor.set(0));
+    joystickInstantToggle(1, () -> {m_intakeMotor.set(1); m_conveyorMotor.set(1);}, () -> {m_intakeMotor.set(0);m_conveyorMotor.set(0);});
+    joystickInstantToggle(6, () -> {m_intakeMotor.set(-1); m_conveyorMotor.set(-1);}, () -> {m_intakeMotor.set(0);m_conveyorMotor.set(0);});
+    joystickInstantToggle(2, () -> m_feederMotor.set(-1), () -> m_feederMotor.set(0));
+    joystickInstantToggle(5, () -> m_feederMotor.set(1), () -> m_feederMotor.set(0));
     joystickInstantToggle(8, () -> m_pacerMotor.set(1), () -> m_pacerMotor.set(0));
     joystickInstantToggle(10, () -> m_pacerMotor.set(-1), () -> m_pacerMotor.set(0));
     joystickInstantToggle(7, () -> m_angleMotor.set(.15), () -> m_angleMotor.set(0));
     joystickInstantToggle(9, () -> m_angleMotor.set(-.15), () -> m_angleMotor.set(0));
-    joystickInstantToggle(11, () -> m_oneShootMotor.setSpeed(RPM.of(4000)), () -> m_oneShootMotor.setSpeed(RPM.of(0)));
+    joystickInstantToggle(11, () -> m_oneShootMotor.setSpeed(m_aimTarget.getRPMSelection()), () -> m_oneShootMotor.setSpeed(RPM.of(0)));
   }
 
   /**
@@ -247,21 +262,20 @@ public class RobotContainer {
   }
 
   private void ConfigureNamedCommands() {
-    NamedCommands.registerCommand(
-        "Shoot", new InstantCommand(() -> System.out.println("Im shooting it")));
-    NamedCommands.registerCommand(
-        "Intake", new InstantCommand(() -> System.out.println("im intaking fuel")));
+    
     NamedCommands.registerCommand(
         "Climb", new InstantCommand(() -> System.out.println("surely there is a climb design")));
 
-    NamedCommands.registerCommand("Shoot", m_aimTurret);
+    NamedCommands.registerCommand("Hood Down", new InstantCommand(() -> m_angleMotor.set(-.15)));
+    NamedCommands.registerCommand("Shoot", m_aimTarget);
+    NamedCommands.registerCommand("Aim", m_aimTurret);
     NamedCommands.registerCommand("Intake", new InstantCommand(() -> {m_conveyorMotor.set(1.0); m_feederMotor.set(-1);m_intakeMotor.set(1.0);}));
     NamedCommands.registerCommand("Process", new InstantCommand(() -> {m_conveyorMotor.set(1.0);m_feederMotor.set(-1);}));
   }
 
   public static void resetQuestPose(Pose2d pose){
-
-    m_questNav.resetPose(new Pose3d(pose));
+    System.out.println("I'm reseting the " + m_questNav);
+    m_questNav.resetPose(pose);
   }
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.

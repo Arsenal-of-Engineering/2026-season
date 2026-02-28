@@ -5,6 +5,12 @@
     "data": {
       "commands": [
         {
+          "type": "named",
+          "data": {
+            "name": "Hood Down"
+          }
+        },
+        {
           "type": "parallel",
           "data": {
             "commands": [
@@ -31,19 +37,25 @@
           }
         },
         {
+          "type": "path",
+          "data": {
+            "pathName": "Glutton Climb"
+          }
+        },
+        {
           "type": "parallel",
           "data": {
             "commands": [
               {
                 "type": "named",
                 "data": {
-                  "name": "Shoot"
+                  "name": "Aim"
                 }
               },
               {
-                "type": "path",
+                "type": "named",
                 "data": {
-                  "pathName": "Glutton Climb"
+                  "name": "Shoot"
                 }
               }
             ]
