@@ -4,40 +4,24 @@
     {
       "anchor": {
         "x": 6.598,
-        "y": 6.144
+        "y": 1.806
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.355930348418977,
-        "y": 6.081531737790762
+        "x": 4.882409638554217,
+        "y": 2.0570843373493983
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 7.767325301204821,
-        "y": 4.089638554216867
+        "x": 1.243481927710843,
+        "y": 5.958277108433736
       },
       "prevControl": {
-        "x": 7.733655230950285,
-        "y": 6.570000396300956
-      },
-      "nextControl": {
-        "x": 7.800108433734941,
-        "y": 1.6746144578313258
-      },
-      "isLocked": false,
-      "linkedName": null
-    },
-    {
-      "anchor": {
-        "x": 6.598,
-        "y": 1.8057469879518067
-      },
-      "prevControl": {
-        "x": 6.605765682952855,
-        "y": 2.0556263471799663
+        "x": 1.4292530120481926,
+        "y": 3.3246987951807228
       },
       "nextControl": null,
       "isLocked": false,
@@ -46,8 +30,12 @@
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 0.5,
-      "rotationDegrees": 135.0
+      "waypointRelativePos": 0.16812749003984206,
+      "rotationDegrees": 45.0
+    },
+    {
+      "waypointRelativePos": 0.48207171314741104,
+      "rotationDegrees": 45.0
     }
   ],
   "constraintZones": [],
@@ -63,13 +51,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 45.0
+    "rotation": 0.0
   },
   "reversed": false,
-  "folder": "RB Auto 2",
+  "folder": "Rhyhan' Auto 2",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 90.0
+    "rotation": 0.0
   },
   "useDefaultConstraints": true
 }

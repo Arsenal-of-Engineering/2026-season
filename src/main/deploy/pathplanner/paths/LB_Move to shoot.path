@@ -3,41 +3,32 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.642,
-        "y": 4.789
+        "x": 7.647,
+        "y": 5.128
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.0028433734939757,
-        "y": 4.8982891566265065
+        "x": 6.270228915662651,
+        "y": 5.182409638554216
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 6.598060240963856,
-        "y": 6.144048192771083
+        "x": 2.7733614457831326,
+        "y": 5.783433734939758
       },
       "prevControl": {
-        "x": 6.840129571891196,
-        "y": 6.206517697526525
+        "x": 3.4180963855421687,
+        "y": 5.783433734939758
       },
       "nextControl": null,
       "isLocked": false,
       "linkedName": null
     }
   ],
-  "rotationTargets": [
-    {
-      "waypointRelativePos": 0.2645161290322586,
-      "rotationDegrees": 45.0
-    },
-    {
-      "waypointRelativePos": 0.6458781362007193,
-      "rotationDegrees": 45.0
-    }
-  ],
+  "rotationTargets": [],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],
@@ -51,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 90.0
+    "rotation": -90.0
   },
   "reversed": false,
-  "folder": "RB Auto 2",
+  "folder": "Left Baller",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 90.0
   },
   "useDefaultConstraints": true
 }

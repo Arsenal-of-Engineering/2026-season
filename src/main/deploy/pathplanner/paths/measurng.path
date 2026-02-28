@@ -3,25 +3,41 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.243,
-        "y": 5.958
+        "x": 5.281,
+        "y": 3.9767760342368046
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.3680448245875652,
-        "y": 5.27881700853973
+        "x": 6.281000000000001,
+        "y": 3.9767760342368046
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 1.560385542168675,
-        "y": 4.384686746987952
+        "x": 7.364,
+        "y": 3.9767760342368046
       },
       "prevControl": {
-        "x": 1.5093048384235426,
-        "y": 4.646460797268434
+        "x": 6.364,
+        "y": 3.9767760342368046
+      },
+      "nextControl": {
+        "x": 8.364,
+        "y": 3.9767760342368046
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 8.295877318116975,
+        "y": 3.9767760342368046
+      },
+      "prevControl": {
+        "x": 9.151690442225393,
+        "y": 3.2910271041369468
       },
       "nextControl": null,
       "isLocked": false,
@@ -45,7 +61,7 @@
     "rotation": 0.0
   },
   "reversed": false,
-  "folder": "RB Auto 2",
+  "folder": null,
   "idealStartingState": {
     "velocity": 0,
     "rotation": 0.0
