@@ -32,7 +32,6 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
-import frc.robot.commands.MoveArc;
 import frc.robot.commands.AimTarget;
 import frc.robot.commands.AimTurret;
 import edu.wpi.first.wpilibj2.command.RepeatCommand;
@@ -59,7 +58,6 @@ public class RobotContainer {
   private final Drive drive;
   // private final ShootMotors m_shootMotors = new ShootMotors();
   private static QuestNavSubsystem m_questNav;
-  private MoveArc m_leftArc, m_rightArc;
   private AimTurret m_rotate;
   
   private final OneWheelShooter m_oneShootMotor = new OneWheelShooter();
@@ -219,16 +217,8 @@ public class RobotContainer {
 
     controller.y().whileTrue(m_oneShootMotor.runSpeed(RPM.of(3000.0)));
 
-    // Reset gyro to 0° when B button is pressed
-    // controller
-    //     .b()
-    //     .onTrue(
-    //         Commands.runOnce(
-    //                 () ->
-    //                     drive.setPose(
-    //                         new Pose2d(drive.getPose().getTranslation(), Rotation2d.kZero)),
-    //                 drive)
-    //             .ignoringDisable(true));
+    // Reset pose to center hub  when left trigger is pressed
+    controller.rightTrigger(.5).onTrue(new InstantCommand(() -> drive.setPose(new Pose2d(4.634,4,new Rotation2d(0,0)))));
 
     
     controller.rightTrigger(.5).onTrue(new InstantCommand(() -> m_aimTurret.setTarget(m_aimTurret.getRotation())));
