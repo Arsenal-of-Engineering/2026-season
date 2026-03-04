@@ -34,11 +34,14 @@ public class SolveTrajectoryPower {
 
     // non-intertal shot duration calculation
     double guessV = 3 * Math.sqrt(109 * Math.tan(a) / 2) * Math.hypot(xPos, yPos);
-    guessV /= 10 * Math.sqrt((shooterHeight - goalHeight) / Math.tan(a) + Math.hypot(xPos, yPos));
-    double guessT =
-        10.0
-            / 981
-            * (Math.sqrt(2 * (50 * Math.pow(guessV, 2) - 981 * (goalHeight - shooterHeight)))
+    System.out.println("V: " + guessV);
+    guessV /= 10 * Math.sqrt((goalHeight - shooterHeight) / Math.tan(a) + Math.hypot(xPos, yPos));
+    System.out.println("sqrting " + ((goalHeight - shooterHeight) / Math.tan(a) + Math.hypot(xPos, yPos)));
+    System.out.println(Math.tan(a));
+    System.out.println("V2: " + guessV);
+    
+    double guessT =10.0/ 981
+            * (Math.sqrt(2 * (50 * Math.pow(guessV, 2) - 981 * (shooterHeight - goalHeight)))
                 + 10 * guessV);
 
 
@@ -86,7 +89,6 @@ public class SolveTrajectoryPower {
   // Function f(x)
   private static double f(
       double x, double a, double xPos, double yPos, double xVel, double yVel, double l) {
-    a = getAngle(Math.hypot(xPos + xVel * x, yPos + yVel * x));
     double left = Math.tan(a) * Math.hypot(xPos + xVel * x, yPos + yVel * x);
     double right = 4.905 * Math.pow(x, 2) + l;
     return left - right;
@@ -119,6 +121,9 @@ public class SolveTrajectoryPower {
     double tol = 1e-8;
 
     for (int i = 0; i < maxIter; i++) {
+      if (i % 100 == 0){
+        System.out.println("" + (i/100) + ": " + x);
+      }
       double fx = f(x, a, xPos, yPos, xVel, yVel, l);
       double dfx = df(x, a, xPos, yPos, xVel, yVel, l);
 

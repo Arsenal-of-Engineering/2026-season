@@ -54,6 +54,9 @@ public class SimpleMoveMotor extends SubsystemBase {
         if(theMotor.getDeviceId() == Constants.kAngleMotorCanId){
             SmartDashboard.putNumber("Angle encoder", getEncoderPosition());
         }
+        if(theMotor.getDeviceId() == Constants.kRopeMotorCanId){
+            SmartDashboard.putNumber("Rope encoder", getEncoderPosition());
+        }
     }
 
     public double getEncoderPosition(){

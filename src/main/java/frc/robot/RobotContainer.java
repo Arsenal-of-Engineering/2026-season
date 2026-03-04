@@ -73,6 +73,7 @@ public class RobotContainer {
   private SimpleMoveMotor m_conveyorMotor = new SimpleMoveMotor(Constants.kConveyorMotorCanId);
   private SimpleMoveMotor m_feederMotor = new SimpleMoveMotor(Constants.kFeederMotorCanId);
   private SimpleMoveMotor m_angleMotor = new SimpleMoveMotor(Constants.kAngleMotorCanId);
+  private SimpleMoveMotor m_ropeMotor = new SimpleMoveMotor(Constants.kRopeMotorCanId);
   private AimTurret m_aimTurret = new AimTurret(m_aimingMotor, m_angleMotor);
   private Joystick m_joystick = new Joystick(Constants.kJoystickId);
   private AimTarget m_aimTarget;
@@ -218,7 +219,7 @@ public class RobotContainer {
     controller.y().whileTrue(m_oneShootMotor.runSpeed(RPM.of(3000.0)));
 
     // Reset pose to center hub  when left trigger is pressed
-    controller.rightTrigger(.5).onTrue(new InstantCommand(() -> drive.setPose(new Pose2d(4.634,4,new Rotation2d(0,0)))));
+    controller.leftTrigger(.5).onTrue(new InstantCommand(() -> drive.setPose(new Pose2d(4.634,4,new Rotation2d(0,0)))));
 
     
     controller.rightTrigger(.5).onTrue(new InstantCommand(() -> m_aimTurret.setTarget(m_aimTurret.getRotation())));
@@ -232,10 +233,11 @@ public class RobotContainer {
     joystickInstantToggle(2, () -> m_feederMotor.set(-1), () -> m_feederMotor.set(0));
     joystickInstantToggle(5, () -> m_feederMotor.set(1), () -> m_feederMotor.set(0));
     joystickInstantToggle(8, () -> m_pacerMotor.set(1), () -> m_pacerMotor.set(0));
-    joystickInstantToggle(10, () -> m_pacerMotor.set(-1), () -> m_pacerMotor.set(0));
     joystickInstantToggle(7, () -> m_angleMotor.set(.15), () -> m_angleMotor.set(0));
     joystickInstantToggle(9, () -> m_angleMotor.set(-.15), () -> m_angleMotor.set(0));
     joystickInstantToggle(11, () -> m_oneShootMotor.setSpeed(m_aimTarget.getRPMSelection()), () -> m_oneShootMotor.setSpeed(RPM.of(0)));
+    joystickInstantToggle(12, () -> m_ropeMotor.set(.3), () -> m_ropeMotor.set(0));
+    joystickInstantToggle(10, () -> m_ropeMotor.set(-.3), () -> m_ropeMotor.set(0));
   }
 
   /**

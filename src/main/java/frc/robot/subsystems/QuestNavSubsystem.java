@@ -81,8 +81,7 @@ public class QuestNavSubsystem extends SubsystemBase {
         // Add the measurement to our estimator
         driveSubsystem.addVisionMeasurement(realRobotPose, timestamp, QUESTNAV_STD_DEVS);
 
-        SmartDashboard.putNumber("Quest X", questPose.getX());
-        SmartDashboard.putNumber("Quest Y", questPose.getY());
+      
         // SmartDashboard.putNumber("Quest rot", questPose.getRotation2d().getDegrees());
         // System.out.println("lock tf in");
       }

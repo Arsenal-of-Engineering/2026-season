@@ -73,8 +73,6 @@ public class AimTarget extends Command {
 
     ChassisSpeeds chassisSpeeds = m_drive.getChassisSpeeds();
     
-    SmartDashboard.putNumber("vx", chassisSpeeds.vxMetersPerSecond);
-    SmartDashboard.putNumber("vy", chassisSpeeds.vyMetersPerSecond);
 
     Pose2d turretPose = robotPose.transformBy(ROBOT_TO_SHOOTER);
     SmartDashboard.putNumber("TurrX", turretPose.getX());
