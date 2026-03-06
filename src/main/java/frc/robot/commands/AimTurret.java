@@ -16,7 +16,7 @@ import frc.robot.subsystems.drive.Drive;
 public class AimTurret extends Command {
   private PIDController rotatePID =
       new PIDController(
-          .03, 0.0, 0.00, .02);
+          .02, 0.0, 0.0, .02);
   private SimpleMoveMotor m_aimingMotor;
   private PIDController anglePID =
       new PIDController(

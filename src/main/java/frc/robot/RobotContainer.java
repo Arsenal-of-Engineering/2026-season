@@ -26,6 +26,7 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -35,6 +36,7 @@ import frc.robot.commands.DriveCommands;
 import frc.robot.commands.AimTarget;
 import frc.robot.commands.AimTurret;
 import edu.wpi.first.wpilibj2.command.RepeatCommand;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.subsystems.SimpleMoveMotor;
 import frc.robot.subsystems.OneWheelShooter;
 import frc.robot.subsystems.QuestNavSubsystem;
@@ -219,7 +221,7 @@ public class RobotContainer {
     controller.y().whileTrue(m_oneShootMotor.runSpeed(RPM.of(3000.0)));
 
     // Reset pose to center hub  when left trigger is pressed
-    controller.leftTrigger(.5).onTrue(new InstantCommand(() -> drive.setPose(new Pose2d(4.634,4,new Rotation2d(0,0)))));
+    controller.leftTrigger(.5).onTrue(new InstantCommand(() -> drive.setPose(new Pose2d(3.677,4,new Rotation2d(0,0)))));
 
     
     controller.rightTrigger(.5).onTrue(new InstantCommand(() -> m_aimTurret.setTarget(m_aimTurret.getRotation())));
@@ -228,14 +230,22 @@ public class RobotContainer {
     
 
     // configure joystick buttons (<1st arg>) to do <2nd arg> on press and <3rd arg> on release.
-    joystickInstantToggle(1, () -> {m_intakeMotor.set(1); m_conveyorMotor.set(1);}, () -> {m_intakeMotor.set(0);m_conveyorMotor.set(0);});
-    joystickInstantToggle(6, () -> {m_intakeMotor.set(-1); m_conveyorMotor.set(-1);}, () -> {m_intakeMotor.set(0);m_conveyorMotor.set(0);});
+    joystickInstantToggle(1, () -> m_intakeMotor.set(1), () -> m_intakeMotor.set(0));
     joystickInstantToggle(2, () -> m_feederMotor.set(-1), () -> m_feederMotor.set(0));
+    // joystickInstantToggle(11, () -> m_conveyorMotor.set(1), () -> m_conveyorMotor.set(0));
+    // joystickInstantToggle(9, () -> m_conveyorMotor.set(-1), () -> m_conveyorMotor.set(0));
     joystickInstantToggle(5, () -> m_feederMotor.set(1), () -> m_feederMotor.set(0));
+    joystickInstantToggle(6, () -> m_intakeMotor.set(-1), () -> m_intakeMotor.set(0));
+
+    new JoystickButton(m_joystick, 11).whileTrue(new RepeatCommand(new InstantCommand(() -> m_conveyorMotor.set(1))));
+    new JoystickButton(m_joystick, 9).whileTrue(new RepeatCommand(new InstantCommand(() -> m_conveyorMotor.set(-1))));
+    new JoystickButton(m_joystick, 11).onFalse(new InstantCommand(() -> m_conveyorMotor.set(0)));
+    new JoystickButton(m_joystick, 9).onFalse(new InstantCommand(() -> m_conveyorMotor.set(0)));
+    
     joystickInstantToggle(8, () -> m_pacerMotor.set(1), () -> m_pacerMotor.set(0));
-    joystickInstantToggle(7, () -> m_angleMotor.set(.15), () -> m_angleMotor.set(0));
-    joystickInstantToggle(9, () -> m_angleMotor.set(-.15), () -> m_angleMotor.set(0));
-    joystickInstantToggle(11, () -> m_oneShootMotor.setSpeed(m_aimTarget.getRPMSelection()), () -> m_oneShootMotor.setSpeed(RPM.of(0)));
+    joystickInstantToggle(3, () -> m_angleMotor.set(.15), () -> m_angleMotor.set(0));
+    joystickInstantToggle(4, () -> m_angleMotor.set(-.15), () -> m_angleMotor.set(0));
+    joystickInstantToggle(7, () -> m_oneShootMotor.setSpeed(m_aimTarget.getRPMSelection()), () -> m_oneShootMotor.setSpeed(RPM.of(0)));
     joystickInstantToggle(12, () -> m_ropeMotor.set(.3), () -> m_ropeMotor.set(0));
     joystickInstantToggle(10, () -> m_ropeMotor.set(-.3), () -> m_ropeMotor.set(0));
   }
@@ -263,6 +273,20 @@ public class RobotContainer {
     NamedCommands.registerCommand("Aim", m_aimTurret);
     NamedCommands.registerCommand("Intake", new InstantCommand(() -> {m_conveyorMotor.set(1.0); m_feederMotor.set(-1);m_intakeMotor.set(1.0);}));
     NamedCommands.registerCommand("Process", new InstantCommand(() -> {m_conveyorMotor.set(1.0);m_feederMotor.set(-1);}));
+    NamedCommands.registerCommand("Deploy Hopper", new InstantCommand(() -> m_ropeMotor.set(.3)));
+    NamedCommands.registerCommand("Chomp", new InstantCommand(() -> m_ropeMotor.set(-.3))
+                                                .andThen(new WaitUntilCommand(() -> (m_ropeMotor.getEncoderPosition() < 15)))
+                                                .andThen(new InstantCommand(() -> m_ropeMotor.set(0))));
+  }
+
+  public void stopMotors(){
+      m_intakeMotor.set(0);
+      m_pacerMotor.set(0);
+      m_aimingMotor.set(0);
+      m_conveyorMotor.set(0);
+      m_feederMotor.set(0);
+      m_angleMotor.set(0);
+      m_ropeMotor.set(0);
   }
 
   public static void resetQuestPose(Pose2d pose){

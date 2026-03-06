@@ -3,12 +3,14 @@
   "robotLength": 0.6069,
   "holonomicMode": true,
   "pathFolders": [
+    "Humble Left Baller",
     "Left (Glutton)",
     "Left Baller",
-    "Ryan' Auto 1",
+    "Humble Right Baller",
     "Rhyhan' Auto 2",
     "Right Baller",
     "Right Moves",
+    "Ryan' Auto 1",
     "Sussex"
   ],
   "autoFolders": [],

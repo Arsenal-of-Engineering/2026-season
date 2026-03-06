@@ -7,7 +7,7 @@
         {
           "type": "named",
           "data": {
-            "name": "Hood Down"
+            "name": "Deploy Hopper"
           }
         },
         {
@@ -53,9 +53,22 @@
                 }
               },
               {
-                "type": "named",
+                "type": "parallel",
                 "data": {
-                  "name": "Shoot"
+                  "commands": [
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "Shoot"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "Chomp"
+                      }
+                    }
+                  ]
                 }
               }
             ]

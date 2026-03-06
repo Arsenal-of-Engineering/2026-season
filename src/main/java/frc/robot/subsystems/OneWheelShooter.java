@@ -39,12 +39,12 @@ public class OneWheelShooter extends SubsystemBase {
 
   public Command runSpeed(AngularVelocity speed) {
     return startEnd(
-        () -> {shootMotorPID.setSetpoint(-speed.in(RPM), ControlType.kMAXMotionVelocityControl);},
+        () -> {shootMotorPID.setSetpoint(speed.in(RPM), ControlType.kMAXMotionVelocityControl);},
         () -> {shootMotorPID.setSetpoint(0.0, ControlType.kMAXMotionVelocityControl);});
   }
 
   public void setSpeed(AngularVelocity speed) {
-    shootMotorPID.setSetpoint(-speed.in(RPM), ControlType.kMAXMotionVelocityControl);
+    shootMotorPID.setSetpoint(speed.in(RPM), ControlType.kMAXMotionVelocityControl);
   }
 
   public boolean isAtSetpoint(){
