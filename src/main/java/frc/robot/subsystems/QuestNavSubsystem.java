@@ -46,6 +46,7 @@ public class QuestNavSubsystem extends SubsystemBase {
       return;
     }
     questNav.setPose(setPose);
+    questNav.setPose(setPose);
   }
 
   @Override

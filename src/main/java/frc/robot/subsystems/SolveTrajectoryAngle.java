@@ -33,8 +33,8 @@ public class SolveTrajectoryAngle {
 
     double a = solve(guessA, ballSpeed, xPos, yPos, xVel, yVel, l);
     double t2 = System.nanoTime();
-    System.out.println("a = " + a);
-    System.out.println((t2 - t1) / 1000000 + " ms");
+    //System.out.println("a = " + a);
+    //System.out.println((t2 - t1) / 1000000 + " ms");
 
     // double angle = Math.atan((yPos + yVel * t) / (xPos + xVel * t));
     // if ((xPos + xVel * t) < 0)

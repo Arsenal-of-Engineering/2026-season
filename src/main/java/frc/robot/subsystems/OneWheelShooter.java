@@ -17,7 +17,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
 public class OneWheelShooter extends SubsystemBase {
-  private final double kP = 0.0004;
+  private final double kP = 0.0006;
   private final double kI = 0;
   private final double kD = 0;
   private final double kV = 0.00014; // FeedFoward
@@ -40,7 +40,8 @@ public class OneWheelShooter extends SubsystemBase {
   public Command runSpeed(AngularVelocity speed) {
     return startEnd(
         () -> {shootMotorPID.setSetpoint(speed.in(RPM), ControlType.kMAXMotionVelocityControl);},
-        () -> {shootMotorPID.setSetpoint(0.0, ControlType.kMAXMotionVelocityControl);});
+        () -> {shootMotorPID.setSetpoint(0, ControlType.kMAXMotionVelocityControl);}
+    );
   }
 
   public void setSpeed(AngularVelocity speed) {

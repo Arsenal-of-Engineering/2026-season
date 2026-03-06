@@ -78,7 +78,7 @@ public class AimTarget extends Command {
     SmartDashboard.putNumber("TurrX", turretPose.getX());
     SmartDashboard.putNumber("TurrY", turretPose.getY());
 
-    double[] robotGoal = SolveTrajectoryPower.calculate(turretPose.getX(), -chassisSpeeds.vxMetersPerSecond, turretPose.getY(), -chassisSpeeds.vyMetersPerSecond);
+    double[] robotGoal = SolveTrajectoryPower.calculate(turretPose.getX(), -chassisSpeeds.vxMetersPerSecond, turretPose.getY(), -chassisSpeeds.vyMetersPerSecond * 2);
 
     AngularVelocity shooterVelocity = RPM.of(robotGoal[1]);
     //m_oneWheelShooter.setSpeed(RPM.of(rpmSelection.getSelected()));
@@ -96,7 +96,6 @@ public class AimTarget extends Command {
     if (Math.abs(m_aimTurret.getRotation() + turretTarget) < 7.5){
         SmartDashboard.putBoolean("Ready on Aim", true);
         if (m_oneWheelShooter.isAtSetpoint() && timer.get() > 1){
-          System.out.println("THE FINTENSS GRAM PACER IS " + timer.get());
           m_pacerMotor.set(-1);
         }
     } else {

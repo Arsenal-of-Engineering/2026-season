@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -24,32 +25,32 @@ public class SolveTrajectoryPower {
   public static double[] calculate(double xPos, double xVel, double yPos, double yVel) {
     // hub position
     xPos =  4.634 - xPos;
-    yPos = 4 - yPos;
+    yPos = 3.9 - yPos;
     long t1 = System.nanoTime();
     double a = 66 * Math.PI /180.0;
     double shooterHeight = .65; //meters
     double goalHeight = 2;
     double l = goalHeight - shooterHeight;
-    System.out.println("dist: " + Math.hypot(xPos, yPos));
+    //System.out.println("dist: " + Math.hypot(xPos, yPos));
 
 
     // non-intertal shot duration calculation
     double guessV = 3 * Math.sqrt(109 * Math.tan(a) / 2) * Math.hypot(xPos, yPos);
-    System.out.println("V1: " + guessV);
+    //System.out.println("V1: " + guessV);
     guessV /= 10 * Math.sqrt((shooterHeight - goalHeight) / Math.tan(a) + Math.hypot(xPos, yPos));
-    System.out.println("V2: " + guessV);
+    //System.out.println("V2: " + guessV);
     double guessT =
         10.0
             / 981
             * (Math.sqrt(2 * (50 * Math.pow(guessV, 2) - 981 * (goalHeight - shooterHeight)))
                 + 10 * guessV);
-  System.out.println(50 * Math.pow(guessV, 2) - 981 * (goalHeight - shooterHeight));
+  //System.out.println(50 * Math.pow(guessV, 2) - 981 * (goalHeight - shooterHeight));
 
 
     double t = solve(guessT, a, xPos, yPos, xVel, yVel, l);
     long t2 = System.nanoTime();
-    System.out.println("t = " + t);
-    System.out.println((t2 - t1) / 1000000.0 + " ms");
+    //System.out.println("t = " + t);
+    //System.out.println((t2 - t1) / 1000000.0 + " ms");
 
     
     double angle = Math.atan((yPos + yVel * t) / (xPos + xVel * t));
@@ -62,14 +63,10 @@ public class SolveTrajectoryPower {
     SmartDashboard.putNumber("distance to hub", distance);
 
     // regression line from google sheets
-    double rpm = 411 * distance + 1989 + 175;
+    double rpm = MathUtil.clamp(459 * distance + 2153, 0, 6767);
     
     // (angle motor)
-    double churro = 0;
-    if (distance >= 2){
-      // regression line from google sheets
-        churro = 2.52*distance -1.16;
-    }
+    double churro = Math.max(3.36 * distance - 3.63, 0);
 
     return new double[] {angle, rpm, churro};
   }
@@ -96,12 +93,9 @@ public class SolveTrajectoryPower {
   }
 
   private static double getAngle(double distanceToHub){
-    double churro = 0;
-    if (distanceToHub >= 2){
-      // regression line from google sheets
-        churro = 2.52*distanceToHub -1.16;
-    }
-
+    // regression line from google sheets
+    double churro = Math.max(3.36 * distanceToHub - 3.63, 0);
+  
     // interp between 0 = 66 degrees and 20 = 50 degrees
     return (66 - 16*(churro/20)) * Math.PI / 180.0;
   }
@@ -117,9 +111,9 @@ public class SolveTrajectoryPower {
       double fx = f(x, a, xPos, yPos, xVel, yVel, l);
       double dfx = df(x, a, xPos, yPos, xVel, yVel, l);
 
-      if (Math.abs(dfx) < 1e-12) {
-        throw new RuntimeException("Derivative too small");
-      }
+      // if (Math.abs(dfx) < 1e-12) {
+      //   throw new RuntimeException("Derivative too small");
+      // }
 
       double xNew = x - fx / dfx;
 

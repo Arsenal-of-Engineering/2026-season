@@ -245,7 +245,7 @@ public class RobotContainer {
     joystickInstantToggle(8, () -> m_pacerMotor.set(1), () -> m_pacerMotor.set(0));
     joystickInstantToggle(3, () -> m_angleMotor.set(.15), () -> m_angleMotor.set(0));
     joystickInstantToggle(4, () -> m_angleMotor.set(-.15), () -> m_angleMotor.set(0));
-    joystickInstantToggle(7, () -> m_oneShootMotor.setSpeed(m_aimTarget.getRPMSelection()), () -> m_oneShootMotor.setSpeed(RPM.of(0)));
+    joystickInstantToggle(7, () -> {m_oneShootMotor.setSpeed(m_aimTarget.getRPMSelection());m_pacerMotor.set(-1);}, () -> {m_oneShootMotor.setSpeed(RPM.of(0));m_pacerMotor.set(0);});
     joystickInstantToggle(12, () -> m_ropeMotor.set(.3), () -> m_ropeMotor.set(0));
     joystickInstantToggle(10, () -> m_ropeMotor.set(-.3), () -> m_ropeMotor.set(0));
   }
