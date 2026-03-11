@@ -10,6 +10,8 @@ package frc.robot;
 import com.revrobotics.util.StatusLogger;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import gg.questnav.questnav.QuestNav;
+
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -27,6 +29,7 @@ import org.littletonrobotics.urcl.URCL;
 public class Robot extends LoggedRobot {
   private Command autonomousCommand;
   private RobotContainer robotContainer;
+  private int autoResetLifetime = 9;
 
   public Robot() {
     // Record metadata
@@ -108,6 +111,7 @@ public class Robot extends LoggedRobot {
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
+    autoResetLifetime = 9;
     autonomousCommand = robotContainer.getAutonomousCommand();
 
     // schedule the autonomous command (example)
@@ -118,7 +122,12 @@ public class Robot extends LoggedRobot {
 
   /** This function is called periodically during autonomous. */
   @Override
-  public void autonomousPeriodic() {}
+  public void autonomousPeriodic() {
+    if (autoResetLifetime > 0){
+      autoResetLifetime--;
+      robotContainer.setCachedPose();
+    }
+  }
 
   /** This function is called once when teleop is enabled. */
   @Override

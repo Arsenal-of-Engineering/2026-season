@@ -26,9 +26,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
 import frc.robot.subsystems.OneWheelShooter;
+import frc.robot.subsystems.QuestNavSubsystem;
 import frc.robot.subsystems.SimpleMoveMotor;
 import frc.robot.subsystems.SolveTrajectoryPower;
 import frc.robot.subsystems.drive.Drive;
+import gg.questnav.questnav.QuestNav;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.geometry.Transform2d;
 /**
@@ -41,6 +43,7 @@ public class AimTarget extends Command {
   private OneWheelShooter m_oneWheelShooter;
   private SimpleMoveMotor m_pacerMotor;
   private SendableChooser<Integer> rpmSelection = new SendableChooser<>();
+  private SendableChooser<Integer> calcRpmAdj = new SendableChooser<>();
   private boolean isRotationCorrection = false;
   private double turretTarget = 0;
   private PIDController rotatePID =
@@ -59,9 +62,15 @@ public class AimTarget extends Command {
     for(int i = 2000; i <= 7000; i+= 250){
       rpmSelection.addOption("" + i, i);
     }
+    for (int i = -500; i <= 500; i += 100){
+      calcRpmAdj.addOption((i > 0 ? "+" : "") + i, i);
+    }
     rpmSelection.setDefaultOption("" + 4000, 4000);
     rpmSelection.close();
+    calcRpmAdj.setDefaultOption("" + 0, 0);
+    calcRpmAdj.close();
     SmartDashboard.putData("rpm chooser", rpmSelection);
+    SmartDashboard.putData("calc rpm adj", calcRpmAdj);
   }
   @Override
   public void initialize() {
@@ -71,16 +80,24 @@ public class AimTarget extends Command {
 
     Pose2d robotPose = m_drive.getPose();
 
-    ChassisSpeeds chassisSpeeds = m_drive.getChassisSpeeds();
+    
     
 
     Pose2d turretPose = robotPose.transformBy(ROBOT_TO_SHOOTER);
     SmartDashboard.putNumber("TurrX", turretPose.getX());
     SmartDashboard.putNumber("TurrY", turretPose.getY());
-
-    double[] robotGoal = SolveTrajectoryPower.calculate(turretPose.getX(), -chassisSpeeds.vxMetersPerSecond, turretPose.getY(), -chassisSpeeds.vyMetersPerSecond * 2);
-
-    AngularVelocity shooterVelocity = RPM.of(robotGoal[1]);
+    double[] robotGoal;
+    try{
+      double[] speeds = QuestNavSubsystem.getVelocity();
+      robotGoal = SolveTrajectoryPower.calculate(turretPose.getX(), -speeds[0], turretPose.getY(), -speeds[1] * 2);
+      SmartDashboard.putNumber("calc Vx", speeds[0]);
+      SmartDashboard.putNumber("calc Vy", speeds[1]);
+    } catch (Exception e){
+      System.out.println(e.getMessage());
+      ChassisSpeeds chassisSpeeds = m_drive.getChassisSpeeds();
+      robotGoal = SolveTrajectoryPower.calculate(turretPose.getX(), -chassisSpeeds.vxMetersPerSecond, turretPose.getY(), -chassisSpeeds.vyMetersPerSecond * 2);
+    }
+    AngularVelocity shooterVelocity = RPM.of(robotGoal[1] + calcRpmAdj.getSelected());
     //m_oneWheelShooter.setSpeed(RPM.of(rpmSelection.getSelected()));
     m_oneWheelShooter.setSpeed(shooterVelocity);
     

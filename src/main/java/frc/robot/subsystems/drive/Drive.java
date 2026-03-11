@@ -41,6 +41,8 @@ import frc.robot.Constants;
 import frc.robot.RobotContainer;
 import frc.robot.Constants.Mode;
 import frc.robot.util.LocalADStarAK;
+
+import java.util.Optional;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import org.littletonrobotics.junction.AutoLogOutput;
@@ -67,6 +69,7 @@ public class Drive extends SubsystemBase {
       };
   private SwerveDrivePoseEstimator poseEstimator =
       new SwerveDrivePoseEstimator(kinematics, rawGyroRotation, lastModulePositions, Pose2d.kZero);
+  private Pose2d cachedPose = null;
 
   public Drive(
       GyroIO gyroIO,
@@ -301,6 +304,21 @@ public class Drive extends SubsystemBase {
   public void setPose(Pose2d pose) {
     poseEstimator.resetPosition(rawGyroRotation, getModulePositions(), pose);
     RobotContainer.resetQuestPose(pose);
+    cachedPose = pose;
+  }
+
+  public void setCachedPose(){
+    if (cachedPose != null){
+      setPose(cachedPose);
+      System.out.println("I'm reseting to my cache of " + cachedPose.getMeasureX() + ", " + cachedPose.getMeasureY());
+    }
+  }
+
+  public Pose2d samplePoseEstimate(double timestamp) throws Exception{
+    if (poseEstimator.sampleAt(timestamp).isPresent()){
+      return poseEstimator.sampleAt(timestamp).get();
+    }
+    throw new Exception("No pose found at the sampling estimator");
   }
 
   /** Adds a new timestamped vision measurement. */
