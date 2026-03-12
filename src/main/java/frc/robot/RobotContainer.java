@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -69,6 +70,8 @@ public class RobotContainer {
 
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
+  private SendableChooser<Pose2d> autoStartChooser;
+  private SendableChooser<Boolean> resetPose;
   private SimpleMoveMotor m_intakeMotor = new SimpleMoveMotor(Constants.kIntakeMotorCanId);
   private SimpleMoveMotor m_pacerMotor = new SimpleMoveMotor(Constants.kPacerMotorCanId);
   private SimpleMoveMotor m_aimingMotor = new SimpleMoveMotor(Constants.kAimingMotorCanId);
@@ -131,6 +134,16 @@ public class RobotContainer {
 
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
 
+    autoStartChooser = new SendableChooser<>();
+    autoStartChooser.addOption("_Left...", new Pose2d(3.69, 6.435, new Rotation2d(0,0)));
+    autoStartChooser.addOption("_Center...", new Pose2d(3.703, 4.016, new Rotation2d(0,0)));
+    autoStartChooser.addOption("_Right...", new Pose2d(3.716, 1.648, new Rotation2d(0,0)));
+    autoStartChooser.setDefaultOption("_Center...", new Pose2d(3.703, 4.016, new Rotation2d(0,0)));
+    autoStartChooser.close();
+    SmartDashboard.putData("Auto Start", autoStartChooser);
+
+    autoStartChooser.onChange(this::pushAutoPose);
+
     // Set up SysId routines
     autoChooser.addOption(
         "Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(drive));
@@ -155,6 +168,10 @@ public class RobotContainer {
     // Put the USB camera into network tables to show in SmartDashboard
     var camera0 = CameraServer.startAutomaticCapture();
     CameraServer.addCamera(camera0);
+  }
+
+  public void pushAutoPose(Pose2d pose){
+    drive.setPose(pose);
   }
 
   public double getYSpeed() {

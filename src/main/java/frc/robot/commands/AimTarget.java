@@ -86,6 +86,7 @@ public class AimTarget extends Command {
     Pose2d turretPose = robotPose.transformBy(ROBOT_TO_SHOOTER);
     SmartDashboard.putNumber("TurrX", turretPose.getX());
     SmartDashboard.putNumber("TurrY", turretPose.getY());
+
     double[] robotGoal;
     try{
       double[] speeds = QuestNavSubsystem.getVelocity();
@@ -97,6 +98,7 @@ public class AimTarget extends Command {
       ChassisSpeeds chassisSpeeds = m_drive.getChassisSpeeds();
       robotGoal = SolveTrajectoryPower.calculate(turretPose.getX(), -chassisSpeeds.vxMetersPerSecond, turretPose.getY(), -chassisSpeeds.vyMetersPerSecond * 2);
     }
+    
     AngularVelocity shooterVelocity = RPM.of(robotGoal[1] + calcRpmAdj.getSelected());
     //m_oneWheelShooter.setSpeed(RPM.of(rpmSelection.getSelected()));
     m_oneWheelShooter.setSpeed(shooterVelocity);

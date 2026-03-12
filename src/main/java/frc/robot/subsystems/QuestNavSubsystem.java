@@ -107,7 +107,7 @@ public class QuestNavSubsystem extends SubsystemBase {
   public static double[] getVelocity() throws Exception{
     double[] vel = new double[2];
     for(int i = 0; i < recentTimestamps.size() - 1; i++){
-      if (recentTimestamps.get(i) > 100) continue;
+      if (recentTimestamps.get(i) < recentTimestamps.get(recentTimestamps.size() - 1) - 100) continue;
 
       double t2 = recentTimestamps.get(recentTimestamps.size() - 1);
       double t1 = recentTimestamps.get(i);
