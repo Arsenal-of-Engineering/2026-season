@@ -323,9 +323,6 @@ public class RobotContainer {
     m_questNav.resetPose(pose);
   }
 
-  public void setCachedPose(){
-    drive.setCachedPose();
-  }
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
    *

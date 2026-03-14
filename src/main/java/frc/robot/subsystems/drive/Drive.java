@@ -69,7 +69,7 @@ public class Drive extends SubsystemBase {
       };
   private SwerveDrivePoseEstimator poseEstimator =
       new SwerveDrivePoseEstimator(kinematics, rawGyroRotation, lastModulePositions, Pose2d.kZero);
-  private Pose2d cachedPose = null;
+  
 
   public Drive(
       GyroIO gyroIO,
@@ -304,14 +304,7 @@ public class Drive extends SubsystemBase {
   public void setPose(Pose2d pose) {
     poseEstimator.resetPosition(rawGyroRotation, getModulePositions(), pose);
     RobotContainer.resetQuestPose(pose);
-    cachedPose = pose;
-  }
-
-  public void setCachedPose(){
-    if (cachedPose != null){
-      setPose(cachedPose);
-      System.out.println("I'm reseting to my cache of " + cachedPose.getMeasureX() + ", " + cachedPose.getMeasureY());
-    }
+    
   }
 
   public Pose2d samplePoseEstimate(double timestamp) throws Exception{

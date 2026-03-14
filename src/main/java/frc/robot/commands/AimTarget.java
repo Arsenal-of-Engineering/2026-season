@@ -50,6 +50,7 @@ public class AimTarget extends Command {
       new PIDController(
           .02, 0.0, 0.00, .02);
   final Transform2d ROBOT_TO_SHOOTER;
+  private Side side;
 
   public enum Side{
     LEFT,
@@ -57,6 +58,7 @@ public class AimTarget extends Command {
   }
 
   public AimTarget(SimpleMoveMotor pacerMotor, AimTurret aimTurret, OneWheelShooter oneWheelShooter, Drive drive, Side side) {
+    this.side = side;
     switch(side){
       case LEFT:
         ROBOT_TO_SHOOTER = new Transform2d(8 * .0254, 8 * .0254, new Rotation2d());
@@ -105,12 +107,12 @@ public class AimTarget extends Command {
     ChassisSpeeds chassisSpeeds = m_drive.getChassisSpeeds();
     try{
       double[] speeds = QuestNavSubsystem.getVelocity();
-      robotGoal = SolveTrajectoryPower.calculate(turretPose.getX(), -speeds[0], turretPose.getY(), -speeds[1]);
+      robotGoal = SolveTrajectoryPower.calculate(turretPose.getX(), -speeds[0], turretPose.getY(), -speeds[1], side == Side.LEFT ? -1 : 1);
       SmartDashboard.putNumber("calc Vx", speeds[0]);
       SmartDashboard.putNumber("calc Vy", speeds[1]);
     } catch (Exception e){
       System.out.println(e.getMessage());
-      robotGoal = SolveTrajectoryPower.calculate(turretPose.getX(), -chassisSpeeds.vxMetersPerSecond, turretPose.getY(), -chassisSpeeds.vyMetersPerSecond);
+      robotGoal = SolveTrajectoryPower.calculate(turretPose.getX(), -chassisSpeeds.vxMetersPerSecond, turretPose.getY(), -chassisSpeeds.vyMetersPerSecond, side == Side.LEFT ? -1 : 1);
     }
     SmartDashboard.putNumber("spark Vx", chassisSpeeds.vxMetersPerSecond);
     SmartDashboard.putNumber("spark Vy", chassisSpeeds.vyMetersPerSecond);

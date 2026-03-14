@@ -22,10 +22,13 @@ public class SolveTrajectoryPower {
    * @return a double array with field relative turret angle [degrees] at index 0, shoot motor velocity [rpm] at
    *     index 1, and angle motor encoder at index 2
    */
-  public static double[] calculate(double xPos, double xVel, double yPos, double yVel) {
+  public static double[] calculate(double xPos, double xVel, double yPos, double yVel, int offsetDirection) {
+    double facing = Math.atan(yPos / xPos);
+    double xHub = 4.634 + Math.cos(facing + Math.PI / 2) * offsetDirection * Units.inchesToMeters(3.5);
+    double yHub = 4 + Math.sin(facing + Math.PI / 2) * offsetDirection * Units.inchesToMeters(3.5);
     // hub position
-    xPos =  4.634 - xPos;
-    yPos = 3.9 - yPos;
+    xPos =  xHub - xPos;
+    yPos = yHub - yPos;
     //long t1 = System.nanoTime();
     double a = 66 * Math.PI /180.0;
     double shooterHeight = .65; //meters
