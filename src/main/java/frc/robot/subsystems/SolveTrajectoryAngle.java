@@ -21,7 +21,7 @@ public class SolveTrajectoryAngle {
    *     index 1
    */
   public static double[] calculate(double xPos, double xVel, double yPos, double yVel) {
-    double t1 = System.nanoTime();
+    //double t1 = System.nanoTime();
     double ballSpeed = 7.35;
     double shooterHeight = 1;
     double goalHeight = 2;
@@ -32,7 +32,7 @@ public class SolveTrajectoryAngle {
     double guessA = Math.asin(guessV / ballSpeed);
 
     double a = solve(guessA, ballSpeed, xPos, yPos, xVel, yVel, l);
-    double t2 = System.nanoTime();
+    //double t2 = System.nanoTime();
     //System.out.println("a = " + a);
     //System.out.println((t2 - t1) / 1000000 + " ms");
 

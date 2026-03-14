@@ -49,9 +49,23 @@ public class AimTarget extends Command {
   private PIDController rotatePID =
       new PIDController(
           .02, 0.0, 0.00, .02);
-  final Transform2d ROBOT_TO_SHOOTER = new Transform2d(8 * .0254, 8 * .0254, new Rotation2d());
+  final Transform2d ROBOT_TO_SHOOTER;
 
-  public AimTarget(SimpleMoveMotor pacerMotor, AimTurret aimTurret, OneWheelShooter oneWheelShooter, Drive drive) {
+  public enum Side{
+    LEFT,
+    RIGHT
+  }
+
+  public AimTarget(SimpleMoveMotor pacerMotor, AimTurret aimTurret, OneWheelShooter oneWheelShooter, Drive drive, Side side) {
+    switch(side){
+      case LEFT:
+        ROBOT_TO_SHOOTER = new Transform2d(8 * .0254, 8 * .0254, new Rotation2d());
+        break;
+      case RIGHT:
+      default:
+        ROBOT_TO_SHOOTER = new Transform2d(8 * .0254, -8 * .0254, new Rotation2d());
+        break;
+    }
     m_pacerMotor = pacerMotor;
     rotatePID.setSetpoint(-45);
     m_aimTurret = aimTurret;
@@ -88,16 +102,18 @@ public class AimTarget extends Command {
     SmartDashboard.putNumber("TurrY", turretPose.getY());
 
     double[] robotGoal;
+    ChassisSpeeds chassisSpeeds = m_drive.getChassisSpeeds();
     try{
       double[] speeds = QuestNavSubsystem.getVelocity();
-      robotGoal = SolveTrajectoryPower.calculate(turretPose.getX(), -speeds[0], turretPose.getY(), -speeds[1] * 2);
+      robotGoal = SolveTrajectoryPower.calculate(turretPose.getX(), -speeds[0], turretPose.getY(), -speeds[1]);
       SmartDashboard.putNumber("calc Vx", speeds[0]);
       SmartDashboard.putNumber("calc Vy", speeds[1]);
     } catch (Exception e){
       System.out.println(e.getMessage());
-      ChassisSpeeds chassisSpeeds = m_drive.getChassisSpeeds();
-      robotGoal = SolveTrajectoryPower.calculate(turretPose.getX(), -chassisSpeeds.vxMetersPerSecond, turretPose.getY(), -chassisSpeeds.vyMetersPerSecond * 2);
+      robotGoal = SolveTrajectoryPower.calculate(turretPose.getX(), -chassisSpeeds.vxMetersPerSecond, turretPose.getY(), -chassisSpeeds.vyMetersPerSecond);
     }
+    SmartDashboard.putNumber("spark Vx", chassisSpeeds.vxMetersPerSecond);
+    SmartDashboard.putNumber("spark Vy", chassisSpeeds.vyMetersPerSecond);
     
     AngularVelocity shooterVelocity = RPM.of(robotGoal[1] + calcRpmAdj.getSelected());
     //m_oneWheelShooter.setSpeed(RPM.of(rpmSelection.getSelected()));

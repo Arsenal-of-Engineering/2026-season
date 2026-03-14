@@ -8,7 +8,7 @@ import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.SparkMax;
+//import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.units.measure.AngularVelocity;
@@ -22,13 +22,14 @@ public class OneWheelShooter extends SubsystemBase {
   private final double kD = 0;
   private final double kV = 0.00014; // FeedFoward
   private final double maxAcc = 20000.0;
-  private SparkFlex shootMotor = new SparkFlex(Constants.kShooterMotorCanId, MotorType.kBrushless);
+  private SparkFlex shootMotor;
   private SparkClosedLoopController shootMotorPID = shootMotor.getClosedLoopController();
 
-  public OneWheelShooter() {
+  public OneWheelShooter(int id) {
+    shootMotor = new SparkFlex(id, MotorType.kBrushless);
     SparkMaxConfig config = new SparkMaxConfig();
     config.closedLoop.pid(kP, kI, kD)
-        .outputRange(-1, 1)
+        .outputRange(0, 1)
         .feedForward
         .kV(kV);
     config.idleMode(IdleMode.kCoast);

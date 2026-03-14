@@ -29,11 +29,13 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
+import frc.robot.commands.AimTarget.Side;
 import frc.robot.commands.AimTarget;
 import frc.robot.commands.AimTurret;
 import edu.wpi.first.wpilibj2.command.RepeatCommand;
@@ -61,9 +63,9 @@ public class RobotContainer {
   private final Drive drive;
   // private final ShootMotors m_shootMotors = new ShootMotors();
   private static QuestNavSubsystem m_questNav;
-  private AimTurret m_rotate;
   
-  private final OneWheelShooter m_oneShootMotor = new OneWheelShooter();
+  private final OneWheelShooter m_leftOneShootMotor = new OneWheelShooter(Constants.kLeftShooterMotorCanId);
+  private final OneWheelShooter m_rightOneShootMotor = new OneWheelShooter(Constants.kRightShooterMotorCanId);
 
   // Controller
   private final CommandXboxController controller = new CommandXboxController(0);
@@ -71,17 +73,23 @@ public class RobotContainer {
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
   private SendableChooser<Pose2d> autoStartChooser;
-  private SendableChooser<Boolean> resetPose;
+ 
   private SimpleMoveMotor m_intakeMotor = new SimpleMoveMotor(Constants.kIntakeMotorCanId);
-  private SimpleMoveMotor m_pacerMotor = new SimpleMoveMotor(Constants.kPacerMotorCanId);
-  private SimpleMoveMotor m_aimingMotor = new SimpleMoveMotor(Constants.kAimingMotorCanId);
+  private SimpleMoveMotor m_leftPacerMotor = new SimpleMoveMotor(Constants.kLeftPacerMotorCanId);
+  private SimpleMoveMotor m_rightPacerMotor = new SimpleMoveMotor(Constants.kRightPacerMotorCanId);
+  private SimpleMoveMotor m_leftAimingMotor = new SimpleMoveMotor(Constants.kLeftAimingMotorCanId);
+  private SimpleMoveMotor m_rightAimingMotor = new SimpleMoveMotor(Constants.kRightAimingMotorCanId);
+  private SimpleMoveMotor m_leftAngleMotor = new SimpleMoveMotor(Constants.kLeftAngleMotorCanId);
+  private SimpleMoveMotor m_rightAngleMotor = new SimpleMoveMotor(Constants.kRightAngleMotorCanId);
   private SimpleMoveMotor m_conveyorMotor = new SimpleMoveMotor(Constants.kConveyorMotorCanId);
   private SimpleMoveMotor m_feederMotor = new SimpleMoveMotor(Constants.kFeederMotorCanId);
-  private SimpleMoveMotor m_angleMotor = new SimpleMoveMotor(Constants.kAngleMotorCanId);
+  
   private SimpleMoveMotor m_ropeMotor = new SimpleMoveMotor(Constants.kRopeMotorCanId);
-  private AimTurret m_aimTurret = new AimTurret(m_aimingMotor, m_angleMotor);
+  private AimTurret m_leftAimTurret = new AimTurret(m_leftAimingMotor, m_leftAngleMotor);
+  private AimTurret m_rightAimTurret = new AimTurret(m_rightAimingMotor, m_rightAngleMotor);
   private Joystick m_joystick = new Joystick(Constants.kJoystickId);
-  private AimTarget m_aimTarget;
+  private AimTarget m_leftAimTarget, m_rightAimTarget;
+
 
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
@@ -126,7 +134,8 @@ public class RobotContainer {
     }
 
     m_questNav = new QuestNavSubsystem(drive);
-    m_aimTarget = new AimTarget(m_pacerMotor, m_aimTurret, m_oneShootMotor, drive);
+    m_leftAimTarget = new AimTarget(m_leftPacerMotor, m_leftAimTurret, m_leftOneShootMotor, drive, Side.LEFT);
+    m_rightAimTarget = new AimTarget(m_rightPacerMotor, m_rightAimTurret, m_rightOneShootMotor, drive, Side.RIGHT);
 
     // Set up auto routines
 
@@ -136,6 +145,7 @@ public class RobotContainer {
 
     autoStartChooser = new SendableChooser<>();
     autoStartChooser.addOption("_Left...", new Pose2d(3.69, 6.435, new Rotation2d(0,0)));
+    autoStartChooser.addOption("_Left Humble...", new Pose2d(3.69, 4.968, new Rotation2d(Math.toRadians(180))));
     autoStartChooser.addOption("_Center...", new Pose2d(3.703, 4.016, new Rotation2d(0,0)));
     autoStartChooser.addOption("_Right...", new Pose2d(3.716, 1.648, new Rotation2d(0,0)));
     autoStartChooser.setDefaultOption("_Center...", new Pose2d(3.703, 4.016, new Rotation2d(0,0)));
@@ -197,9 +207,9 @@ public class RobotContainer {
   }
 
   public double getRotSpeed() {
-    if (m_aimTarget.isScheduled() && m_aimTarget.isRotationCorrecting()) {
-      return m_aimTarget.getCorrectionSpeed();
-    }
+    // if (m_aimTarget.isScheduled() && m_aimTarget.isRotationCorrecting()) {
+    //   return m_aimTarget.getCorrectionSpeed();
+    // }
 
     return -controller.getRightX();
   }
@@ -230,19 +240,19 @@ public class RobotContainer {
     // controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
     // controller.x().onTrue(Commands.runOnce(() -> m_shootMotors.shoot(-1)));
     // controller.x().onFalse(Commands.runOnce(() -> m_shootMotors.shoot(0)));
-    controller.leftBumper().whileTrue(new RepeatCommand(new InstantCommand(() -> m_aimingMotor.set(-.25))));
-    controller.rightBumper().whileTrue(new RepeatCommand(new InstantCommand(() -> m_aimingMotor.set(.25))));
-    controller.leftBumper().onFalse(new RepeatCommand(new InstantCommand(() -> m_aimingMotor.set(0))));
-    controller.rightBumper().onFalse(new RepeatCommand(new InstantCommand(() -> m_aimingMotor.set(0))));
+    controller.leftBumper().whileTrue(new RepeatCommand(new InstantCommand(() -> {m_leftAimingMotor.set(-.25);m_rightAimingMotor.set(-.25);})));
+    controller.rightBumper().whileTrue(new RepeatCommand(new InstantCommand(() -> {m_leftAimingMotor.set(.25);m_rightAimingMotor.set(.25);})));
+    controller.leftBumper().onFalse(new RepeatCommand(new InstantCommand(() -> {m_leftAimingMotor.set(0);m_rightAimingMotor.set(0);})));
+    controller.rightBumper().onFalse(new RepeatCommand(new InstantCommand(() -> {m_leftAimingMotor.set(0);m_rightAimingMotor.set(0);})));
 
-    controller.y().whileTrue(m_oneShootMotor.runSpeed(RPM.of(3000.0)));
+    controller.y().whileTrue(m_leftOneShootMotor.runSpeed(RPM.of(3000.0)).alongWith(m_rightOneShootMotor.runSpeed(RPM.of(3000))));
 
     // Reset pose to center hub  when left trigger is pressed
     controller.leftTrigger(.5).onTrue(new InstantCommand(() -> drive.setPose(new Pose2d(3.677,4,new Rotation2d(0,0)))));
 
     
-    controller.rightTrigger(.5).onTrue(new InstantCommand(() -> m_aimTurret.setTarget(m_aimTurret.getRotation())));
-    controller.rightTrigger(.5).whileTrue(m_aimTarget.alongWith(m_aimTurret));
+    controller.rightTrigger(.5).onTrue(new InstantCommand(() -> {m_rightAimTurret.setTarget(m_rightAimTurret.getRotation());m_leftAimTurret.setTarget(m_leftAimTurret.getRotation());}));
+    controller.rightTrigger(.5).whileTrue(m_leftAimTarget.alongWith(m_leftAimTurret).alongWith(m_rightAimTarget).alongWith(m_rightAimTurret));
 
     
 
@@ -259,10 +269,10 @@ public class RobotContainer {
     new JoystickButton(m_joystick, 11).onFalse(new InstantCommand(() -> m_conveyorMotor.set(0)));
     new JoystickButton(m_joystick, 9).onFalse(new InstantCommand(() -> m_conveyorMotor.set(0)));
     
-    joystickInstantToggle(8, () -> m_pacerMotor.set(1), () -> m_pacerMotor.set(0));
-    joystickInstantToggle(3, () -> m_angleMotor.set(.15), () -> m_angleMotor.set(0));
-    joystickInstantToggle(4, () -> m_angleMotor.set(-.15), () -> m_angleMotor.set(0));
-    joystickInstantToggle(7, () -> {m_oneShootMotor.setSpeed(m_aimTarget.getRPMSelection());m_pacerMotor.set(-1);}, () -> {m_oneShootMotor.setSpeed(RPM.of(0));m_pacerMotor.set(0);});
+    joystickInstantToggle(8, () -> {m_leftPacerMotor.set(1); m_rightPacerMotor.set(1);}, () -> {m_leftPacerMotor.set(0); m_rightPacerMotor.set(0);});
+    joystickInstantToggle(3, () -> m_leftAngleMotor.set(.15), () -> m_leftAngleMotor.set(0));
+    joystickInstantToggle(4, () -> m_leftAngleMotor.set(-.15), () -> m_leftAngleMotor.set(0));
+    joystickInstantToggle(7, () -> {m_leftOneShootMotor.setSpeed(m_leftAimTarget.getRPMSelection());m_rightOneShootMotor.setSpeed(m_rightAimTarget.getRPMSelection());m_leftPacerMotor.set(-1);m_rightPacerMotor.set(-1);}, () -> {m_leftOneShootMotor.setSpeed(RPM.of(0));m_rightOneShootMotor.setSpeed(RPM.of(0));m_rightPacerMotor.set(0);m_leftPacerMotor.set(0);});
     joystickInstantToggle(12, () -> m_ropeMotor.set(.3), () -> m_ropeMotor.set(0));
     joystickInstantToggle(10, () -> m_ropeMotor.set(-.3), () -> m_ropeMotor.set(0));
   }
@@ -285,9 +295,8 @@ public class RobotContainer {
     NamedCommands.registerCommand(
         "Climb", new InstantCommand(() -> System.out.println("surely there is a climb design")));
 
-    NamedCommands.registerCommand("Hood Down", new InstantCommand(() -> m_angleMotor.set(-.15)));
-    NamedCommands.registerCommand("Shoot", m_aimTarget);
-    NamedCommands.registerCommand("Aim", m_aimTurret);
+    NamedCommands.registerCommand("Shoot", m_leftAimTarget.alongWith(m_rightAimTarget));
+    NamedCommands.registerCommand("Aim", m_leftAimTurret.alongWith(m_rightAimTurret));
     NamedCommands.registerCommand("Intake", new InstantCommand(() -> {m_conveyorMotor.set(1.0); m_feederMotor.set(-1);m_intakeMotor.set(1.0);}));
     NamedCommands.registerCommand("Process", new InstantCommand(() -> {m_conveyorMotor.set(1.0);m_feederMotor.set(-1);}));
     NamedCommands.registerCommand("Deploy Hopper", new InstantCommand(() -> m_ropeMotor.set(.3)));
@@ -298,11 +307,14 @@ public class RobotContainer {
 
   public void stopMotors(){
       m_intakeMotor.set(0);
-      m_pacerMotor.set(0);
-      m_aimingMotor.set(0);
+      m_leftPacerMotor.set(0);
+      m_rightPacerMotor.set(0);
+      m_leftAimingMotor.set(0);
+      m_rightAimingMotor.set(0);
       m_conveyorMotor.set(0);
       m_feederMotor.set(0);
-      m_angleMotor.set(0);
+      m_rightAngleMotor.set(0);
+      m_leftAngleMotor.set(0);
       m_ropeMotor.set(0);
   }
 

@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.74,
-        "y": 5.019
+        "x": 6.871,
+        "y": 5.04
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.363228915662651,
-        "y": 5.0734096385542164
+        "x": 5.695513126491647,
+        "y": 5.62573985680191
       },
       "isLocked": false,
       "linkedName": null
@@ -20,8 +20,8 @@
         "y": 5.783433734939758
       },
       "prevControl": {
-        "x": 3.4180963855421687,
-        "y": 5.783433734939758
+        "x": 3.2047494033412884,
+        "y": 5.24898568019093
       },
       "nextControl": null,
       "isLocked": false,
@@ -30,30 +30,30 @@
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 0.40997830802603114,
-      "rotationDegrees": -125.00000000000001
+      "waypointRelativePos": 0.540130151843818,
+      "rotationDegrees": 0.0
     }
   ],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 3.0,
-    "maxAcceleration": 3.0,
+    "maxVelocity": 4.0,
+    "maxAcceleration": 2.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 0,
+    "velocity": 0.0,
     "rotation": -90.0
   },
   "reversed": false,
   "folder": "Humble Left Baller",
   "idealStartingState": {
-    "velocity": 0,
-    "rotation": 90.0
+    "velocity": 1.0,
+    "rotation": 0.0
   },
   "useDefaultConstraints": true
 }

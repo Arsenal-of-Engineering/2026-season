@@ -34,8 +34,8 @@ public class QuestNavSubsystem extends SubsystemBase {
           .2 // Trust down to 2 degrees rotational
           );
 
-  public QuestNavSubsystem(/*maybe add robot pose info here */ Drive driveSubsystem) {
-    this.driveSubsystem = driveSubsystem;
+  public QuestNavSubsystem(Drive m_driveSubsystem) {
+    driveSubsystem = m_driveSubsystem;
     questNav = new QuestNav();
     // Assume this is the requested reset pose
 
@@ -105,7 +105,6 @@ public class QuestNavSubsystem extends SubsystemBase {
   }
 
   public static double[] getVelocity() throws Exception{
-    double[] vel = new double[2];
     for(int i = 0; i < recentTimestamps.size() - 1; i++){
       if (recentTimestamps.get(i) < recentTimestamps.get(recentTimestamps.size() - 1) - 100) continue;
 
@@ -116,7 +115,7 @@ public class QuestNavSubsystem extends SubsystemBase {
         pose2 = driveSubsystem.samplePoseEstimate(t2);
         pose1 = driveSubsystem.samplePoseEstimate(t1);
       } catch(Exception e){
-          throw new Exception("Pose Estimator buffer emptys");
+          throw new Exception("Pose Estimator buffer empty");
       }
 
       return new double[]{(pose2.getX()-pose1.getX())/(t2-t1), (pose2.getY()-pose1.getY())/(t2-t1)};

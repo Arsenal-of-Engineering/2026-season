@@ -26,7 +26,7 @@ public class SolveTrajectoryPower {
     // hub position
     xPos =  4.634 - xPos;
     yPos = 3.9 - yPos;
-    long t1 = System.nanoTime();
+    //long t1 = System.nanoTime();
     double a = 66 * Math.PI /180.0;
     double shooterHeight = .65; //meters
     double goalHeight = 2;
@@ -48,7 +48,7 @@ public class SolveTrajectoryPower {
 
 
     double t = solve(guessT, a, xPos, yPos, xVel, yVel, l);
-    long t2 = System.nanoTime();
+    //long t2 = System.nanoTime();
     //System.out.println("t = " + t);
     //System.out.println((t2 - t1) / 1000000.0 + " ms");
 
@@ -71,9 +71,7 @@ public class SolveTrajectoryPower {
     return new double[] {angle, rpm, churro};
   }
 
-  private static double testingAngleToTime(double angle) {
-    return 0.0;
-  }
+  
 
   // Function f(x)
   private static double f(
