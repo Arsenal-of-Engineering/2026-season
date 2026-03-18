@@ -51,13 +51,20 @@ public class AimTarget extends Command {
           .02, 0.0, 0.00, .02);
   final Transform2d ROBOT_TO_SHOOTER;
   private Side side;
+  private Goal goal;
 
   public enum Side{
     LEFT,
     RIGHT
   }
 
+  public enum Goal{
+    HUB,
+    CLOSEST_PASS
+  }
+
   public AimTarget(SimpleMoveMotor pacerMotor, AimTurret aimTurret, OneWheelShooter oneWheelShooter, Drive drive, Side side) {
+    goal = Goal.HUB;
     this.side = side;
     switch(side){
       case LEFT:
@@ -88,10 +95,12 @@ public class AimTarget extends Command {
     SmartDashboard.putData("rpm chooser", rpmSelection);
     SmartDashboard.putData("calc rpm adj", calcRpmAdj);
   }
+
   @Override
   public void initialize() {
     timer.restart();
   }
+
   public void execute() {
 
     Pose2d robotPose = m_drive.getPose();
@@ -103,16 +112,26 @@ public class AimTarget extends Command {
     SmartDashboard.putNumber("TurrX", turretPose.getX());
     SmartDashboard.putNumber("TurrY", turretPose.getY());
 
+    double xTarget, yTarget;
+    switch(goal){
+      case CLOSEST_PASS:
+        xTarget = 1;
+        yTarget = m_drive.getPose().getY() > 4 ? 8 - 1 : 1;
+      case HUB:
+      default:
+        xTarget = 4.634;
+        yTarget = 4;
+    }
     double[] robotGoal;
     ChassisSpeeds chassisSpeeds = m_drive.getChassisSpeeds();
     try{
       double[] speeds = QuestNavSubsystem.getVelocity();
-      robotGoal = SolveTrajectoryPower.calculate(turretPose.getX(), -speeds[0], turretPose.getY(), -speeds[1], side == Side.LEFT ? -1 : 1);
+      robotGoal = SolveTrajectoryPower.calculate(turretPose.getX(), -speeds[0], turretPose.getY(), -speeds[1], xTarget, yTarget, side == Side.LEFT ? -1 : 1);
       SmartDashboard.putNumber("calc Vx", speeds[0]);
       SmartDashboard.putNumber("calc Vy", speeds[1]);
     } catch (Exception e){
       System.out.println(e.getMessage());
-      robotGoal = SolveTrajectoryPower.calculate(turretPose.getX(), -chassisSpeeds.vxMetersPerSecond, turretPose.getY(), -chassisSpeeds.vyMetersPerSecond, side == Side.LEFT ? -1 : 1);
+      robotGoal = SolveTrajectoryPower.calculate(turretPose.getX(), -chassisSpeeds.vxMetersPerSecond, turretPose.getY(), -chassisSpeeds.vyMetersPerSecond, xTarget, yTarget, side == Side.LEFT ? -1 : 1);
     }
     SmartDashboard.putNumber("spark Vx", chassisSpeeds.vxMetersPerSecond);
     SmartDashboard.putNumber("spark Vy", chassisSpeeds.vyMetersPerSecond);
@@ -141,10 +160,18 @@ public class AimTarget extends Command {
     
   }
 
-  public double getCorrectionSpeed(){
-    if (!isRotationCorrection) return 0.0;
-    return rotatePID.calculate(turretTarget);
+  /**
+   * Sets the command to target the specified goal location
+   * @param newGoal The new goal to target
+   */
+  public void setGoal(Goal newGoal){
+    goal = newGoal;
   }
+
+  // public double getCorrectionSpeed(){
+  //   if (!isRotationCorrection) return 0.0;
+  //   return rotatePID.calculate(turretTarget);
+  // }
 
   public void end(boolean interrupted){
     m_oneWheelShooter.setSpeed(RPM.of(0));
@@ -152,9 +179,10 @@ public class AimTarget extends Command {
     timer.stop();
   }
 
-  public boolean isRotationCorrecting(){
-    return isRotationCorrection;
-  }
+  // public boolean isRotationCorrecting(){
+  //   return isRotationCorrection;
+  // }
+
   public AngularVelocity getRPMSelection(){
     return RPM.of(rpmSelection.getSelected());
   }

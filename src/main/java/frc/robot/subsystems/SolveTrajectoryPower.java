@@ -22,10 +22,10 @@ public class SolveTrajectoryPower {
    * @return a double array with field relative turret angle [degrees] at index 0, shoot motor velocity [rpm] at
    *     index 1, and angle motor encoder at index 2
    */
-  public static double[] calculate(double xPos, double xVel, double yPos, double yVel, int offsetDirection) {
-    double facing = Math.atan(yPos / xPos);
-    double xHub = 4.634 + Math.cos(facing + Math.PI / 2) * offsetDirection * Units.inchesToMeters(3.5);
-    double yHub = 4 + Math.sin(facing + Math.PI / 2) * offsetDirection * Units.inchesToMeters(3.5);
+  public static double[] calculate(double xPos, double xVel, double yPos, double yVel, double xTarget, double yTarget, int offsetDirection) {
+    double facing = Math.atan((yTarget - yPos) / (xTarget - xPos));
+    double xHub = xTarget + Math.cos(facing + Math.PI / 2) * offsetDirection * Units.inchesToMeters(3.5);
+    double yHub = yTarget + Math.sin(facing + Math.PI / 2) * offsetDirection * Units.inchesToMeters(3.5);
     // hub position
     xPos =  xHub - xPos;
     yPos = yHub - yPos;
@@ -95,7 +95,7 @@ public class SolveTrajectoryPower {
 
   private static double getAngle(double distanceToHub){
     // regression line from google sheets
-    double churro = Math.max(3.36 * distanceToHub - 3.63, 0);
+    double churro = MathUtil.clamp(3.36 * distanceToHub - 3.63, 0,20);
   
     // interp between 0 = 66 degrees and 20 = 50 degrees
     return (66 - 16*(churro/20)) * Math.PI / 180.0;

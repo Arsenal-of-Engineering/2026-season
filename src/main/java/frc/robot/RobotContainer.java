@@ -35,6 +35,7 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
+import frc.robot.commands.AimTarget.Goal;
 import frc.robot.commands.AimTarget.Side;
 import frc.robot.commands.AimTarget;
 import frc.robot.commands.AimTurret;
@@ -245,13 +246,13 @@ public class RobotContainer {
     controller.leftBumper().onFalse(new RepeatCommand(new InstantCommand(() -> {m_leftAimingMotor.set(0);m_rightAimingMotor.set(0);})));
     controller.rightBumper().onFalse(new RepeatCommand(new InstantCommand(() -> {m_leftAimingMotor.set(0);m_rightAimingMotor.set(0);})));
 
-    controller.y().whileTrue(m_leftOneShootMotor.runSpeed(RPM.of(3000.0)).alongWith(m_rightOneShootMotor.runSpeed(RPM.of(3000))));
+    controller.y().onTrue(new InstantCommand(() -> drive.setPose(new Pose2d(3.677,4,new Rotation2d(0,0)))));
 
     // Reset pose to center hub  when left trigger is pressed
-    controller.leftTrigger(.5).onTrue(new InstantCommand(() -> drive.setPose(new Pose2d(3.677,4,new Rotation2d(0,0)))));
-
+    controller.leftTrigger(.5).onTrue(new InstantCommand(() -> {m_rightAimTurret.setTarget(m_rightAimTurret.getRotation());m_rightAimTarget.setGoal(Goal.CLOSEST_PASS);m_leftAimTurret.setTarget(m_leftAimTurret.getRotation());m_leftAimTarget.setGoal(Goal.CLOSEST_PASS);}));
+    controller.leftTrigger(.5).whileTrue(m_leftAimTarget.alongWith(m_leftAimTurret).alongWith(m_rightAimTarget).alongWith(m_rightAimTurret));
     
-    controller.rightTrigger(.5).onTrue(new InstantCommand(() -> {m_rightAimTurret.setTarget(m_rightAimTurret.getRotation());m_leftAimTurret.setTarget(m_leftAimTurret.getRotation());}));
+    controller.rightTrigger(.5).onTrue(new InstantCommand(() -> {m_rightAimTurret.setTarget(m_rightAimTurret.getRotation());m_rightAimTarget.setGoal(Goal.HUB);m_leftAimTurret.setTarget(m_leftAimTurret.getRotation());m_rightAimTarget.setGoal(Goal.HUB);}));
     controller.rightTrigger(.5).whileTrue(m_leftAimTarget.alongWith(m_leftAimTurret).alongWith(m_rightAimTarget).alongWith(m_rightAimTurret));
 
     
