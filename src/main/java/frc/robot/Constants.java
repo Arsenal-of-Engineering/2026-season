@@ -15,20 +15,22 @@ import edu.wpi.first.wpilibj.RobotBase;
  * (log replay from a file).
  */
 public final class Constants {
-  public static final double kAimingDegreesPerRotation = 4.86;
+  // 4.86
+  public static final double kLeftAimingDegreesPerRotation = 90 / 55.0;
+  public static final double kRightAimingDegreesPerRotation = 90 / 45.0;
   public static final int kLeftAimingMotorCanId = 13;
-  public static final int kLeftAngleMotorCanId = 15;
-  public static final int kRightAimingMotorCanId = 20;
-  public static final int kRightAngleMotorCanId = 578;
+  public static final int kRightAimingMotorCanId = 12;
+  public static final int kLeftAngleMotorCanId = 10;
+  public static final int kRightAngleMotorCanId = 15;
+  public static final int kLeftShooterMotorCanId = 17;
+  public static final int kRightShooterMotorCanId = 11;
+  public static final int kLeftPacerMotorCanId = 140;
+  public static final int kRightPacerMotorCanId = 141;
 
-  public static final int kLeftShooterMotorCanId = 11;
-  public static final int kRightShooterMotorCanId = 1111;
-  public static final int kConveyorMotorCanId = 10;
+  public static final int kConveyorMotorCanId = 150;
   public static final int kIntakeMotorCanId = 9;
-  public static final int kFeederMotorCanId = 12;
-  public static final int kLeftPacerMotorCanId = 14;
-  public static final int kRightPacerMotorCanId = 1400;
-  public static final int kRopeMotorCanId = 16;
+  public static final int kFeederMotorCanId = 200;
+  public static final int kRopeMotorCanId = 14;
   public static final int kJoystickId = 1;
   public static final Mode simMode = Mode.SIM;
   public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : simMode;

@@ -21,6 +21,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -86,10 +87,16 @@ public class RobotContainer {
   private SimpleMoveMotor m_feederMotor = new SimpleMoveMotor(Constants.kFeederMotorCanId);
   
   private SimpleMoveMotor m_ropeMotor = new SimpleMoveMotor(Constants.kRopeMotorCanId);
-  private AimTurret m_leftAimTurret = new AimTurret(m_leftAimingMotor, m_leftAngleMotor);
-  private AimTurret m_rightAimTurret = new AimTurret(m_rightAimingMotor, m_rightAngleMotor);
+  private AimTurret m_leftAimTurret = new AimTurret(m_leftAimingMotor, m_leftAngleMotor, true);
+  private AimTurret m_rightAimTurret = new AimTurret(m_rightAimingMotor, m_rightAngleMotor, false);
+  private AimTurret m_autoLeftAimTurret = new AimTurret(m_leftAimingMotor, m_leftAngleMotor, true);
+  private AimTurret m_autoRightAimTurret = new AimTurret(m_rightAimingMotor, m_rightAngleMotor, false);
   private Joystick m_joystick = new Joystick(Constants.kJoystickId);
-  private AimTarget m_leftAimTarget, m_rightAimTarget;
+  private AimTarget m_leftAimTarget, m_rightAimTarget, m_autoLeftAimTarget, m_autoRightAimTarget;
+
+  // six seven
+  private Servo leftServo = new Servo(6);
+  private Servo rightServo = new Servo(7);
 
 
 
@@ -137,6 +144,8 @@ public class RobotContainer {
     m_questNav = new QuestNavSubsystem(drive);
     m_leftAimTarget = new AimTarget(m_leftPacerMotor, m_leftAimTurret, m_leftOneShootMotor, drive, Side.LEFT);
     m_rightAimTarget = new AimTarget(m_rightPacerMotor, m_rightAimTurret, m_rightOneShootMotor, drive, Side.RIGHT);
+    m_autoLeftAimTarget = new AimTarget(m_leftPacerMotor, m_leftAimTurret, m_leftOneShootMotor, drive, Side.LEFT);
+    m_autoRightAimTarget = new AimTarget(m_rightPacerMotor, m_rightAimTurret, m_rightOneShootMotor, drive, Side.RIGHT);
 
     // Set up auto routines
 
@@ -183,6 +192,11 @@ public class RobotContainer {
 
   public void pushAutoPose(Pose2d pose){
     drive.setPose(pose);
+  }
+
+  public void extendHopper(){
+    leftServo.set(0);
+    rightServo.set(0);
   }
 
   public double getYSpeed() {
@@ -240,20 +254,27 @@ public class RobotContainer {
     // Switch to X pattern when X button is pressed
     // controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
     // controller.x().onTrue(Commands.runOnce(() -> m_shootMotors.shoot(-1)));
-    // controller.x().onFalse(Commands.runOnce(() -> m_shootMotors.shoot(0)));
-    controller.leftBumper().whileTrue(new RepeatCommand(new InstantCommand(() -> {m_leftAimingMotor.set(-.25);m_rightAimingMotor.set(-.25);})));
-    controller.rightBumper().whileTrue(new RepeatCommand(new InstantCommand(() -> {m_leftAimingMotor.set(.25);m_rightAimingMotor.set(.25);})));
-    controller.leftBumper().onFalse(new RepeatCommand(new InstantCommand(() -> {m_leftAimingMotor.set(0);m_rightAimingMotor.set(0);})));
-    controller.rightBumper().onFalse(new RepeatCommand(new InstantCommand(() -> {m_leftAimingMotor.set(0);m_rightAimingMotor.set(0);})));
+    // controller.x().onFalse(Commands.runOnce(() -> m_shootMotors.shoot(0)));\
+
+
+    // controller.leftBumper().whileTrue(new RepeatCommand(new InstantCommand(() -> {m_leftAimingMotor.set(-.5);/*m_rightAimingMotor.set(-.25);*/})));
+    // controller.rightBumper().whileTrue(new RepeatCommand(new InstantCommand(() -> {m_leftAimingMotor.set(.5);/*m_rightAimingMotor.set(.25);*/})));
+    // controller.leftBumper().onFalse(new RepeatCommand(new InstantCommand(() -> {m_leftAimingMotor.set(0);/*m_rightAimingMotor.set(0);*/})));
+    // controller.rightBumper().onFalse(new RepeatCommand(new InstantCommand(() -> {m_leftAimingMotor.set(0);/*m_rightAimingMotor.set(0);*/})));
+    controller.leftBumper().onTrue(new InstantCommand(() -> {m_rightAimTurret.setTarget(-70);}));
+    controller.rightBumper().onTrue(new InstantCommand(() -> {m_rightAimTurret.setTarget(10);}));
+    controller.a().whileTrue(m_rightAimTurret);
 
     controller.y().onTrue(new InstantCommand(() -> drive.setPose(new Pose2d(3.677,4,new Rotation2d(0,0)))));
 
     // Reset pose to center hub  when left trigger is pressed
-    controller.leftTrigger(.5).onTrue(new InstantCommand(() -> {m_rightAimTurret.setTarget(m_rightAimTurret.getRotation());m_rightAimTarget.setGoal(Goal.CLOSEST_PASS);m_leftAimTurret.setTarget(m_leftAimTurret.getRotation());m_leftAimTarget.setGoal(Goal.CLOSEST_PASS);}));
-    controller.leftTrigger(.5).whileTrue(m_leftAimTarget.alongWith(m_leftAimTurret).alongWith(m_rightAimTarget).alongWith(m_rightAimTurret));
-    
-    controller.rightTrigger(.5).onTrue(new InstantCommand(() -> {m_rightAimTurret.setTarget(m_rightAimTurret.getRotation());m_rightAimTarget.setGoal(Goal.HUB);m_leftAimTurret.setTarget(m_leftAimTurret.getRotation());m_rightAimTarget.setGoal(Goal.HUB);}));
-    controller.rightTrigger(.5).whileTrue(m_leftAimTarget.alongWith(m_leftAimTurret).alongWith(m_rightAimTarget).alongWith(m_rightAimTurret));
+    // controller.leftTrigger(.5).onTrue(new InstantCommand(() -> {m_rightAimTurret.setTarget(m_rightAimTurret.getRotation());m_rightAimTarget.setGoal(Goal.CLOSEST_PASS);m_leftAimTurret.setTarget(m_leftAimTurret.getRotation());m_leftAimTarget.setGoal(Goal.CLOSEST_PASS);}));
+    // controller.leftTrigger(.5).whileTrue(m_leftAimTarget.alongWith(m_leftAimTurret).alongWith(m_rightAimTarget).alongWith(m_rightAimTurret));
+    controller.x().onTrue(new InstantCommand(() -> {m_rightAimTarget.setGoal(Goal.CLOSEST_PASS);m_leftAimTarget.setGoal(Goal.CLOSEST_PASS);}));
+    controller.b().onTrue(new InstantCommand(() -> {m_rightAimTarget.setGoal(Goal.HUB);m_rightAimTarget.setGoal(Goal.HUB);}));
+
+    // controller.rightTrigger(.5).onTrue(new InstantCommand(() -> {m_rightAimTurret.setTarget(m_rightAimTurret.getRotation());m_leftAimTurret.setTarget(m_leftAimTurret.getRotation());}));
+    // controller.rightTrigger(.5).whileTrue(m_leftAimTarget.alongWith(m_leftAimTurret).alongWith(m_rightAimTarget).alongWith(m_rightAimTurret));
 
     
 
@@ -273,7 +294,7 @@ public class RobotContainer {
     joystickInstantToggle(8, () -> {m_leftPacerMotor.set(1); m_rightPacerMotor.set(1);}, () -> {m_leftPacerMotor.set(0); m_rightPacerMotor.set(0);});
     joystickInstantToggle(3, () -> m_leftAngleMotor.set(.15), () -> m_leftAngleMotor.set(0));
     joystickInstantToggle(4, () -> m_leftAngleMotor.set(-.15), () -> m_leftAngleMotor.set(0));
-    joystickInstantToggle(7, () -> {m_leftOneShootMotor.setSpeed(m_leftAimTarget.getRPMSelection());m_rightOneShootMotor.setSpeed(m_rightAimTarget.getRPMSelection());m_leftPacerMotor.set(-1);m_rightPacerMotor.set(-1);}, () -> {m_leftOneShootMotor.setSpeed(RPM.of(0));m_rightOneShootMotor.setSpeed(RPM.of(0));m_rightPacerMotor.set(0);m_leftPacerMotor.set(0);});
+    joystickInstantToggle(7, () -> {m_leftOneShootMotor.setSpeed(m_leftAimTarget.getRPMSelection());m_rightOneShootMotor.setSpeed(m_rightAimTarget.getRPMSelection());/*m_leftPacerMotor.set(-1);m_rightPacerMotor.set(-1);*/}, () -> {m_leftOneShootMotor.setSpeed(RPM.of(0));m_rightOneShootMotor.setSpeed(RPM.of(0));/*m_rightPacerMotor.set(0);m_leftPacerMotor.set(0);*/});
     joystickInstantToggle(12, () -> m_ropeMotor.set(.3), () -> m_ropeMotor.set(0));
     joystickInstantToggle(10, () -> m_ropeMotor.set(-.3), () -> m_ropeMotor.set(0));
   }
@@ -295,9 +316,11 @@ public class RobotContainer {
     
     NamedCommands.registerCommand(
         "Climb", new InstantCommand(() -> System.out.println("surely there is a climb design")));
-
-    NamedCommands.registerCommand("Shoot", m_leftAimTarget.alongWith(m_rightAimTarget));
-    NamedCommands.registerCommand("Aim", m_leftAimTurret.alongWith(m_rightAimTurret));
+    
+        NamedCommands.registerCommand(
+        "Hood Down", new InstantCommand(() -> System.out.println("surely there is a hood down")));
+    NamedCommands.registerCommand("Shoot", m_autoLeftAimTarget.alongWith(m_autoRightAimTarget));
+    NamedCommands.registerCommand("Aim", m_autoLeftAimTurret.alongWith(m_autoRightAimTurret));
     NamedCommands.registerCommand("Intake", new InstantCommand(() -> {m_conveyorMotor.set(1.0); m_feederMotor.set(-1);m_intakeMotor.set(1.0);}));
     NamedCommands.registerCommand("Process", new InstantCommand(() -> {m_conveyorMotor.set(1.0);m_feederMotor.set(-1);}));
     NamedCommands.registerCommand("Deploy Hopper", new InstantCommand(() -> m_ropeMotor.set(.3)));

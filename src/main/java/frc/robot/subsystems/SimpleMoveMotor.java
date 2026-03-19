@@ -51,9 +51,12 @@ public class SimpleMoveMotor extends SubsystemBase {
                 theMotor.set(0);
             }
         }
-        // if(theMotor.getDeviceId() == Constants.kAngleMotorCanId){
-        //     SmartDashboard.putNumber("Angle encoder", getEncoderPosition());
-        // }
+        if(theMotor.getDeviceId() == Constants.kLeftAimingMotorCanId){
+            SmartDashboard.putNumber("Aiming encoder L", getEncoderPosition());
+        }
+        if(theMotor.getDeviceId() == Constants.kRightAimingMotorCanId){
+            SmartDashboard.putNumber("Aiming encoder R", getEncoderPosition());
+        }
         if(theMotor.getDeviceId() == Constants.kRopeMotorCanId){
             SmartDashboard.putNumber("Rope encoder", getEncoderPosition());
         }

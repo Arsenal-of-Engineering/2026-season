@@ -20,14 +20,16 @@ public class AimTurret extends Command {
   private SimpleMoveMotor m_aimingMotor;
   private PIDController anglePID =
       new PIDController(
-          .05, 0.01, 0.00, .02);
+          .04, 0.08, 0.00, .02);
   private SimpleMoveMotor m_angleMotor;
   /** Goal encoder value */
   private double target = 0;
   private double angleTarget = 0;
   private double speed = 0;
+  private double kAimingDegreesPerRotation;
 
-  public AimTurret(SimpleMoveMotor aimingMotor, SimpleMoveMotor angleMotor) {
+  public AimTurret(SimpleMoveMotor aimingMotor, SimpleMoveMotor angleMotor, boolean isLeft) {
+    kAimingDegreesPerRotation = isLeft ? Constants.kLeftAimingDegreesPerRotation : Constants.kRightAimingDegreesPerRotation;
     m_aimingMotor = aimingMotor;
     m_angleMotor = angleMotor;
     addRequirements(m_aimingMotor, m_angleMotor);
@@ -38,11 +40,12 @@ public class AimTurret extends Command {
    * @return If the target was successfully changed
   */
   public boolean setTarget(double degrees) {
-    double targetEncoder = degrees;
-    if (targetEncoder < -85 || targetEncoder > 0)
+    System.out.println("HEY LETS GO SET IT TO " + degrees);
+    double targetDeg = degrees;
+    if (targetDeg < -80 || targetDeg > 80)
       return false;
     
-    target = targetEncoder;
+    target = targetDeg;
     return true;
   }
 
@@ -56,11 +59,11 @@ public class AimTurret extends Command {
   }
 
   public void execute() {
-    double current = m_aimingMotor.getEncoderPosition() * Constants.kAimingDegreesPerRotation;
+    double current = m_aimingMotor.getEncoderPosition() * kAimingDegreesPerRotation;
 
     speed = MathUtil.clamp(rotatePID.calculate(current, target), -1, 1);
-
-    m_aimingMotor.set(speed);
+    System.out.println("I AM MOVING IT AT " + speed);
+    m_aimingMotor.set(speed * kAimingDegreesPerRotation / Constants.kLeftAimingDegreesPerRotation);
 
     double angleSpeed = MathUtil.clamp(anglePID.calculate(m_angleMotor.getEncoderPosition(), angleTarget), -.5, .5);
 
@@ -74,7 +77,7 @@ public class AimTurret extends Command {
    * @return the rotation of the turret in degrees (-90,0)
    */
   public double getRotation(){
-    return m_aimingMotor.getEncoderPosition() * Constants.kAimingDegreesPerRotation;
+    return m_aimingMotor.getEncoderPosition() * kAimingDegreesPerRotation;
   }
 
   @Override

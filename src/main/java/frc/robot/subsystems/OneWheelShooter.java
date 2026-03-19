@@ -23,10 +23,11 @@ public class OneWheelShooter extends SubsystemBase {
   private final double kV = 0.00014; // FeedFoward
   private final double maxAcc = 20000.0;
   private SparkFlex shootMotor;
-  private SparkClosedLoopController shootMotorPID = shootMotor.getClosedLoopController();
+  private SparkClosedLoopController shootMotorPID;
 
   public OneWheelShooter(int id) {
     shootMotor = new SparkFlex(id, MotorType.kBrushless);
+    shootMotorPID = shootMotor.getClosedLoopController();
     SparkMaxConfig config = new SparkMaxConfig();
     config.closedLoop.pid(kP, kI, kD)
         .outputRange(0, 1)
