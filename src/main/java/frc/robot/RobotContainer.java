@@ -86,7 +86,6 @@ public class RobotContainer {
   private SimpleMoveMotor m_conveyorMotor = new SimpleMoveMotor(Constants.kConveyorMotorCanId);
   private SimpleMoveMotor m_feederMotor = new SimpleMoveMotor(Constants.kFeederMotorCanId);
   
-  private SimpleMoveMotor m_ropeMotor = new SimpleMoveMotor(Constants.kRopeMotorCanId);
   private AimTurret m_leftAimTurret = new AimTurret(m_leftAimingMotor, m_leftAngleMotor, true);
   private AimTurret m_rightAimTurret = new AimTurret(m_rightAimingMotor, m_rightAngleMotor, false);
   private AimTurret m_autoLeftAimTurret = new AimTurret(m_leftAimingMotor, m_leftAngleMotor, true);
@@ -195,8 +194,8 @@ public class RobotContainer {
   }
 
   public void extendHopper(){
-    leftServo.set(0);
-    rightServo.set(0);
+    leftServo.set(.5);
+    rightServo.set(.5);
   }
 
   public double getYSpeed() {
@@ -265,11 +264,10 @@ public class RobotContainer {
     controller.rightBumper().onTrue(new InstantCommand(() -> {m_rightAimTurret.setTarget(10);}));
     controller.a().whileTrue(m_rightAimTurret);
 
-    controller.y().onTrue(new InstantCommand(() -> drive.setPose(new Pose2d(3.677,4,new Rotation2d(0,0)))));
+    controller.leftTrigger(.5).onTrue(new InstantCommand(() -> drive.setPose(new Pose2d(3.677,4,new Rotation2d(0,0)))));
 
-    // Reset pose to center hub  when left trigger is pressed
-    // controller.leftTrigger(.5).onTrue(new InstantCommand(() -> {m_rightAimTurret.setTarget(m_rightAimTurret.getRotation());m_rightAimTarget.setGoal(Goal.CLOSEST_PASS);m_leftAimTurret.setTarget(m_leftAimTurret.getRotation());m_leftAimTarget.setGoal(Goal.CLOSEST_PASS);}));
-    // controller.leftTrigger(.5).whileTrue(m_leftAimTarget.alongWith(m_leftAimTurret).alongWith(m_rightAimTarget).alongWith(m_rightAimTurret));
+    controller.y().onTrue(new InstantCommand(() -> extendHopper()));
+  
     controller.x().onTrue(new InstantCommand(() -> {m_rightAimTarget.setGoal(Goal.CLOSEST_PASS);m_leftAimTarget.setGoal(Goal.CLOSEST_PASS);}));
     controller.b().onTrue(new InstantCommand(() -> {m_rightAimTarget.setGoal(Goal.HUB);m_rightAimTarget.setGoal(Goal.HUB);}));
 
@@ -295,8 +293,8 @@ public class RobotContainer {
     joystickInstantToggle(3, () -> m_leftAngleMotor.set(.15), () -> m_leftAngleMotor.set(0));
     joystickInstantToggle(4, () -> m_leftAngleMotor.set(-.15), () -> m_leftAngleMotor.set(0));
     joystickInstantToggle(7, () -> {m_leftOneShootMotor.setSpeed(m_leftAimTarget.getRPMSelection());m_rightOneShootMotor.setSpeed(m_rightAimTarget.getRPMSelection());/*m_leftPacerMotor.set(-1);m_rightPacerMotor.set(-1);*/}, () -> {m_leftOneShootMotor.setSpeed(RPM.of(0));m_rightOneShootMotor.setSpeed(RPM.of(0));/*m_rightPacerMotor.set(0);m_leftPacerMotor.set(0);*/});
-    joystickInstantToggle(12, () -> m_ropeMotor.set(.3), () -> m_ropeMotor.set(0));
-    joystickInstantToggle(10, () -> m_ropeMotor.set(-.3), () -> m_ropeMotor.set(0));
+    // joystickInstantToggle(12, () -> m_ropeMotor.set(.3), () -> m_ropeMotor.set(0));
+    // joystickInstantToggle(10, () -> m_ropeMotor.set(-.3), () -> m_ropeMotor.set(0));
   }
 
   /**
@@ -323,10 +321,8 @@ public class RobotContainer {
     NamedCommands.registerCommand("Aim", m_autoLeftAimTurret.alongWith(m_autoRightAimTurret));
     NamedCommands.registerCommand("Intake", new InstantCommand(() -> {m_conveyorMotor.set(1.0); m_feederMotor.set(-1);m_intakeMotor.set(1.0);}));
     NamedCommands.registerCommand("Process", new InstantCommand(() -> {m_conveyorMotor.set(1.0);m_feederMotor.set(-1);}));
-    NamedCommands.registerCommand("Deploy Hopper", new InstantCommand(() -> m_ropeMotor.set(.3)));
-    NamedCommands.registerCommand("Chomp", new InstantCommand(() -> m_ropeMotor.set(-.3))
-                                                .andThen(new WaitUntilCommand(() -> (m_ropeMotor.getEncoderPosition() < 15)))
-                                                .andThen(new InstantCommand(() -> m_ropeMotor.set(0))));
+    NamedCommands.registerCommand("Deploy Hopper", new InstantCommand(() -> System.out.println("surely there is a Deploy Hopper")));
+    NamedCommands.registerCommand("Chomp", new InstantCommand(() -> System.out.println("surely there is a Chomp")));
   }
 
   public void stopMotors(){
@@ -339,7 +335,6 @@ public class RobotContainer {
       m_feederMotor.set(0);
       m_rightAngleMotor.set(0);
       m_leftAngleMotor.set(0);
-      m_ropeMotor.set(0);
   }
 
   public static void resetQuestPose(Pose2d pose){
