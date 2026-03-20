@@ -42,7 +42,7 @@ public class AimTurret extends Command {
   public boolean setTarget(double degrees) {
     System.out.println("HEY LETS GO SET IT TO " + degrees);
     double targetDeg = degrees;
-    if (targetDeg < -80 || targetDeg > 80)
+    if (targetDeg < -90 || targetDeg > 90)
       return false;
     
     target = targetDeg;
