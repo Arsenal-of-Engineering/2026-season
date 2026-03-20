@@ -41,7 +41,6 @@ public class AimTarget extends Command {
   private Drive m_drive;
   private Timer timer = new Timer();
   private OneWheelShooter m_oneWheelShooter;
-  private SimpleMoveMotor m_pacerMotor;
   private SendableChooser<Integer> rpmSelection = new SendableChooser<>();
   private SendableChooser<Integer> calcRpmAdj = new SendableChooser<>();
   private boolean isRotationCorrection = false;
@@ -63,7 +62,7 @@ public class AimTarget extends Command {
     CLOSEST_PASS
   }
 
-  public AimTarget(SimpleMoveMotor pacerMotor, AimTurret aimTurret, OneWheelShooter oneWheelShooter, Drive drive, Side side) {
+  public AimTarget( AimTurret aimTurret, OneWheelShooter oneWheelShooter, Drive drive, Side side) {
     goal = Goal.HUB;
     this.side = side;
     switch(side){
@@ -75,13 +74,12 @@ public class AimTarget extends Command {
         ROBOT_TO_SHOOTER = new Transform2d(8 * .0254, -8 * .0254, new Rotation2d());
         break;
     }
-    m_pacerMotor = pacerMotor;
+    
     rotatePID.setSetpoint(-45);
     m_aimTurret = aimTurret;
     m_oneWheelShooter = oneWheelShooter;
     m_drive = drive;
     addRequirements(m_oneWheelShooter);
-    addRequirements(m_pacerMotor);
     for(int i = 2000; i <= 7000; i+= 250){
       rpmSelection.addOption("" + i, i);
     }
@@ -152,7 +150,6 @@ public class AimTarget extends Command {
     if (Math.abs(m_aimTurret.getRotation() + turretTarget) < 7.5){
         SmartDashboard.putBoolean("Ready on Aim", true);
         if (m_oneWheelShooter.isAtSetpoint() && timer.get() > 1){
-          m_pacerMotor.set(-1);
         }
     } else {
         SmartDashboard.putBoolean("Ready on Aim", false);
@@ -175,7 +172,6 @@ public class AimTarget extends Command {
 
   public void end(boolean interrupted){
     m_oneWheelShooter.setSpeed(RPM.of(0));
-    m_pacerMotor.set(0);
     timer.stop();
   }
 
