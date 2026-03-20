@@ -24,12 +24,10 @@ public final class Constants {
   public static final int kRightAngleMotorCanId = 15;
   public static final int kLeftShooterMotorCanId = 17;
   public static final int kRightShooterMotorCanId = 11;
-  public static final int kLeftPacerMotorCanId = 140;
-  public static final int kRightPacerMotorCanId = 141;
+  
 
-  public static final int kConveyorMotorCanId = 150;
   public static final int kIntakeMotorCanId = 9;
-  public static final int kFeederMotorCanId = 200;
+  public static final int kFeederMotorCanId = 14;
   public static final int kJoystickId = 1;
   public static final Mode simMode = Mode.SIM;
   public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : simMode;

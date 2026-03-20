@@ -82,7 +82,6 @@ public class RobotContainer {
   private SimpleMoveMotor m_rightAimingMotor = new SimpleMoveMotor(Constants.kRightAimingMotorCanId);
   private SimpleMoveMotor m_leftAngleMotor = new SimpleMoveMotor(Constants.kLeftAngleMotorCanId);
   private SimpleMoveMotor m_rightAngleMotor = new SimpleMoveMotor(Constants.kRightAngleMotorCanId);
-  private SimpleMoveMotor m_conveyorMotor = new SimpleMoveMotor(Constants.kConveyorMotorCanId);
   private SimpleMoveMotor m_feederMotor = new SimpleMoveMotor(Constants.kFeederMotorCanId);
   
   private AimTurret m_leftAimTurret = new AimTurret(m_leftAimingMotor, m_leftAngleMotor, true);
@@ -184,8 +183,8 @@ public class RobotContainer {
     configureButtonBindings();
 
     // Put the USB camera into network tables to show in SmartDashboard
-    var camera0 = CameraServer.startAutomaticCapture();
-    CameraServer.addCamera(camera0);
+    // var camera0 = CameraServer.startAutomaticCapture();
+    // CameraServer.addCamera(camera0);
   }
 
   public void pushAutoPose(Pose2d pose){
@@ -277,17 +276,9 @@ public class RobotContainer {
 
     // configure joystick buttons (<1st arg>) to do <2nd arg> on press and <3rd arg> on release.
     joystickInstantToggle(1, () -> m_intakeMotor.set(1), () -> m_intakeMotor.set(0));
-    joystickInstantToggle(2, () -> m_feederMotor.set(-1), () -> m_feederMotor.set(0));
-    // joystickInstantToggle(11, () -> m_conveyorMotor.set(1), () -> m_conveyorMotor.set(0));
-    // joystickInstantToggle(9, () -> m_conveyorMotor.set(-1), () -> m_conveyorMotor.set(0));
-    joystickInstantToggle(5, () -> m_feederMotor.set(1), () -> m_feederMotor.set(0));
+    joystickInstantToggle(9, () -> m_feederMotor.set(-.5), () -> m_feederMotor.set(0));
+    joystickInstantToggle(11, () -> m_feederMotor.set(.5), () -> m_feederMotor.set(0));
     joystickInstantToggle(6, () -> m_intakeMotor.set(-1), () -> m_intakeMotor.set(0));
-
-    new JoystickButton(m_joystick, 11).whileTrue(new RepeatCommand(new InstantCommand(() -> m_conveyorMotor.set(1))));
-    new JoystickButton(m_joystick, 9).whileTrue(new RepeatCommand(new InstantCommand(() -> m_conveyorMotor.set(-1))));
-    new JoystickButton(m_joystick, 11).onFalse(new InstantCommand(() -> m_conveyorMotor.set(0)));
-    new JoystickButton(m_joystick, 9).onFalse(new InstantCommand(() -> m_conveyorMotor.set(0)));
-    
     joystickInstantToggle(3, () -> {m_leftAngleMotor.set(.15);m_rightAngleMotor.set(.15);}, () -> {m_leftAngleMotor.set(0);m_rightAngleMotor.set(0);});
     joystickInstantToggle(4, () -> {m_leftAngleMotor.set(-.15);m_rightAngleMotor.set(-.15);}, () -> {m_leftAngleMotor.set(0);m_rightAngleMotor.set(0);});
     joystickInstantToggle(7, () -> {m_leftOneShootMotor.setSpeed(m_leftAimTarget.getRPMSelection());m_rightOneShootMotor.setSpeed(m_rightAimTarget.getRPMSelection());/*m_leftPacerMotor.set(-1);m_rightPacerMotor.set(-1);*/}, () -> {m_leftOneShootMotor.setSpeed(RPM.of(0));m_rightOneShootMotor.setSpeed(RPM.of(0));/*m_rightPacerMotor.set(0);m_leftPacerMotor.set(0);*/});
@@ -317,21 +308,21 @@ public class RobotContainer {
         "Hood Down", new InstantCommand(() -> System.out.println("surely there is a hood down")));
     NamedCommands.registerCommand("Shoot", m_autoLeftAimTarget.alongWith(m_autoRightAimTarget));
     NamedCommands.registerCommand("Aim", m_autoLeftAimTurret.alongWith(m_autoRightAimTurret));
-    NamedCommands.registerCommand("Intake", new InstantCommand(() -> {m_conveyorMotor.set(1.0); m_feederMotor.set(-1);m_intakeMotor.set(1.0);}));
-    NamedCommands.registerCommand("Process", new InstantCommand(() -> {m_conveyorMotor.set(1.0);m_feederMotor.set(-1);}));
+    NamedCommands.registerCommand("Intake", new InstantCommand(() -> { m_feederMotor.set(-1);m_intakeMotor.set(1.0);}));
+    NamedCommands.registerCommand("Process", new InstantCommand(() -> {m_feederMotor.set(-1);}));
     NamedCommands.registerCommand("Deploy Hopper", new InstantCommand(() -> System.out.println("surely there is a Deploy Hopper")));
     NamedCommands.registerCommand("Chomp", new InstantCommand(() -> System.out.println("surely there is a Chomp")));
   }
 
   public void stopMotors(){
       m_intakeMotor.set(0);
-      
       m_leftAimingMotor.set(0);
       m_rightAimingMotor.set(0);
-      m_conveyorMotor.set(0);
       m_feederMotor.set(0);
       m_rightAngleMotor.set(0);
       m_leftAngleMotor.set(0);
+      m_leftOneShootMotor.setSpeed(RPM.of(0));
+      m_rightOneShootMotor.setSpeed(RPM.of(0));
   }
 
   public static void resetQuestPose(Pose2d pose){
