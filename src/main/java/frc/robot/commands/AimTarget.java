@@ -126,12 +126,12 @@ public class AimTarget extends Command {
     ChassisSpeeds chassisSpeeds = m_drive.getChassisSpeeds();
     try{
       double[] speeds = QuestNavSubsystem.getVelocity();
-      robotGoal = SolveTrajectoryPower.calculate(turretPose.getX(), -speeds[0], turretPose.getY(), -speeds[1], xTarget, yTarget, side == Side.LEFT ? -1 : 1);
+      robotGoal = SolveTrajectoryPower.calculate(turretPose.getX(), -speeds[0], turretPose.getY(), -speeds[1], xTarget, yTarget, side == Side.LEFT ? -1 : 1, goal == Goal.HUB ? 2 : 0);
       SmartDashboard.putNumber("calc Vx", speeds[0]);
       SmartDashboard.putNumber("calc Vy", speeds[1]);
     } catch (Exception e){
       System.out.println(e.getMessage());
-      robotGoal = SolveTrajectoryPower.calculate(turretPose.getX(), -chassisSpeeds.vxMetersPerSecond, turretPose.getY(), -chassisSpeeds.vyMetersPerSecond, xTarget, yTarget, side == Side.LEFT ? -1 : 1);
+      robotGoal = SolveTrajectoryPower.calculate(turretPose.getX(), -chassisSpeeds.vxMetersPerSecond, turretPose.getY(), -chassisSpeeds.vyMetersPerSecond, xTarget, yTarget, side == Side.LEFT ? -1 : 1, goal == Goal.HUB ? 2 : 0);
     }
     SmartDashboard.putNumber("spark Vx", chassisSpeeds.vxMetersPerSecond);
     SmartDashboard.putNumber("spark Vy", chassisSpeeds.vyMetersPerSecond);
