@@ -54,6 +54,12 @@ public class SimpleMoveMotor extends SubsystemBase {
         if(theMotor.getDeviceId() == Constants.kLeftAimingMotorCanId){
             SmartDashboard.putNumber("Aiming encoder L", getEncoderPosition());
         }
+        if(theMotor.getDeviceId() == Constants.kLeftAngleMotorCanId){
+            SmartDashboard.putNumber("Angle encoder L", getEncoderPosition());
+        }
+        if(theMotor.getDeviceId() == Constants.kRightAngleMotorCanId){
+            SmartDashboard.putNumber("Angle encoder R", getEncoderPosition());
+        }
         if(theMotor.getDeviceId() == Constants.kRightAimingMotorCanId){
             SmartDashboard.putNumber("Aiming encoder R", getEncoderPosition());
         }

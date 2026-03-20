@@ -65,9 +65,9 @@ public class AimTurret extends Command {
     System.out.println("I AM MOVING IT AT " + speed);
     m_aimingMotor.set(speed * kAimingDegreesPerRotation / Constants.kLeftAimingDegreesPerRotation);
 
-    double angleSpeed = MathUtil.clamp(anglePID.calculate(m_angleMotor.getEncoderPosition(), angleTarget), -.5, .5);
+    double angleSpeed = MathUtil.clamp(anglePID.calculate(-m_angleMotor.getEncoderPosition(), angleTarget), -.5, .5);
 
-    m_angleMotor.set(angleSpeed);
+    m_angleMotor.set(-angleSpeed);
   }
 
   public double getSpeed() {

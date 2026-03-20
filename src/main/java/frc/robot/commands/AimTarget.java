@@ -83,7 +83,7 @@ public class AimTarget extends Command {
     for(int i = 2000; i <= 7000; i+= 250){
       rpmSelection.addOption("" + i, i);
     }
-    for (int i = -500; i <= 500; i += 100){
+    for (int i = -500; i <= 2000; i += 100){
       calcRpmAdj.addOption((i > 0 ? "+" : "") + i, i);
     }
     rpmSelection.setDefaultOption("" + 4000, 4000);
@@ -154,7 +154,7 @@ public class AimTarget extends Command {
     } else {
         SmartDashboard.putBoolean("Ready on Aim", false);
     }
-    
+    System.out.println("I'm getting " + robotGoal[0] + "deg at " + robotGoal[1] + "rpm with altitude: " + robotGoal[2]);
   }
 
   /**
