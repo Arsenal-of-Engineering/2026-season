@@ -24,8 +24,8 @@ public class SolveTrajectoryPower {
    */
   public static double[] calculate(double xPos, double xVel, double yPos, double yVel, double xTarget, double yTarget, int offsetDirection, double goalHeight) {
     double facing = Math.atan((yTarget - yPos) / (xTarget - xPos));
-    double xHub = xTarget + Math.cos(facing + Math.PI / 2) * offsetDirection * Units.inchesToMeters(3.5);
-    double yHub = yTarget + Math.sin(facing + Math.PI / 2) * offsetDirection * Units.inchesToMeters(3.5);
+    double xHub = xTarget + Math.cos(facing) * offsetDirection * Units.inchesToMeters(4);
+    double yHub = yTarget + Math.sin(facing) * offsetDirection * Units.inchesToMeters(4);
     // hub position
     xPos =  xHub - xPos;
     yPos = yHub - yPos;
@@ -48,7 +48,23 @@ public class SolveTrajectoryPower {
                 + 10 * guessV);
   //System.out.println(50 * Math.pow(guessV, 2) - 981 * (goalHeight - shooterHeight));
 
+    if (goalHeight == 0){
+      double angle = Math.atan((yPos + yVel * guessT) / (xPos + xVel * guessT));
+      if ((xPos + xVel * guessT) < 0) angle += Math.PI;
 
+      angle *= 180 / Math.PI;
+
+      double distance = Math.hypot((yPos + yVel * guessT), (xPos + xVel * guessT));
+      SmartDashboard.putNumber("distance to hub", distance);
+
+      // regression line from google sheets
+      double rpm = MathUtil.clamp(459 * distance + 2153, 0, 6767);
+      
+      // (angle motor)
+      double churro = Math.max(3.36 * distance - 3.63, 0);
+
+      return new double[] {angle, rpm, churro};
+    }
     double t = solve(guessT, a, xPos, yPos, xVel, yVel, l);
     //long t2 = System.nanoTime();
     //System.out.println("t = " + t);

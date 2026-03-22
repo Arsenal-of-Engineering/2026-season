@@ -48,7 +48,7 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "Aim"
+                  "name": "AimL"
                 }
               },
               {
@@ -58,7 +58,19 @@
                     {
                       "type": "named",
                       "data": {
-                        "name": "Shoot"
+                        "name": "ShootR"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "ShootL"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "AimR"
                       }
                     },
                     {

@@ -16,7 +16,7 @@ import frc.robot.subsystems.drive.Drive;
 public class AimTurret extends Command {
   private PIDController rotatePID =
       new PIDController(
-          .02, 0.0, 0.0, .02);
+          .014, 0.0, 0.0, .02);
   private SimpleMoveMotor m_aimingMotor;
   private PIDController anglePID =
       new PIDController(
@@ -27,8 +27,10 @@ public class AimTurret extends Command {
   private double angleTarget = 0;
   private double speed = 0;
   private double kAimingDegreesPerRotation;
+  private boolean isLeft;
 
   public AimTurret(SimpleMoveMotor aimingMotor, SimpleMoveMotor angleMotor, boolean isLeft) {
+    this.isLeft = isLeft;
     kAimingDegreesPerRotation = isLeft ? Constants.kLeftAimingDegreesPerRotation : Constants.kRightAimingDegreesPerRotation;
     m_aimingMotor = aimingMotor;
     m_angleMotor = angleMotor;
@@ -40,7 +42,6 @@ public class AimTurret extends Command {
    * @return If the target was successfully changed
   */
   public boolean setTarget(double degrees) {
-    System.out.println("HEY LETS GO SET IT TO " + degrees);
     double targetDeg = degrees;
     if (targetDeg < -90 || targetDeg > 90)
       return false;
@@ -50,7 +51,7 @@ public class AimTurret extends Command {
   }
 
   public boolean setAngleTarget(double encoderVal) {
-    double targetEncoder = encoderVal;
+    double targetEncoder = isLeft ? encoderVal : encoderVal * 5/4;
     if (targetEncoder < 0 || targetEncoder > 20)
       return false;
     

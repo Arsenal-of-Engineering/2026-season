@@ -1,0 +1,50 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "smooch"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "ShootR"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "ShootL"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "AimR"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "AimL"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}

@@ -5,9 +5,28 @@
     "data": {
       "commands": [
         {
-          "type": "path",
+          "type": "race",
           "data": {
-            "pathName": "Sussex Mid"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Sussex Mid"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Don't Hit The Wall"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Stop"
           }
         },
         {
@@ -23,13 +42,25 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "Aim"
+                  "name": "AimR"
                 }
               },
               {
                 "type": "named",
                 "data": {
-                  "name": "Shoot"
+                  "name": "AimL"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "ShootR"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "ShootL"
                 }
               }
             ]

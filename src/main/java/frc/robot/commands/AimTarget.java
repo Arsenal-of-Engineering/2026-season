@@ -4,6 +4,8 @@ import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static frc.robot.subsystems.drive.DriveConstants.robotMOI;
 
+import java.util.function.Supplier;
+
 import edu.wpi.first.epilogue.*;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
@@ -42,7 +44,7 @@ public class AimTarget extends Command {
   private Timer timer = new Timer();
   private OneWheelShooter m_oneWheelShooter;
   private SendableChooser<Integer> rpmSelection = new SendableChooser<>();
-  private SendableChooser<Integer> calcRpmAdj = new SendableChooser<>();
+  private Supplier<Integer> calcRPMAdjSupplier;
   private boolean isRotationCorrection = false;
   private double turretTarget = 0;
   private PIDController rotatePID =
@@ -62,8 +64,9 @@ public class AimTarget extends Command {
     CLOSEST_PASS
   }
 
-  public AimTarget( AimTurret aimTurret, OneWheelShooter oneWheelShooter, Drive drive, Side side) {
+  public AimTarget( AimTurret aimTurret, OneWheelShooter oneWheelShooter, Drive drive, Side side, Supplier<Integer> calcRPMAdjSupplier) {
     goal = Goal.HUB;
+    this.calcRPMAdjSupplier = calcRPMAdjSupplier;
     this.side = side;
     switch(side){
       case LEFT:
@@ -83,15 +86,10 @@ public class AimTarget extends Command {
     for(int i = 2000; i <= 7000; i+= 250){
       rpmSelection.addOption("" + i, i);
     }
-    for (int i = -500; i <= 2000; i += 100){
-      calcRpmAdj.addOption((i > 0 ? "+" : "") + i, i);
-    }
     rpmSelection.setDefaultOption("" + 4000, 4000);
     rpmSelection.close();
-    calcRpmAdj.setDefaultOption("" + 0, 0);
-    calcRpmAdj.close();
     SmartDashboard.putData("rpm chooser", rpmSelection);
-    SmartDashboard.putData("calc rpm adj", calcRpmAdj);
+    
   }
 
   @Override
@@ -115,30 +113,32 @@ public class AimTarget extends Command {
       case CLOSEST_PASS:
         xTarget = 1;
         yTarget = m_drive.getPose().getY() > 4 ? 8 - 1 : 1;
+        break;
       case HUB:
       default:
         xTarget = 4.634;
         yTarget = 4;
     }
+    System.out.println("Let's head to " + xTarget + ", " + yTarget);
     double[] robotGoal;
     ChassisSpeeds chassisSpeeds = m_drive.getChassisSpeeds();
     try{
       double[] speeds = QuestNavSubsystem.getVelocity();
-      robotGoal = SolveTrajectoryPower.calculate(turretPose.getX(), -speeds[0], turretPose.getY(), -speeds[1], xTarget, yTarget, side == Side.LEFT ? -1 : 1, goal == Goal.HUB ? 2 : 0);
+      robotGoal = SolveTrajectoryPower.calculate(turretPose.getX(), -speeds[0], turretPose.getY(), -speeds[1] * 2, xTarget, yTarget, side == Side.LEFT ? -1 : 1, goal == Goal.HUB ? 2 : 0);
       SmartDashboard.putNumber("calc Vx", speeds[0]);
       SmartDashboard.putNumber("calc Vy", speeds[1]);
     } catch (Exception e){
       System.out.println(e.getMessage());
-      robotGoal = SolveTrajectoryPower.calculate(turretPose.getX(), -chassisSpeeds.vxMetersPerSecond, turretPose.getY(), -chassisSpeeds.vyMetersPerSecond, xTarget, yTarget, side == Side.LEFT ? -1 : 1, goal == Goal.HUB ? 2 : 0);
+      robotGoal = SolveTrajectoryPower.calculate(turretPose.getX(), -chassisSpeeds.vxMetersPerSecond, turretPose.getY(), -chassisSpeeds.vyMetersPerSecond * 2, xTarget, yTarget, side == Side.LEFT ? -1 : 1, goal == Goal.HUB ? 2 : 0);
     }
     SmartDashboard.putNumber("spark Vx", chassisSpeeds.vxMetersPerSecond);
     SmartDashboard.putNumber("spark Vy", chassisSpeeds.vyMetersPerSecond);
     
-    AngularVelocity shooterVelocity = RPM.of(robotGoal[1] + calcRpmAdj.getSelected());
+    AngularVelocity shooterVelocity = RPM.of(robotGoal[1] + calcRPMAdjSupplier.get());
     //m_oneWheelShooter.setSpeed(RPM.of(rpmSelection.getSelected()));
     m_oneWheelShooter.setSpeed(shooterVelocity);
     
-    SmartDashboard.putNumber("shooter vel", robotGoal[1]);
+    SmartDashboard.putNumber("shooter vel", robotGoal[1] + calcRPMAdjSupplier.get());
   
     turretTarget = robotGoal[0] - robotPose.getRotation().getDegrees();
     SmartDashboard.putNumber("turret deg", turretTarget);
@@ -154,9 +154,8 @@ public class AimTarget extends Command {
     } else {
         SmartDashboard.putBoolean("Ready on Aim", false);
     }
-    System.out.println("I'm getting " + robotGoal[0] + "deg at " + robotGoal[1] + "rpm with altitude: " + robotGoal[2]);
+    // System.out.println("I'm getting " + robotGoal[0] + "deg at " + (robotGoal[1]+calcRPMAdjSupplier.get()) + "rpm with altitude: " + robotGoal[2]);
   }
-
   /**
    * Sets the command to target the specified goal location
    * @param newGoal The new goal to target
