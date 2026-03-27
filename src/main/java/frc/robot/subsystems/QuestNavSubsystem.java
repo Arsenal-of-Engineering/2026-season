@@ -15,6 +15,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N2;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.drive.Drive;
@@ -24,14 +25,14 @@ import gg.questnav.questnav.QuestNav;
 public class QuestNavSubsystem extends SubsystemBase {
   private static ArrayList<Double> recentTimestamps = new ArrayList<>();
   QuestNav questNav;
-  final Transform3d ROBOT_TO_QUEST = new Transform3d(9 * .0254, 0.0,0, new Rotation3d(0, 0, 0));
-  final Transform3d QUEST_TO_ROBOT = new Transform3d(-9 * .0254, 0.0, -0, new Rotation3d(0, 0, 0));
+  final Transform3d ROBOT_TO_QUEST = new Transform3d(.16, 0.0,0, new Rotation3d(0, 0, 0));
+  final Transform3d QUEST_TO_ROBOT = new Transform3d(-.16, 0.0, -0, new Rotation3d(0, 0, 0));
   static Drive driveSubsystem;
   final Matrix<N3, N1> QUESTNAV_STD_DEVS =
       VecBuilder.fill(
-          0.01, // Trust down to 1cm in X direction
-          0.01, // Trust down to 1cm in Y direction
-          .2 // Trust down to 2 degrees rotational
+          0.00001, // Trust down to 1cm in X direction
+          0.00001, // Trust down to 1cm in Y direction
+          .0002 // Trust down to 2 degrees rotational
           );
 
   public QuestNavSubsystem(Drive m_driveSubsystem) {
@@ -105,19 +106,22 @@ public class QuestNavSubsystem extends SubsystemBase {
   }
 
   public static double[] getVelocity() throws Exception{
-    for(int i = 0; i < recentTimestamps.size() - 1; i++){
+    for(int i = recentTimestamps.size() - 3; i >= 0; i--){
       if (recentTimestamps.get(i) < recentTimestamps.get(recentTimestamps.size() - 1) - 100) continue;
 
-      double t2 = recentTimestamps.get(recentTimestamps.size() - 1);
-      double t1 = recentTimestamps.get(i);
-      Pose2d pose2, pose1;
+      double t3 = RobotController.getTime() / Math.pow(10,6) - .2;
+      double t2 = RobotController.getTime() / Math.pow(10,6) - .06;
+      double t1 = RobotController.getTime() / Math.pow(10,6);
+      Pose2d pose3, pose2, pose1;
       try{
+        pose3 = driveSubsystem.samplePoseEstimate(t3);
         pose2 = driveSubsystem.samplePoseEstimate(t2);
         pose1 = driveSubsystem.samplePoseEstimate(t1);
       } catch(Exception e){
           throw new Exception("Pose Estimator buffer empty");
       }
-
+      // SmartDashboard.putNumber("Mr. X", (pose3.getX()-pose1.getX())/(t3-t1));
+      // SmartDashboard.putNumber("Mr. Y", (pose3.getY()-pose1.getY())/(t3-t1));
       return new double[]{(pose2.getX()-pose1.getX())/(t2-t1), (pose2.getY()-pose1.getY())/(t2-t1)};
     }
 

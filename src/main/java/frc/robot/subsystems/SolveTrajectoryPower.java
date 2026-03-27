@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.RobotContainer;
 
 public class SolveTrajectoryPower {
   /**
@@ -24,8 +25,12 @@ public class SolveTrajectoryPower {
    */
   public static double[] calculate(double xPos, double xVel, double yPos, double yVel, double xTarget, double yTarget, int offsetDirection, double goalHeight) {
     double facing = Math.atan((yTarget - yPos) / (xTarget - xPos));
-    double xHub = xTarget + Math.cos(facing) * offsetDirection * Units.inchesToMeters(4);
-    double yHub = yTarget + Math.sin(facing) * offsetDirection * Units.inchesToMeters(4);
+    double xHub = xTarget + Math.sin(facing) * offsetDirection * Units.inchesToMeters(4);
+    double yHub = yTarget + Math.cos(facing) * offsetDirection * Units.inchesToMeters(4);
+    System.out.println("-----");
+    System.out.println("I'm at "+ xPos + ", " + yPos);
+    System.out.println("Let's shoot at " + xHub + ", " + yHub + " im " + offsetDirection);
+    
     // hub position
     xPos =  xHub - xPos;
     yPos = yHub - yPos;
@@ -47,14 +52,15 @@ public class SolveTrajectoryPower {
             * (Math.sqrt(2 * (50 * Math.pow(guessV, 2) - 981 * (goalHeight - shooterHeight)))
                 + 10 * guessV);
   //System.out.println(50 * Math.pow(guessV, 2) - 981 * (goalHeight - shooterHeight));
-
+    
     if (goalHeight == 0){
       return getValues(xPos,  xVel,  yPos,  yVel, guessT);
     }
     double t = solve(guessT, a, xPos, yPos, xVel, yVel, l);
-
-    
-    return getValues(xPos,  xVel,  yPos,  yVel, t);
+    double[] vals = getValues(xPos,  xVel,  yPos,  yVel, t);
+    System.out.println("right so that's an angle of " + vals[0]);
+    System.out.println("-----");
+    return vals;
   }
 
   private static double[] getValues(double xPos, double xVel, double yPos, double yVel, double t){
@@ -67,7 +73,8 @@ public class SolveTrajectoryPower {
       SmartDashboard.putNumber("distance to hub", distance);
 
       // regression line from google sheets
-      double rpm = MathUtil.clamp(459 * distance + 2153, 0, 6767);
+      //double rpm = MathUtil.clamp(459 * distance + 2153, 0, 6767);
+      double rpm = MathUtil.clamp(4171 - 1326 * distance + 407 * Math.pow(distance,2), 0, 6767);
       
       // (angle motor)
       double churro = Math.max(3.36 * distance - 3.63, 0);
@@ -96,7 +103,7 @@ public class SolveTrajectoryPower {
 
   private static double getAngle(double distanceToHub){
     // regression line from google sheets
-    double churro = MathUtil.clamp(3.36 * distanceToHub - 3.63, 0,20);
+    double churro = MathUtil.clamp(0.191 + -3.89 * distanceToHub + 3.63 * Math.pow(distanceToHub,2) + -0.484 * Math.pow(distanceToHub,3), 0,20);
   
     // interp between 0 = 66 degrees and 20 = 50 degrees
     return (66 - 16*(churro/20)) * Math.PI / 180.0;

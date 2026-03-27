@@ -51,7 +51,7 @@ public class AimTurret extends Command {
   }
 
   public boolean setAngleTarget(double encoderVal) {
-    double targetEncoder = isLeft ? encoderVal : encoderVal * 5/4;
+    double targetEncoder = isLeft ? encoderVal * 4/5: encoderVal;
     if (targetEncoder < 0 || targetEncoder > 20)
       return false;
     

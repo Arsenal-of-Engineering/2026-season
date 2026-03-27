@@ -81,6 +81,7 @@ public class RobotContainer {
   private final LoggedDashboardChooser<Command> autoChooser;
   private SendableChooser<Pose2d> autoStartChooser;
   private SendableChooser<Integer> calcRpmAdj = new SendableChooser<>();
+  private SendableChooser<Integer> manualRpm = new SendableChooser<>();
  
   private SimpleMoveMotor m_intakeMotor = new SimpleMoveMotor(Constants.kIntakeMotorCanId);
   
@@ -97,6 +98,8 @@ public class RobotContainer {
   private Joystick m_joystick = new Joystick(Constants.kJoystickId);
   private AimTarget m_leftAimTarget, m_rightAimTarget, m_autoLeftAimTarget, m_autoRightAimTarget;
 
+  public static Supplier<Double> offsetSupplier;
+
   // six seven
   private Servo leftServo = new Servo(6);
   private Servo rightServo = new Servo(7);
@@ -105,7 +108,7 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-
+    offsetSupplier = () -> this.getJoystickFlipper();
     
     
 
@@ -157,6 +160,13 @@ public class RobotContainer {
     calcRpmAdj.setDefaultOption("" + 0, 0);
     calcRpmAdj.close();
     SmartDashboard.putData("calc rpm adj", calcRpmAdj);
+
+    for(int i = 2000; i <= 7000; i+= 250){
+      manualRpm.addOption("" + i, i);
+    }
+    manualRpm.setDefaultOption("" + 4000, 4000);
+    manualRpm.close();
+    SmartDashboard.putData("rpm chooser", manualRpm);
     // Set up auto routines
 
     ConfigureNamedCommands();
@@ -221,6 +231,15 @@ public class RobotContainer {
       val += (int) (m_joystick.getRawAxis(3) * -1 * 200);
     }
     return val;
+  }
+
+  public int getManualRPM(){
+    int val = manualRpm.getSelected();
+    return val;
+  }
+
+  public double getJoystickFlipper(){
+    return m_joystick.getRawAxis(3);
   }
 
   public double getYSpeed() {
@@ -309,7 +328,7 @@ public class RobotContainer {
     joystickInstantToggle(6, () -> m_intakeMotor.set(-1), () -> m_intakeMotor.set(0));
     joystickInstantToggle(3, () -> {m_leftAngleMotor.set(.15);m_rightAngleMotor.set(.3);}, () -> {m_leftAngleMotor.set(0);m_rightAngleMotor.set(0);});
     joystickInstantToggle(4, () -> {m_leftAngleMotor.set(-.15);m_rightAngleMotor.set(-.3);}, () -> {m_leftAngleMotor.set(0);m_rightAngleMotor.set(0);});
-    joystickInstantToggle(7, () -> {m_leftOneShootMotor.setSpeed(m_leftAimTarget.getRPMSelection());m_rightOneShootMotor.setSpeed(m_rightAimTarget.getRPMSelection());/*m_leftPacerMotor.set(-1);m_rightPacerMotor.set(-1);*/}, () -> {m_leftOneShootMotor.setSpeed(RPM.of(0));m_rightOneShootMotor.setSpeed(RPM.of(0));/*m_rightPacerMotor.set(0);m_leftPacerMotor.set(0);*/});
+    joystickInstantToggle(7, () -> {m_leftOneShootMotor.setSpeed(RPM.of(getManualRPM()));m_rightOneShootMotor.setSpeed(RPM.of(getManualRPM()));/*m_leftPacerMotor.set(-1);m_rightPacerMotor.set(-1);*/}, () -> {m_leftOneShootMotor.setSpeed(RPM.of(0));m_rightOneShootMotor.setSpeed(RPM.of(0));/*m_rightPacerMotor.set(0);m_leftPacerMotor.set(0);*/});
     // joystickInstantToggle(12, () -> m_ropeMotor.set(.3), () -> m_ropeMotor.set(0));
     // joystickInstantToggle(10, () -> m_ropeMotor.set(-.3), () -> m_ropeMotor.set(0));
   }
