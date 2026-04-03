@@ -27,6 +27,7 @@ public final class Constants {
   
 
   public static final int kIntakeMotorCanId = 9;
+  public static final int kIntake2MotorCanId = 19;
   public static final int kFeederMotorCanId = 14;
   public static final int kJoystickId = 1;
   public static final Mode simMode = Mode.SIM;

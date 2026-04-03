@@ -1,14 +1,22 @@
 package frc.robot.subsystems;
 
+import com.revrobotics.PersistMode;
+import com.revrobotics.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkBase.ControlType;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.config.SparkMaxConfig;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
 public class SimpleMoveMotor extends SubsystemBase {
     private SparkMax theMotor;
+    private SparkClosedLoopController pidController;
     private double[] encoderRange = null;
     private double speed = 0;
     public SimpleMoveMotor(int id){theMotor = new SparkMax(id, MotorType.kBrushless);}
@@ -16,6 +24,31 @@ public class SimpleMoveMotor extends SubsystemBase {
     public SimpleMoveMotor(int id, double encoderMin, double encoderMax){
         theMotor = new SparkMax(id, MotorType.kBrushless);
         encoderRange = new double[]{encoderMin,encoderMax};
+    }
+
+    public void initPID(double kP, double kI, double kD){
+        pidController = theMotor.getClosedLoopController();
+        SparkMaxConfig config = new SparkMaxConfig();
+        config.closedLoop.pid(kP, kI, kD)
+            .outputRange(-1, 1);
+        config.idleMode(IdleMode.kBrake);
+        if (theMotor.getDeviceId() == Constants.kLeftAngleMotorCanId || theMotor.getDeviceId() == Constants.kRightAngleMotorCanId){
+            config.softLimit.forwardSoftLimit(0);
+            config.softLimit.forwardSoftLimitEnabled(true);
+            config.softLimit.reverseSoftLimit(-20);
+            config.softLimit.reverseSoftLimitEnabled(true);
+        }
+
+        theMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
+        pidController.setSetpoint(theMotor.getEncoder().getPosition(), ControlType.kPosition);
+    }
+
+    public void setSetpoint(double setpoint){
+        if (pidController == null) return;
+
+        pidController.setSetpoint(setpoint, ControlType.kPosition);
+        System.out.println("run my pitch to " + setpoint);
     }
 
     public void set(double newSpeed) {

@@ -14,6 +14,7 @@ import java.util.function.Supplier;
 import com.fasterxml.jackson.databind.util.Named;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.commands.PathPlannerAuto;
 
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.HttpCamera;
@@ -26,6 +27,7 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -47,6 +49,7 @@ import frc.robot.commands.DontHitTheWall;
 import edu.wpi.first.wpilibj2.command.RepeatCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.subsystems.SimpleMoveMotor;
+import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.OneWheelShooter;
 import frc.robot.subsystems.QuestNavSubsystem;
 import frc.robot.subsystems.drive.Drive;
@@ -79,11 +82,10 @@ public class RobotContainer {
 
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
-  private SendableChooser<Pose2d> autoStartChooser;
   private SendableChooser<Integer> calcRpmAdj = new SendableChooser<>();
   private SendableChooser<Integer> manualRpm = new SendableChooser<>();
  
-  private SimpleMoveMotor m_intakeMotor = new SimpleMoveMotor(Constants.kIntakeMotorCanId);
+  private Intake m_intakeMotor = new Intake(Constants.kIntakeMotorCanId, Constants.kIntake2MotorCanId);
   
   private SimpleMoveMotor m_leftAimingMotor = new SimpleMoveMotor(Constants.kLeftAimingMotorCanId);
   private SimpleMoveMotor m_rightAimingMotor = new SimpleMoveMotor(Constants.kRightAimingMotorCanId);
@@ -93,8 +95,6 @@ public class RobotContainer {
   
   private AimTurret m_leftAimTurret = new AimTurret(m_leftAimingMotor, m_leftAngleMotor, true);
   private AimTurret m_rightAimTurret = new AimTurret(m_rightAimingMotor, m_rightAngleMotor, false);
-  private AimTurret m_autoLeftAimTurret = new AimTurret(m_leftAimingMotor, m_leftAngleMotor, true);
-  private AimTurret m_autoRightAimTurret = new AimTurret(m_rightAimingMotor, m_rightAngleMotor, false);
   private Joystick m_joystick = new Joystick(Constants.kJoystickId);
   private AimTarget m_leftAimTarget, m_rightAimTarget, m_autoLeftAimTarget, m_autoRightAimTarget;
 
@@ -172,23 +172,9 @@ public class RobotContainer {
     ConfigureNamedCommands();
 
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
+    autoChooser.onChange(this::pushAutoPose);
 
-    autoStartChooser = new SendableChooser<>();
-    autoStartChooser.addOption("_Left...", new Pose2d(3.69, 6.435, new Rotation2d(0,0)));
-    autoStartChooser.addOption("_Left Humble...", new Pose2d(3.69, 4.968, new Rotation2d(Math.toRadians(180))));
-    autoStartChooser.addOption("_Center...", new Pose2d(3.703, 4.016, new Rotation2d(0,0)));
-    autoStartChooser.addOption("_Right...", new Pose2d(3.716, 1.648, new Rotation2d(0,0)));
-    autoStartChooser.addOption("_Right Humble...", new Pose2d(3.69, 3.032, new Rotation2d(Math.toRadians(180))));
-    autoStartChooser.setDefaultOption("_Center...", new Pose2d(3.703, 4.016, new Rotation2d(0,0)));
-    autoStartChooser.addOption("(TEST) Straight-on left pass", new Pose2d(8, 7, new Rotation2d(Math.toRadians(180))));
-    autoStartChooser.addOption("(TEST) Straight-on right pass", new Pose2d(8, 1, new Rotation2d(Math.toRadians(180))));
-    autoStartChooser.addOption("(TEST) A mittle to the left", new Pose2d(8, 4.5, new Rotation2d(Math.toRadians(180))));
-    autoStartChooser.addOption("(TEST) A mittle to the right", new Pose2d(8, 3.5, new Rotation2d(Math.toRadians(180))));
-    autoStartChooser.addOption("(TEST) I'm hitting the wall", new Pose2d(1, 3.5, new Rotation2d(Math.toRadians(180))));
-    autoStartChooser.close();
-    SmartDashboard.putData("Auto Start", autoStartChooser);
-
-    autoStartChooser.onChange(this::pushAutoPose);
+    
 
     // Set up SysId routines
     autoChooser.addOption(
@@ -212,13 +198,21 @@ public class RobotContainer {
     configureButtonBindings();
 
     // Put the USB camera into network tables to show in SmartDashboard
-    // var camera0 = CameraServer.startAutomaticCapture();
-    // CameraServer.addCamera(camera0);
+    var camera0 = CameraServer.startAutomaticCapture();
+    CameraServer.addCamera(camera0);
   }
 
-  public void pushAutoPose(Pose2d pose){
-    drive.setPose(pose);
-  }
+  /**
+   * Sets the robot position to the start position of the auto
+   * @param newAuto the PathPlanner auto recently selected
+   */
+  public void pushAutoPose(Command newAuto){
+    if(PathPlannerAuto.class.isInstance(newAuto))
+    {
+        PathPlannerAuto ppa = PathPlannerAuto.class.cast( newAuto);
+        drive.setPose(ppa.getStartingPose());
+    }
+}
 
   public void extendHopper(){
     leftServo.set(.5);
@@ -250,7 +244,7 @@ public class RobotContainer {
     //   return m_rightArc.getYSpeed();
     // }
 
-    return -MathUtil.applyDeadband(controller.getLeftY(), .1);
+    return -MathUtil.applyDeadband(controller.getLeftY(), .07);
   }
 
   public double getXSpeed() {
@@ -261,7 +255,7 @@ public class RobotContainer {
     //   return m_rightArc.getXSpeed();
     // }
 
-    return -MathUtil.applyDeadband(controller.getLeftX(), .1);
+    return -MathUtil.applyDeadband(controller.getLeftX(), .07);
   }
 
   public double getRotSpeed() {
@@ -269,7 +263,7 @@ public class RobotContainer {
     //   return m_aimTarget.getCorrectionSpeed();
     // }
 
-    return -controller.getRightX();
+    return -MathUtil.applyDeadband(controller.getRightX(),.07);
   }
   /**
    * Use this method to define your button->command mappings. Buttons can be created by
@@ -322,10 +316,10 @@ public class RobotContainer {
     
 
     // configure joystick buttons (<1st arg>) to do <2nd arg> on press and <3rd arg> on release.
-    joystickInstantToggle(1, () -> m_intakeMotor.set(1), () -> m_intakeMotor.set(0));
+    joystickInstantToggle(1, () -> m_intakeMotor.set(-1), () -> m_intakeMotor.set(0));
     joystickInstantToggle(9, () -> m_feederMotor.set(-1), () -> m_feederMotor.set(0));
     joystickInstantToggle(11, () -> m_feederMotor.set(1), () -> m_feederMotor.set(0));
-    joystickInstantToggle(6, () -> m_intakeMotor.set(-1), () -> m_intakeMotor.set(0));
+    joystickInstantToggle(6, () -> m_intakeMotor.set(1), () -> m_intakeMotor.set(0));
     joystickInstantToggle(3, () -> {m_leftAngleMotor.set(.15);m_rightAngleMotor.set(.3);}, () -> {m_leftAngleMotor.set(0);m_rightAngleMotor.set(0);});
     joystickInstantToggle(4, () -> {m_leftAngleMotor.set(-.15);m_rightAngleMotor.set(-.3);}, () -> {m_leftAngleMotor.set(0);m_rightAngleMotor.set(0);});
     joystickInstantToggle(7, () -> {m_leftOneShootMotor.setSpeed(RPM.of(getManualRPM()));m_rightOneShootMotor.setSpeed(RPM.of(getManualRPM()));/*m_leftPacerMotor.set(-1);m_rightPacerMotor.set(-1);*/}, () -> {m_leftOneShootMotor.setSpeed(RPM.of(0));m_rightOneShootMotor.setSpeed(RPM.of(0));/*m_rightPacerMotor.set(0);m_leftPacerMotor.set(0);*/});
@@ -357,7 +351,7 @@ public class RobotContainer {
     NamedCommands.registerCommand("ShootR", m_rightAimTarget);
     NamedCommands.registerCommand("AimL", m_leftAimTurret);
     NamedCommands.registerCommand("AimR", m_rightAimTurret);
-    NamedCommands.registerCommand("Intake", new InstantCommand(() -> { m_feederMotor.set(1);m_intakeMotor.set(1.0);}));
+    NamedCommands.registerCommand("Intake", new InstantCommand(() -> { m_feederMotor.set(1);m_intakeMotor.set(-1);}));
     NamedCommands.registerCommand("Process", new InstantCommand(() -> {m_feederMotor.set(1);}));
     NamedCommands.registerCommand("Deploy Hopper", new InstantCommand(() -> extendHopper()));
     NamedCommands.registerCommand("Chomp", new InstantCommand(() -> System.out.println("surely there is a Chomp")));
@@ -375,6 +369,39 @@ public class RobotContainer {
       m_leftAngleMotor.set(0);
       m_leftOneShootMotor.setSpeed(RPM.of(0));
       m_rightOneShootMotor.setSpeed(RPM.of(0));
+  }
+  public double getShiftTime(double matchTime){
+    // Game specific message returns the alliance who's hub is INACTIVE first
+    boolean activeFirst = DriverStation.getAlliance().get() == Alliance.Blue ^ DriverStation.getGameSpecificMessage().equals("B");
+    if (matchTime > 130) {
+      // Transition shift, hub is active.
+      if (!activeFirst) return matchTime - 130;
+      return (10 - (matchTime - 130)) * 2.5;
+
+    } else if (matchTime > 105) {
+      // Shift 1
+      if (activeFirst) return matchTime - 105;
+      return 25 - (matchTime - 105); // make the progress bar fill up, simulating a recharging effect
+
+    } else if (matchTime > 80) {
+      // Shift 2
+      if (!activeFirst) return matchTime - 80;
+      return 25 - (matchTime - 80);
+
+    } else if (matchTime > 55) {
+      // Shift 3
+      if (activeFirst) return matchTime - 55;
+      return 25 - (matchTime - 55);
+
+    } else if (matchTime > 30) {
+      // Shift 4
+      if (!activeFirst) return matchTime - 55;
+      return 25 - (matchTime - 55);
+
+    } else {
+      // End game, hub always active.
+      return matchTime;
+    }
   }
 
   public static void resetQuestPose(Pose2d pose){

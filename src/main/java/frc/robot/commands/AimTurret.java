@@ -1,5 +1,10 @@
 package frc.robot.commands;
 
+import com.revrobotics.PersistMode;
+import com.revrobotics.ResetMode;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.config.SparkMaxConfig;
+
 import edu.wpi.first.epilogue.*;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
@@ -7,6 +12,7 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.AddressableLED;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 // import frc.robot.ShuffleboardInfo;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
@@ -20,7 +26,7 @@ public class AimTurret extends Command {
   private SimpleMoveMotor m_aimingMotor;
   private PIDController anglePID =
       new PIDController(
-          .04, 0.08, 0.00, .02);
+          .04, 0.1, 0.0, .02);
   private SimpleMoveMotor m_angleMotor;
   /** Goal encoder value */
   private double target = 0;
@@ -34,6 +40,7 @@ public class AimTurret extends Command {
     kAimingDegreesPerRotation = isLeft ? Constants.kLeftAimingDegreesPerRotation : Constants.kRightAimingDegreesPerRotation;
     m_aimingMotor = aimingMotor;
     m_angleMotor = angleMotor;
+    m_angleMotor.initPID(.07, .00005, 0);
     addRequirements(m_aimingMotor, m_angleMotor);
   }
 
@@ -51,11 +58,10 @@ public class AimTurret extends Command {
   }
 
   public boolean setAngleTarget(double encoderVal) {
-    double targetEncoder = isLeft ? encoderVal * 4/5: encoderVal;
-    if (targetEncoder < 0 || targetEncoder > 20)
+    if (encoderVal < 0 || encoderVal > 20)
       return false;
     
-    angleTarget = targetEncoder;
+    m_angleMotor.setSetpoint(-encoderVal);
     return true;
   }
 
@@ -63,12 +69,12 @@ public class AimTurret extends Command {
     double current = m_aimingMotor.getEncoderPosition() * kAimingDegreesPerRotation;
 
     speed = MathUtil.clamp(rotatePID.calculate(current, target), -1, 1);
-    System.out.println("I AM MOVING IT AT " + speed);
     m_aimingMotor.set(speed * kAimingDegreesPerRotation / Constants.kLeftAimingDegreesPerRotation);
 
-    double angleSpeed = MathUtil.clamp(anglePID.calculate(-m_angleMotor.getEncoderPosition(), angleTarget), -.5, .5);
+    // double angleSpeed = MathUtil.clamp(anglePID.calculate(-m_angleMotor.getEncoderPosition(), angleTarget), -.5, .5);
 
-    m_angleMotor.set(-angleSpeed);
+    // SmartDashboard.putNumber("Angle error (" + m_aimingMotor.toString(),  -angleTarget - m_angleMotor.getEncoderPosition());
+    // m_angleMotor.set(-angleSpeed);
   }
 
   public double getSpeed() {

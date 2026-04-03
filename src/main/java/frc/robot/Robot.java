@@ -151,7 +151,7 @@ public class Robot extends LoggedRobot {
   @Override
   public void teleopPeriodic() {
     double matchTime = DriverStation.getMatchTime();
-    SmartDashboard.putNumber("Shift time", (matchTime - 5) % 25);
+    SmartDashboard.putNumber("Shift time", robotContainer.getShiftTime(matchTime));
   }
 
   /** This function is called once when test mode is enabled. */

@@ -69,11 +69,11 @@ public class AimTarget extends Command {
     this.side = side;
     switch(side){
       case LEFT:
-        ROBOT_TO_SHOOTER = new Transform2d(.07, .02, new Rotation2d());
+        ROBOT_TO_SHOOTER = new Transform2d(.07 + .0254, .2, new Rotation2d());
         break;
       case RIGHT:
       default:
-        ROBOT_TO_SHOOTER = new Transform2d(.07, -.02, new Rotation2d());
+        ROBOT_TO_SHOOTER = new Transform2d(.07 + .0254, -.2, new Rotation2d());
         break;
     }
     
@@ -139,6 +139,8 @@ public class AimTarget extends Command {
     SmartDashboard.putNumber("shooter vel", robotGoal[1] + calcRPMAdjSupplier.get());
   
     turretTarget = robotGoal[0] - robotPose.getRotation().getDegrees();
+    while (turretTarget > 180) turretTarget -= 360;
+    while (turretTarget < -180) turretTarget += 360;
     SmartDashboard.putNumber("turret deg", turretTarget);
     
     isRotationCorrection = !m_aimTurret.setTarget(-turretTarget);

@@ -53,14 +53,41 @@ public class SolveTrajectoryPower {
                 + 10 * guessV);
   //System.out.println(50 * Math.pow(guessV, 2) - 981 * (goalHeight - shooterHeight));
     
-    if (goalHeight == 0){
-      return getValues(xPos,  xVel,  yPos,  yVel, guessT);
-    }
     double t = solve(guessT, a, xPos, yPos, xVel, yVel, l);
     double[] vals = getValues(xPos,  xVel,  yPos,  yVel, t);
     System.out.println("right so that's an angle of " + vals[0]);
     System.out.println("-----");
+    if (goalHeight == 0 && vals[1] > 6700){
+      return calculatePass(xPos, xVel, yPos, yVel, yTarget, offsetDirection, goalHeight);
+    }
     return vals;
+  }
+
+  public static double[] calculatePass(double xPos, double xVel, double yPos, double yVel, double yTarget, int offsetDirection, double goalHeight) {
+    double yHub = yTarget - offsetDirection * Units.inchesToMeters(4);
+    System.out.println("-----");
+    System.out.println("I'm at "+ xPos + ", " + yPos);
+    System.out.println("Let's shoot at " + ", " + yHub + " im " + offsetDirection);
+    
+    // hub position
+    yPos = yHub - yPos;
+    //long t1 = System.nanoTime();
+    double a = 50 * Math.PI /180.0;
+    double shooterHeight = .65; //meters
+    double l = goalHeight - shooterHeight;
+    //System.out.println("dist: " + Math.hypot(xPos, yPos));
+
+    double dist = Units.feetToMeters(28);
+
+    double guessV = 3 * Math.sqrt(109 * Math.tan(a) / 2) * dist;
+    guessV /= 10 * Math.sqrt((shooterHeight - goalHeight) / Math.tan(a) + dist);
+    
+    double hVel = guessV / Math.tan(a);
+    double angle = Math.acos(yVel / hVel);
+    angle += Math.PI; 
+    angle *= 180 / Math.PI;
+    System.out.println("I gotta run it at: " + angle);
+    return new double[]{angle, 6700, 20};
   }
 
   private static double[] getValues(double xPos, double xVel, double yPos, double yVel, double t){
@@ -70,14 +97,12 @@ public class SolveTrajectoryPower {
       angle *= 180 / Math.PI;
 
       double distance = Math.hypot((yPos + yVel * t), (xPos + xVel * t));
-      SmartDashboard.putNumber("distance to hub", distance);
+      SmartDashboard.putNumber("dist to hub", distance);
 
-      // regression line from google sheets
-      //double rpm = MathUtil.clamp(459 * distance + 2153, 0, 6767);
-      double rpm = MathUtil.clamp(4171 - 1326 * distance + 407 * Math.pow(distance,2), 0, 6767);
+      double rpm = rpmRegression(distance);
       
       // (angle motor)
-      double churro = Math.max(3.36 * distance - 3.63, 0);
+      double churro = angleRegression(distance);
 
       return new double[] {angle, rpm, churro};
   }
@@ -101,10 +126,28 @@ public class SolveTrajectoryPower {
         / (2 * h);
   }
 
+  // regression lines from google sheets
+  private static double angleRegression(double dist){
+    return MathUtil.clamp(-14.3 + 
+                          12.8  * dist +
+                          -1.24 * Math.pow(dist,2)
+                          , 0,20);
+  }
+  private static double rpmRegression(double dist){
+    return MathUtil.clamp(3725 + 
+                          -623 * dist + 
+                          193 * Math.pow(dist,2)
+                          , 0,6767);
+  }
+
+
+  /**
+   * @param distanceToHub [Meters] The distance from the hub
+   * @return [Degrees] The vertical angle that the ball will launch at
+   */
   private static double getAngle(double distanceToHub){
     // regression line from google sheets
-    double churro = MathUtil.clamp(0.191 + -3.89 * distanceToHub + 3.63 * Math.pow(distanceToHub,2) + -0.484 * Math.pow(distanceToHub,3), 0,20);
-  
+    double churro = angleRegression(distanceToHub);
     // interp between 0 = 66 degrees and 20 = 50 degrees
     return (66 - 16*(churro/20)) * Math.PI / 180.0;
   }
