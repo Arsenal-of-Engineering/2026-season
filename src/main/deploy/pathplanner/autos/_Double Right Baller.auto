@@ -1,0 +1,161 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "HRB_Start to ball"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Deploy Hopper"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Intake"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "HRB_Muncher"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "HRB_Move to shoot"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "deadline",
+                "data": {
+                  "commands": [
+                    {
+                      "type": "wait",
+                      "data": {
+                        "waitTime": 5.0
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "ShootR"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "ShootL"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "AimL"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "AimR"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "Process"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "2RB_H to Mid"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Intake"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "2RB_Hairpin Turn"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "2RB_Turn to Shoot"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "AimR"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "AimL"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "ShootL"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "ShootR"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Process"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}

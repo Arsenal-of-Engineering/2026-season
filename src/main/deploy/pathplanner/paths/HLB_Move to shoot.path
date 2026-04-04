@@ -16,11 +16,11 @@
     },
     {
       "anchor": {
-        "x": 2.7733614457831326,
+        "x": 2.773,
         "y": 5.783433734939758
       },
       "prevControl": {
-        "x": 3.2047494033412884,
+        "x": 3.204387957558156,
         "y": 5.24898568019093
       },
       "nextControl": null,
@@ -47,7 +47,7 @@
   },
   "goalEndState": {
     "velocity": 0.0,
-    "rotation": -90.0
+    "rotation": 0.0
   },
   "reversed": false,
   "folder": "Humble Left Baller",

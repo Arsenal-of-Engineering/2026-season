@@ -92,6 +92,7 @@ public class AimTarget extends Command {
   }
 
   public void execute() {
+    SmartDashboard.putBoolean("Target hub?", goal == Goal.HUB);
 
     Pose2d robotPose = m_drive.getPose();
 

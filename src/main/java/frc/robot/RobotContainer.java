@@ -294,10 +294,10 @@ public class RobotContainer {
     // controller.x().onFalse(Commands.runOnce(() -> m_shootMotors.shoot(0)));\
 
 
-    controller.leftBumper().whileTrue(new RepeatCommand(new InstantCommand(() -> {m_leftAimingMotor.set(-.4);/*m_rightAimingMotor.set(-.25);*/})));
-    controller.rightBumper().whileTrue(new RepeatCommand(new InstantCommand(() -> {m_leftAimingMotor.set(.4);/*m_rightAimingMotor.set(.25);*/})));
-    controller.leftBumper().onFalse(new RepeatCommand(new InstantCommand(() -> {m_leftAimingMotor.set(0);/*m_rightAimingMotor.set(0);*/})));
-    controller.rightBumper().onFalse(new RepeatCommand(new InstantCommand(() -> {m_leftAimingMotor.set(0);/*m_rightAimingMotor.set(0);*/})));
+    controller.leftBumper().whileTrue(new RepeatCommand(new InstantCommand(() -> {m_leftAimingMotor.set(-.4);m_rightAimingMotor.set(-.4 * 55/45.0);})));
+    controller.rightBumper().whileTrue(new RepeatCommand(new InstantCommand(() -> {m_leftAimingMotor.set(.4);m_rightAimingMotor.set(.4 * 55/45.0);})));
+    controller.leftBumper().onFalse(new RepeatCommand(new InstantCommand(() -> {m_leftAimingMotor.set(0);m_rightAimingMotor.set(0);})));
+    controller.rightBumper().onFalse(new RepeatCommand(new InstantCommand(() -> {m_leftAimingMotor.set(0);m_rightAimingMotor.set(0);})));
     // controller.leftBumper().onTrue(new InstantCommand(() -> {m_rightAimTurret.setTarget(-70);}));
     // controller.rightBumper().onTrue(new InstantCommand(() -> {m_rightAimTurret.setTarget(10);}));
     // controller.a().whileTrue(m_rightAimTurret);
@@ -347,15 +347,20 @@ public class RobotContainer {
     
         NamedCommands.registerCommand(
         "Hood Down", new InstantCommand(() -> System.out.println("surely there is a hood down")));
+    // lowk you can delete this if it saves enough weight to drop us below limit
     NamedCommands.registerCommand("ShootL", m_leftAimTarget);
     NamedCommands.registerCommand("ShootR", m_rightAimTarget);
     NamedCommands.registerCommand("AimL", m_leftAimTurret);
     NamedCommands.registerCommand("AimR", m_rightAimTurret);
+    NamedCommands.registerCommand("Target Pass", new InstantCommand(() -> {m_leftAimTarget.setGoal(Goal.CLOSEST_PASS);m_rightAimTarget.setGoal(Goal.CLOSEST_PASS);}));
+    NamedCommands.registerCommand("Target Hub", new InstantCommand(() -> {m_leftAimTarget.setGoal(Goal.HUB);m_rightAimTarget.setGoal(Goal.HUB);}));
+    // pivotal don't delete first but still can
     NamedCommands.registerCommand("Intake", new InstantCommand(() -> { m_feederMotor.set(1);m_intakeMotor.set(-1);}));
     NamedCommands.registerCommand("Process", new InstantCommand(() -> {m_feederMotor.set(1);}));
     NamedCommands.registerCommand("Deploy Hopper", new InstantCommand(() -> extendHopper()));
     NamedCommands.registerCommand("Chomp", new InstantCommand(() -> System.out.println("surely there is a Chomp")));
     NamedCommands.registerCommand("Stop", new InstantCommand(() -> DriveCommands.joystickDrive(drive, 0, 0, 0)));
+    // This is very important (so we dont hit the wall)
     Supplier<Pose2d> poseSupplier = () -> drive.getPose();
     NamedCommands.registerCommand("Don't Hit The Wall", new DontHitTheWall(poseSupplier));
   }
