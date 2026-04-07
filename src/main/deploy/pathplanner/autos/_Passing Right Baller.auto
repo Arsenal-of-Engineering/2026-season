@@ -17,6 +17,12 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "Intake"
+          }
+        },
+        {
           "type": "deadline",
           "data": {
             "commands": [
@@ -75,6 +81,12 @@
           "type": "path",
           "data": {
             "pathName": "2RB_Turn to Shoot"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Stop Intake"
           }
         },
         {

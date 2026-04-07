@@ -17,22 +17,26 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
 public class OneWheelShooter extends SubsystemBase {
-  private final double kP = 0.0006;
+  private final double kP = 0.00125;
   private final double kI = 0;
   private final double kD = 0;
-  private final double kV = 0.00014; // FeedFoward
-  private final double maxAcc = 20000.0;
+  private final double kV = 0.0; // FeedFoward
+  private final double kS = .01;
+  private final double maxAcc = 2000000.0;
   private SparkFlex shootMotor;
   private SparkClosedLoopController shootMotorPID;
+  private boolean isLeft = false;
 
-  public OneWheelShooter(int id) {
+  public OneWheelShooter(int id, boolean isLeft) {
+    this.isLeft = isLeft;
     shootMotor = new SparkFlex(id, MotorType.kBrushless);
     shootMotorPID = shootMotor.getClosedLoopController();
     SparkMaxConfig config = new SparkMaxConfig();
     config.closedLoop.pid(kP, kI, kD)
-        .outputRange(0, 1)
+        .outputRange(isLeft ? -1 : 0, isLeft ? 0 : 1)
         .feedForward
         .kV(kV);
+        // .kS(kS);
     config.idleMode(IdleMode.kCoast);
     config.closedLoop.maxMotion.maxAcceleration(maxAcc);
 
@@ -41,13 +45,13 @@ public class OneWheelShooter extends SubsystemBase {
 
   public Command runSpeed(AngularVelocity speed) {
     return startEnd(
-        () -> {shootMotorPID.setSetpoint(speed.in(RPM), ControlType.kMAXMotionVelocityControl);},
+        () -> {shootMotorPID.setSetpoint((isLeft ? -1 : 1) * speed.in(RPM), ControlType.kMAXMotionVelocityControl);},
         () -> {shootMotorPID.setSetpoint(0, ControlType.kMAXMotionVelocityControl);}
     );
   }
 
   public void setSpeed(AngularVelocity speed) {
-    shootMotorPID.setSetpoint(speed.in(RPM), ControlType.kMAXMotionVelocityControl);
+    shootMotorPID.setSetpoint((isLeft ? -1 : 1) * speed.in(RPM), ControlType.kMAXMotionVelocityControl);
   }
 
   public boolean isAtSetpoint(){

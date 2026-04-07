@@ -4,6 +4,7 @@ import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static frc.robot.subsystems.drive.DriveConstants.robotMOI;
 
+import java.util.ArrayList;
 import java.util.function.Supplier;
 
 import edu.wpi.first.epilogue.*;
@@ -46,12 +47,10 @@ public class AimTarget extends Command {
   private Supplier<Integer> calcRPMAdjSupplier;
   private boolean isRotationCorrection = false;
   private double turretTarget = 0;
-  private PIDController rotatePID =
-      new PIDController(
-          .02, 0.0, 0.00, .02);
   final Transform2d ROBOT_TO_SHOOTER;
   private Side side;
   private Goal goal;
+  private ArrayList<Double> turretTargets = new ArrayList<>();
 
   public enum Side{
     LEFT,
@@ -77,7 +76,6 @@ public class AimTarget extends Command {
         break;
     }
     
-    rotatePID.setSetpoint(-45);
     m_aimTurret = aimTurret;
     m_oneWheelShooter = oneWheelShooter;
     m_drive = drive;
@@ -142,20 +140,27 @@ public class AimTarget extends Command {
     turretTarget = robotGoal[0] - robotPose.getRotation().getDegrees();
     while (turretTarget > 180) turretTarget -= 360;
     while (turretTarget < -180) turretTarget += 360;
-    SmartDashboard.putNumber("turret deg", turretTarget);
+    turretTargets.add(turretTarget);
+    if (turretTargets.size() > 3){
+        turretTargets.remove(0);
+    }
+    double avg = 0;
+    for (double targ : turretTargets){
+      avg += targ;
+    }
+    avg /= turretTargets.size();
+    SmartDashboard.putNumber("turret deg", avg);
     
-    isRotationCorrection = !m_aimTurret.setTarget(-turretTarget);
+    isRotationCorrection = !m_aimTurret.setTarget(-avg);
     m_aimTurret.setAngleTarget(robotGoal[2]);
     SmartDashboard.putNumber("Angle target " + (side == Side.LEFT ? "L" : "R"), robotGoal[2]);
     
 
-    if (Math.abs(m_aimTurret.getRotation() + turretTarget) < 7.5){
-        SmartDashboard.putBoolean("Ready on Aim", true);
-        if (m_oneWheelShooter.isAtSetpoint() && timer.get() > 1){
-        }
-    } else {
-        SmartDashboard.putBoolean("Ready on Aim", false);
-    }
+    // if (Math.abs(m_aimTurret.getRotation() - turretTarget) < 2){
+    //     SmartDashboard.putBoolean("Ready on Aim", true);
+    // } else {
+    //     SmartDashboard.putBoolean("Ready on Aim", false);
+    // }
     // System.out.println("I'm getting " + robotGoal[0] + "deg at " + (robotGoal[1]+calcRPMAdjSupplier.get()) + "rpm with altitude: " + robotGoal[2]);
   }
   /**
@@ -174,6 +179,7 @@ public class AimTarget extends Command {
   public void end(boolean interrupted){
     m_oneWheelShooter.setSpeed(RPM.of(0));
     timer.stop();
+    turretTargets = new ArrayList<>();
   }
 
   // public boolean isRotationCorrecting(){

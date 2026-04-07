@@ -42,6 +42,12 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "Stop Intake"
+          }
+        },
+        {
           "type": "parallel",
           "data": {
             "commands": [
@@ -113,6 +119,12 @@
           "type": "path",
           "data": {
             "pathName": "2LB_Turn to Shoot"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Stop Intake"
           }
         },
         {

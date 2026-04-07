@@ -77,7 +77,7 @@ public class SolveTrajectoryPower {
     double l = goalHeight - shooterHeight;
     //System.out.println("dist: " + Math.hypot(xPos, yPos));
 
-    double dist = Units.feetToMeters(28);
+    double dist = Units.feetToMeters(33);
 
     double guessV = 3 * Math.sqrt(109 * Math.tan(a) / 2) * dist;
     guessV /= 10 * Math.sqrt((shooterHeight - goalHeight) / Math.tan(a) + dist);
@@ -128,15 +128,15 @@ public class SolveTrajectoryPower {
 
   // regression lines from google sheets
   private static double angleRegression(double dist){
-    return MathUtil.clamp(-14.3 + 
-                          12.8  * dist +
-                          -1.24 * Math.pow(dist,2)
+    return MathUtil.clamp(-8.92 + 
+                          7.96  * dist +
+                          -.571 * Math.pow(dist,2)
                           , 0,20);
   }
   private static double rpmRegression(double dist){
-    return MathUtil.clamp(3725 + 
-                          -623 * dist + 
-                          193 * Math.pow(dist,2)
+    return MathUtil.clamp(2723 + 
+                          135 * dist + 
+                          28.3 * Math.pow(dist,2)
                           , 0,6767);
   }
 

@@ -25,7 +25,7 @@ public final class Constants {
   public static final int kLeftShooterMotorCanId = 17;
   public static final int kRightShooterMotorCanId = 11;
   
-
+  public static final int kRopeMotorCanId = 16;
   public static final int kIntakeMotorCanId = 9;
   public static final int kIntake2MotorCanId = 19;
   public static final int kFeederMotorCanId = 14;

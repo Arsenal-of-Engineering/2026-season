@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.RPM;
+
 import com.revrobotics.PersistMode;
 import com.revrobotics.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
@@ -14,37 +16,56 @@ import edu.wpi.first.math.controller.BangBangController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+
 import frc.robot.Constants;
 
 public class Intake extends SubsystemBase {
     private SparkFlex theMotor;
     private SparkFlex theOtherMotor;
     private double speed = 0;
+    private SendableChooser<Integer> intakeRpmSelector = new SendableChooser<>();
+    private SparkClosedLoopController motorPID, otherMotorPID;
     public Intake(int id, int id2){
         theMotor = new SparkFlex(id, MotorType.kBrushless);
         theOtherMotor = new SparkFlex(id2, MotorType.kBrushless);
+
+        motorPID = theMotor.getClosedLoopController();
+        otherMotorPID = theOtherMotor.getClosedLoopController();
         SparkMaxConfig config = new SparkMaxConfig();
+        config.closedLoop.pid(0.0004, 0, 0)
+            .outputRange(-1,1);
         config.idleMode(IdleMode.kCoast);
-        config.smartCurrentLimit(80000);
+        config.closedLoop.maxMotion.maxAcceleration(25000);
 
         theMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         theOtherMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
+        // intakeRpmSelector.addOption("4000", 4000);
+        // intakeRpmSelector.addOption("4500", 4500);
+        // intakeRpmSelector.addOption("5000", 5000);
+        // intakeRpmSelector.addOption("5500", 5500);
+        // intakeRpmSelector.addOption("6000", 6000);
+        // intakeRpmSelector.addOption("6500", 6500);
+        // intakeRpmSelector.addOption("7000", 7000);
+        // intakeRpmSelector.addOption("7500", 7500);
+        // intakeRpmSelector.addOption("8000", 8000);
+        // intakeRpmSelector.setDefaultOption("4000", 4000);
+        // intakeRpmSelector.close();
+        // SmartDashboard.putData("intake speeder", intakeRpmSelector);
     }
 
 
     public void set(double newSpeed) {
         //explode
         speed = newSpeed;
+        motorPID.setSetpoint(4000 * newSpeed, ControlType.kMAXMotionVelocityControl);
+        otherMotorPID.setSetpoint(4000 * newSpeed, ControlType.kMAXMotionVelocityControl);
     }
 
 
     @Override
     public void periodic() {
-        double rpm = Math.abs(theMotor.getEncoder().getVelocity());
-        SmartDashboard.putNumber(theMotor.getDeviceId() + " rpming", rpm);
-        double output = rpm < 450000 ? 1 : 0;
-        theMotor.set(output * speed);
-        theOtherMotor.set(output*speed);
     }
 
     public double getEncoderPosition(){
