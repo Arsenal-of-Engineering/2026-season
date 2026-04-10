@@ -40,7 +40,8 @@ public class AimTurret extends Command {
     kAimingDegreesPerRotation = isLeft ? Constants.kLeftAimingDegreesPerRotation : Constants.kRightAimingDegreesPerRotation;
     m_aimingMotor = aimingMotor;
     m_angleMotor = angleMotor;
-    m_angleMotor.initPID(.07, .00005, 0);
+    m_angleMotor.initPID(.07, .00005, 0, isLeft);
+    m_aimingMotor.initPID(.14, 0, 0, false);
     addRequirements(m_aimingMotor, m_angleMotor);
   }
 
@@ -50,10 +51,11 @@ public class AimTurret extends Command {
   */
   public boolean setTarget(double degrees) {
     double targetDeg = degrees;
-    if (targetDeg < -90 || targetDeg > 90)
+    if (targetDeg < -110 || targetDeg > 110)
       return false;
     
     target = targetDeg;
+    m_aimingMotor.setSetpoint(degrees / kAimingDegreesPerRotation);
     return true;
   }
 
@@ -66,10 +68,11 @@ public class AimTurret extends Command {
   }
 
   public void execute() {
-    double current = m_aimingMotor.getEncoderPosition() * kAimingDegreesPerRotation;
+    SmartDashboard.putBoolean("Ready on Aim", m_aimingMotor.isAtSetpoint());
+    // double current = m_aimingMotor.getEncoderPosition() * kAimingDegreesPerRotation;
 
-    speed = MathUtil.clamp(rotatePID.calculate(current, target), -1, 1);
-    m_aimingMotor.set(speed * kAimingDegreesPerRotation / Constants.kLeftAimingDegreesPerRotation);
+    // speed = MathUtil.clamp(rotatePID.calculate(current, target), -1, 1);
+    // m_aimingMotor.set(speed * kAimingDegreesPerRotation / Constants.kLeftAimingDegreesPerRotation);
 
     // double angleSpeed = MathUtil.clamp(anglePID.calculate(-m_angleMotor.getEncoderPosition(), angleTarget), -.5, .5);
 

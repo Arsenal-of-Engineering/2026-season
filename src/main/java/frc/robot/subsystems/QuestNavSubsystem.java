@@ -30,9 +30,9 @@ public class QuestNavSubsystem extends SubsystemBase {
   static Drive driveSubsystem;
   final Matrix<N3, N1> QUESTNAV_STD_DEVS =
       VecBuilder.fill(
-          0.00001, // Trust down to 1cm in X direction
-          0.00001, // Trust down to 1cm in Y direction
-          .0002 // Trust down to 2 degrees rotational
+          0.00000001, // Trust down to 1cm in X direction
+          0.00000001, // Trust down to 1cm in Y direction
+          .000002 // Trust down to 2 degrees rotational
           );
 
   public QuestNavSubsystem(Drive m_driveSubsystem) {
@@ -74,16 +74,16 @@ public class QuestNavSubsystem extends SubsystemBase {
     // // Get the latest pose data frames from the Quest
     PoseFrame[] poseFrames = questNav.getAllUnreadPoseFrames();
 
-    if (poseFrames.length > 0) {
+    if (poseFrames.length == 0) {
+      SmartDashboard.putBoolean("QuestNav", false);
+    } else {
+      SmartDashboard.putBoolean("QuestNav", true);
       for (PoseFrame questFrame : poseFrames) {
         // Get the pose of the Quest
         Pose3d questPose = questFrame.questPose3d();
         // Get timestamp for when the data was sent
         double timestamp = questFrame.dataTimestamp();
-        recentTimestamps.add(timestamp);
-        if (recentTimestamps.size() > 5){
-          recentTimestamps.remove(0);
-        }
+        
 
         // Transform by the mount pose to get your robot pose
         Pose3d robotPose = questPose.transformBy(QUEST_TO_ROBOT);
@@ -93,15 +93,14 @@ public class QuestNavSubsystem extends SubsystemBase {
 
         // Add the measurement to our estimator
         driveSubsystem.addVisionMeasurement(realRobotPose, timestamp, QUESTNAV_STD_DEVS);
+        double[] sentPoseData = new double[]{realRobotPose.getX(),realRobotPose.getY(),realRobotPose.getRotation().getDegrees()};
+        SmartDashboard.putNumberArray("Quest pose data", sentPoseData);
+
 
       
         // SmartDashboard.putNumber("Quest rot", questPose.getRotation2d().getDegrees());
         // System.out.println("lock tf in");
       }
-
-      SmartDashboard.putBoolean("QuestNav", true);
-    } else {
-      SmartDashboard.putBoolean("QuestNav", false);
     }
   }
 

@@ -25,7 +25,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -47,6 +46,7 @@ import frc.robot.commands.AimTarget;
 import frc.robot.commands.AimTurret;
 import frc.robot.commands.DontHitTheWall;
 import edu.wpi.first.wpilibj2.command.RepeatCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.subsystems.SimpleMoveMotor;
 import frc.robot.subsystems.Intake;
@@ -73,8 +73,8 @@ public class RobotContainer {
   // private final ShootMotors m_shootMotors = new ShootMotors();
   private static QuestNavSubsystem m_questNav;
   
-  private final OneWheelShooter m_leftOneShootMotor = new OneWheelShooter(Constants.kLeftShooterMotorCanId);
-  private final OneWheelShooter m_rightOneShootMotor = new OneWheelShooter(Constants.kRightShooterMotorCanId);
+  private final OneWheelShooter m_leftOneShootMotor = new OneWheelShooter(Constants.kLeftShooterMotorCanId, true);
+  private final OneWheelShooter m_rightOneShootMotor = new OneWheelShooter(Constants.kRightShooterMotorCanId, false);
 
   // Controller
   private final CommandXboxController controller = new CommandXboxController(0);
@@ -92,6 +92,7 @@ public class RobotContainer {
   private SimpleMoveMotor m_leftAngleMotor = new SimpleMoveMotor(Constants.kLeftAngleMotorCanId);
   private SimpleMoveMotor m_rightAngleMotor = new SimpleMoveMotor(Constants.kRightAngleMotorCanId);
   private SimpleMoveMotor m_feederMotor = new SimpleMoveMotor(Constants.kFeederMotorCanId);
+  private SimpleMoveMotor m_ropeMotor = new SimpleMoveMotor(Constants.kRopeMotorCanId);
   
   private AimTurret m_leftAimTurret = new AimTurret(m_leftAimingMotor, m_leftAngleMotor, true);
   private AimTurret m_rightAimTurret = new AimTurret(m_rightAimingMotor, m_rightAngleMotor, false);
@@ -100,9 +101,7 @@ public class RobotContainer {
 
   public static Supplier<Double> offsetSupplier;
 
-  // six seven
-  private Servo leftServo = new Servo(6);
-  private Servo rightServo = new Servo(7);
+
 
 
 
@@ -214,10 +213,6 @@ public class RobotContainer {
     }
 }
 
-  public void extendHopper(){
-    leftServo.set(.5);
-    rightServo.set(.5);
-  }
 
   public int getRPMAdj(){
     int val = calcRpmAdj.getSelected();
@@ -305,7 +300,6 @@ public class RobotContainer {
     controller.leftTrigger(.5).onTrue(new InstantCommand(() -> drive.setPose(new Pose2d(3.677,4,new Rotation2d(0,0)))));
 
     controller.y().onTrue(new InstantCommand(() -> {isFieldRelative = !isFieldRelative; DriveCommands.setFieldRelative(isFieldRelative);}));
-    controller.a().onTrue(new InstantCommand(() -> extendHopper()));
   
     controller.b().onTrue(new InstantCommand(() -> {m_rightAimTarget.setGoal(Goal.CLOSEST_PASS);m_leftAimTarget.setGoal(Goal.CLOSEST_PASS);}));
     controller.x().onTrue(new InstantCommand(() -> {m_rightAimTarget.setGoal(Goal.HUB);m_leftAimTarget.setGoal(Goal.HUB);}));
@@ -316,12 +310,15 @@ public class RobotContainer {
     
 
     // configure joystick buttons (<1st arg>) to do <2nd arg> on press and <3rd arg> on release.
+    joystickInstantToggle(12, () -> m_ropeMotor.set(-.2), () -> m_ropeMotor.set(0));
+    joystickInstantToggle(10, () -> m_ropeMotor.set(.2), () -> m_ropeMotor.set(0));
     joystickInstantToggle(1, () -> m_intakeMotor.set(-1), () -> m_intakeMotor.set(0));
-    joystickInstantToggle(9, () -> m_feederMotor.set(-1), () -> m_feederMotor.set(0));
+    new JoystickButton(m_joystick,9).onTrue(new RunCommand(()->m_ropeMotor.set(.4)).withTimeout(.4).andThen(new InstantCommand(()->m_ropeMotor.set(-1))));
+    joystickInstantToggle(8, () -> m_feederMotor.set(-1), () -> m_feederMotor.set(0));
     joystickInstantToggle(11, () -> m_feederMotor.set(1), () -> m_feederMotor.set(0));
     joystickInstantToggle(6, () -> m_intakeMotor.set(1), () -> m_intakeMotor.set(0));
-    joystickInstantToggle(3, () -> {m_leftAngleMotor.set(.15);m_rightAngleMotor.set(.3);}, () -> {m_leftAngleMotor.set(0);m_rightAngleMotor.set(0);});
-    joystickInstantToggle(4, () -> {m_leftAngleMotor.set(-.15);m_rightAngleMotor.set(-.3);}, () -> {m_leftAngleMotor.set(0);m_rightAngleMotor.set(0);});
+    joystickInstantToggle(3, () -> {m_leftAngleMotor.set(.3);m_rightAngleMotor.set(.3);}, () -> {m_leftAngleMotor.set(0);m_rightAngleMotor.set(0);});
+    joystickInstantToggle(4, () -> {m_leftAngleMotor.set(-.3);m_rightAngleMotor.set(-.3);}, () -> {m_leftAngleMotor.set(0);m_rightAngleMotor.set(0);});
     joystickInstantToggle(7, () -> {m_leftOneShootMotor.setSpeed(RPM.of(getManualRPM()));m_rightOneShootMotor.setSpeed(RPM.of(getManualRPM()));/*m_leftPacerMotor.set(-1);m_rightPacerMotor.set(-1);*/}, () -> {m_leftOneShootMotor.setSpeed(RPM.of(0));m_rightOneShootMotor.setSpeed(RPM.of(0));/*m_rightPacerMotor.set(0);m_leftPacerMotor.set(0);*/});
     // joystickInstantToggle(12, () -> m_ropeMotor.set(.3), () -> m_ropeMotor.set(0));
     // joystickInstantToggle(10, () -> m_ropeMotor.set(-.3), () -> m_ropeMotor.set(0));
@@ -355,9 +352,12 @@ public class RobotContainer {
     NamedCommands.registerCommand("Target Pass", new InstantCommand(() -> {m_leftAimTarget.setGoal(Goal.CLOSEST_PASS);m_rightAimTarget.setGoal(Goal.CLOSEST_PASS);}));
     NamedCommands.registerCommand("Target Hub", new InstantCommand(() -> {m_leftAimTarget.setGoal(Goal.HUB);m_rightAimTarget.setGoal(Goal.HUB);}));
     // pivotal don't delete first but still can
-    NamedCommands.registerCommand("Intake", new InstantCommand(() -> { m_feederMotor.set(1);m_intakeMotor.set(-1);}));
+    NamedCommands.registerCommand("Intake", new InstantCommand(() -> {m_intakeMotor.set(-1);}));
+    NamedCommands.registerCommand("Up Intake", new RunCommand(()->m_ropeMotor.set(.4)).withTimeout(.4).andThen(new InstantCommand(()->m_ropeMotor.set(-1))));
+    NamedCommands.registerCommand("Stop Intake", new InstantCommand(() -> { m_intakeMotor.set(0);}));
     NamedCommands.registerCommand("Process", new InstantCommand(() -> {m_feederMotor.set(1);}));
-    NamedCommands.registerCommand("Deploy Hopper", new InstantCommand(() -> extendHopper()));
+    NamedCommands.registerCommand("Stop Feeder", new InstantCommand(() -> { m_feederMotor.set(0);}));
+    NamedCommands.registerCommand("Deploy Hopper", new InstantCommand(() -> m_ropeMotor.set(-.2)));
     NamedCommands.registerCommand("Chomp", new InstantCommand(() -> System.out.println("surely there is a Chomp")));
     NamedCommands.registerCommand("Stop", new InstantCommand(() -> DriveCommands.joystickDrive(drive, 0, 0, 0)));
     // This is very important (so we dont hit the wall)
@@ -381,7 +381,7 @@ public class RobotContainer {
     if (matchTime > 130) {
       // Transition shift, hub is active.
       if (!activeFirst) return matchTime - 130;
-      return (10 - (matchTime - 130)) * 2.5;
+      return matchTime - 105;
 
     } else if (matchTime > 105) {
       // Shift 1
@@ -400,8 +400,8 @@ public class RobotContainer {
 
     } else if (matchTime > 30) {
       // Shift 4
-      if (!activeFirst) return matchTime - 55;
-      return 25 - (matchTime - 55);
+      if (!activeFirst) return matchTime; // active for the rest of the match
+      return 25 - (matchTime - 30);
 
     } else {
       // End game, hub always active.

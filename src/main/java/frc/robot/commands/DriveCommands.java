@@ -98,7 +98,7 @@ public class DriveCommands {
             drive.runVelocity(
                 ChassisSpeeds.fromRobotRelativeSpeeds(
                     speeds,
-                    new Rotation2d(0)));
+                    new Rotation2d(Math.PI)));
           }
           SmartDashboard.putBoolean("Field Relative", isFieldRelative);
         },

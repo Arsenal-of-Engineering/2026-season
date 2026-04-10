@@ -19,6 +19,7 @@ public class SimpleMoveMotor extends SubsystemBase {
     private SparkClosedLoopController pidController;
     private double[] encoderRange = null;
     private double speed = 0;
+    private boolean isLeft = false;
     public SimpleMoveMotor(int id){theMotor = new SparkMax(id, MotorType.kBrushless);}
 
     public SimpleMoveMotor(int id, double encoderMin, double encoderMax){
@@ -26,16 +27,17 @@ public class SimpleMoveMotor extends SubsystemBase {
         encoderRange = new double[]{encoderMin,encoderMax};
     }
 
-    public void initPID(double kP, double kI, double kD){
+    public void initPID(double kP, double kI, double kD, boolean isLeft){
+        this.isLeft = isLeft;
         pidController = theMotor.getClosedLoopController();
         SparkMaxConfig config = new SparkMaxConfig();
         config.closedLoop.pid(kP, kI, kD)
             .outputRange(-1, 1);
         config.idleMode(IdleMode.kBrake);
         if (theMotor.getDeviceId() == Constants.kLeftAngleMotorCanId || theMotor.getDeviceId() == Constants.kRightAngleMotorCanId){
-            config.softLimit.forwardSoftLimit(0);
+            config.softLimit.forwardSoftLimit(isLeft ? 20 : 0);
             config.softLimit.forwardSoftLimitEnabled(true);
-            config.softLimit.reverseSoftLimit(-20);
+            config.softLimit.reverseSoftLimit(isLeft ? 0 : -20);
             config.softLimit.reverseSoftLimitEnabled(true);
         }
 
@@ -47,22 +49,13 @@ public class SimpleMoveMotor extends SubsystemBase {
     public void setSetpoint(double setpoint){
         if (pidController == null) return;
 
-        pidController.setSetpoint(setpoint, ControlType.kPosition);
+        pidController.setSetpoint((isLeft ? -1 : 1) * setpoint, ControlType.kPosition);
         System.out.println("run my pitch to " + setpoint);
     }
 
     public void set(double newSpeed) {
-        // don't move past encoder
-        if (encoderRange != null){
-            if (newSpeed < 0 && theMotor.getEncoder().getPosition() < encoderRange[0]){
-                newSpeed = 0;
-            }
-            if (newSpeed > 0 && theMotor.getEncoder().getPosition() > encoderRange[1]){
-                newSpeed = 0;
-            }
-        }
-        // System.out.println("and I'm gooning it " + newSpeed + " times");
-        //explode
+        if (isLeft)
+            newSpeed = -newSpeed;
         theMotor.set(newSpeed);
         speed = newSpeed;
     }
@@ -104,5 +97,10 @@ public class SimpleMoveMotor extends SubsystemBase {
 
     public double[] getEncoderRange(){
         return encoderRange;
+    }
+
+    public boolean isAtSetpoint(){
+        if (pidController == null) return false;
+        return pidController.isAtSetpoint();
     }
 }

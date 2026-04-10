@@ -121,8 +121,7 @@ public class Robot extends LoggedRobot {
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
-    robotContainer.extendHopper();
-    autonomousCommand = robotContainer.getAutonomousCommand();
+        autonomousCommand = robotContainer.getAutonomousCommand();
 
     // schedule the autonomous command (example)
     if (autonomousCommand != null) {
@@ -152,6 +151,7 @@ public class Robot extends LoggedRobot {
   public void teleopPeriodic() {
     double matchTime = DriverStation.getMatchTime();
     SmartDashboard.putNumber("Shift time", robotContainer.getShiftTime(matchTime));
+    SmartDashboard.putNumber("Shift overtime", robotContainer.getShiftTime(matchTime));
   }
 
   /** This function is called once when test mode is enabled. */

@@ -106,8 +106,8 @@ public class AimTarget extends Command {
     double xTarget, yTarget;
     switch(goal){
       case CLOSEST_PASS:
-        xTarget = 1;
-        yTarget = m_drive.getPose().getY() > 4 ? 8 - 1 : 1;
+        xTarget = 3;
+        yTarget = m_drive.getPose().getY() > 4 ? 8 - 2 : 2;
         break;
       case HUB:
       default:
@@ -121,7 +121,7 @@ public class AimTarget extends Command {
       double[] speeds = QuestNavSubsystem.getVelocity();
       // balls are falling short on back up
       double xSpeed = speeds[0] < 0 ? speeds[0] * 1.5 : speeds[0];
-      robotGoal = SolveTrajectoryPower.calculate(turretPose.getX(), -xSpeed, turretPose.getY(), -speeds[1], xTarget, yTarget, side == Side.LEFT ? 1 : -1, goal == Goal.HUB ? 2 : 0);
+      robotGoal = SolveTrajectoryPower.calculate(turretPose.getX(), -xSpeed, turretPose.getY(), -speeds[1] * 2, xTarget, yTarget, side == Side.LEFT ? 1 : -1, goal == Goal.HUB ? 2 : 0);
       SmartDashboard.putNumber("calc Vx", speeds[0]);
       SmartDashboard.putNumber("calc Vy", speeds[1]);
     } catch (Exception e){

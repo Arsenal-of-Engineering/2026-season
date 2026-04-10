@@ -25,8 +25,8 @@ public class SolveTrajectoryPower {
    */
   public static double[] calculate(double xPos, double xVel, double yPos, double yVel, double xTarget, double yTarget, int offsetDirection, double goalHeight) {
     double facing = Math.atan((yTarget - yPos) / (xTarget - xPos));
-    double xHub = xTarget + Math.sin(facing) * offsetDirection * Units.inchesToMeters(4);
-    double yHub = yTarget + Math.cos(facing) * offsetDirection * Units.inchesToMeters(4);
+    double xHub = xTarget + Math.sin(facing) * offsetDirection * Units.inchesToMeters(7);
+    double yHub = yTarget + Math.cos(facing) * offsetDirection * Units.inchesToMeters(7);
     System.out.println("-----");
     System.out.println("I'm at "+ xPos + ", " + yPos);
     System.out.println("Let's shoot at " + xHub + ", " + yHub + " im " + offsetDirection);
@@ -57,9 +57,9 @@ public class SolveTrajectoryPower {
     double[] vals = getValues(xPos,  xVel,  yPos,  yVel, t);
     System.out.println("right so that's an angle of " + vals[0]);
     System.out.println("-----");
-    if (goalHeight == 0 && vals[1] > 6700){
-      return calculatePass(xPos, xVel, yPos, yVel, yTarget, offsetDirection, goalHeight);
-    }
+    // if (goalHeight == 0 && vals[1] > 6700){
+    //   return calculatePass(xPos, xVel, yPos, yVel, yTarget, offsetDirection, goalHeight);
+    // }
     return vals;
   }
 
@@ -77,17 +77,17 @@ public class SolveTrajectoryPower {
     double l = goalHeight - shooterHeight;
     //System.out.println("dist: " + Math.hypot(xPos, yPos));
 
-    double dist = Units.feetToMeters(28);
+    double dist = Units.feetToMeters(33);
 
     double guessV = 3 * Math.sqrt(109 * Math.tan(a) / 2) * dist;
     guessV /= 10 * Math.sqrt((shooterHeight - goalHeight) / Math.tan(a) + dist);
+
+    double t = 10.0/ 981 * (Math.sqrt(2 * (50 * Math.pow(guessV, 2) - 981 * (goalHeight - shooterHeight)))+ 10 * guessV);
+
+    double[] vals = getValues(xPos,  xVel,  yPos,  yVel, t);
     
-    double hVel = guessV / Math.tan(a);
-    double angle = Math.acos(yVel / hVel);
-    angle += Math.PI; 
-    angle *= 180 / Math.PI;
-    System.out.println("I gotta run it at: " + angle);
-    return new double[]{angle, 6700, 20};
+    System.out.println("It's trying to full pass at: " + vals[1]);
+    return new double[]{vals[0], 6700, 20};
   }
 
   private static double[] getValues(double xPos, double xVel, double yPos, double yVel, double t){
@@ -128,15 +128,16 @@ public class SolveTrajectoryPower {
 
   // regression lines from google sheets
   private static double angleRegression(double dist){
-    return MathUtil.clamp(-14.3 + 
-                          12.8  * dist +
-                          -1.24 * Math.pow(dist,2)
+    return MathUtil.clamp(-19.1 + 
+                          20.2  * dist +
+                          -4.35 * Math.pow(dist,2) +
+                          .381 * Math.pow(dist,3)
                           , 0,20);
   }
   private static double rpmRegression(double dist){
-    return MathUtil.clamp(3725 + 
-                          -623 * dist + 
-                          193 * Math.pow(dist,2)
+    return MathUtil.clamp(2242 + 
+                          412 * dist + 
+                          -12.4 * Math.pow(dist,2)
                           , 0,6767);
   }
 

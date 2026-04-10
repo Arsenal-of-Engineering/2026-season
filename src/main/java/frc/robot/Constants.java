@@ -16,8 +16,8 @@ import edu.wpi.first.wpilibj.RobotBase;
  */
 public final class Constants {
   // 4.86
-  public static final double kLeftAimingDegreesPerRotation = 90 / 55.0;
-  public static final double kRightAimingDegreesPerRotation = 90 / 45.0;
+  public static final double kLeftAimingDegreesPerRotation = 90 / 41.0;
+  public static final double kRightAimingDegreesPerRotation = 90 / 34.0;
   public static final int kLeftAimingMotorCanId = 13;
   public static final int kRightAimingMotorCanId = 12;
   public static final int kLeftAngleMotorCanId = 10;
@@ -25,7 +25,7 @@ public final class Constants {
   public static final int kLeftShooterMotorCanId = 17;
   public static final int kRightShooterMotorCanId = 11;
   
-
+  public static final int kRopeMotorCanId = 16;
   public static final int kIntakeMotorCanId = 9;
   public static final int kIntake2MotorCanId = 19;
   public static final int kFeederMotorCanId = 14;
