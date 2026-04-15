@@ -25,6 +25,7 @@ public class SolveTrajectoryPower {
    */
   public static double[] calculate(double xPos, double xVel, double yPos, double yVel, double xTarget, double yTarget, int offsetDirection, double goalHeight) {
     double facing = Math.atan((yTarget - yPos) / (xTarget - xPos));
+    if (xTarget - xPos < 0) facing += Math.PI;
     double xHub = xTarget + Math.sin(facing) * offsetDirection * Units.inchesToMeters(7);
     double yHub = yTarget + Math.cos(facing) * offsetDirection * Units.inchesToMeters(7);
     System.out.println("-----");

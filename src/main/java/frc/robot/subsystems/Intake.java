@@ -43,6 +43,8 @@ public class Intake extends SubsystemBase {
 
     }
 
+    
+
 
     public void set(double newSpeed) {
         //explode

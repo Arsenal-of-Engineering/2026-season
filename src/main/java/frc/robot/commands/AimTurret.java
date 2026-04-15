@@ -20,23 +20,12 @@ import frc.robot.subsystems.SimpleMoveMotor;
 import frc.robot.subsystems.drive.Drive;
 
 public class AimTurret extends Command {
-  private PIDController rotatePID =
-      new PIDController(
-          .014, 0.0, 0.0, .02);
   private SimpleMoveMotor m_aimingMotor;
-  private PIDController anglePID =
-      new PIDController(
-          .04, 0.1, 0.0, .02);
   private SimpleMoveMotor m_angleMotor;
-  /** Goal encoder value */
-  private double target = 0;
-  private double angleTarget = 0;
   private double speed = 0;
   private double kAimingDegreesPerRotation;
-  private boolean isLeft;
 
   public AimTurret(SimpleMoveMotor aimingMotor, SimpleMoveMotor angleMotor, boolean isLeft) {
-    this.isLeft = isLeft;
     kAimingDegreesPerRotation = isLeft ? Constants.kLeftAimingDegreesPerRotation : Constants.kRightAimingDegreesPerRotation;
     m_aimingMotor = aimingMotor;
     m_angleMotor = angleMotor;
@@ -54,7 +43,6 @@ public class AimTurret extends Command {
     if (targetDeg < -110 || targetDeg > 110)
       return false;
     
-    target = targetDeg;
     m_aimingMotor.setSetpoint(degrees / kAimingDegreesPerRotation);
     return true;
   }

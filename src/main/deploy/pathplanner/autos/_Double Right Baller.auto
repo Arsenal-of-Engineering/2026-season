@@ -27,7 +27,7 @@
                     {
                       "type": "wait",
                       "data": {
-                        "waitTime": 2.0
+                        "waitTime": 0.5
                       }
                     },
                     {
@@ -72,6 +72,12 @@
                       "type": "named",
                       "data": {
                         "name": "AimL"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "Bump Intake"
                       }
                     },
                     {
@@ -175,6 +181,12 @@
                 "type": "named",
                 "data": {
                   "name": "AimL"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Bump Intake"
                 }
               },
               {

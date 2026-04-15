@@ -20,6 +20,7 @@ public class SimpleMoveMotor extends SubsystemBase {
     private double[] encoderRange = null;
     private double speed = 0;
     private boolean isLeft = false;
+    private boolean sparkLimits = true;
     public SimpleMoveMotor(int id){theMotor = new SparkMax(id, MotorType.kBrushless);}
 
     public SimpleMoveMotor(int id, double encoderMin, double encoderMax){
@@ -44,6 +45,19 @@ public class SimpleMoveMotor extends SubsystemBase {
         theMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
         pidController.setSetpoint(theMotor.getEncoder().getPosition(), ControlType.kPosition);
+    }
+
+    public void toggleSparkLimits(){
+        if (theMotor.getDeviceId() == Constants.kRopeMotorCanId){
+            sparkLimits = !sparkLimits;
+            SparkMaxConfig config = new SparkMaxConfig();
+            config.closedLoop.pid(0.0004, 0, 0)
+                .outputRange(-1,1);
+            config.softLimit.forwardSoftLimit(sparkLimits ? 0 : 55);
+            config.softLimit.reverseSoftLimit(sparkLimits ? -55 : 0);
+            config.idleMode(IdleMode.kCoast);
+            config.closedLoop.maxMotion.maxAcceleration(25000);
+        }
     }
 
     public void setSetpoint(double setpoint){

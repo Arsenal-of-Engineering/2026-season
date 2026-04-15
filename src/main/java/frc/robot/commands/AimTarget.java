@@ -106,7 +106,7 @@ public class AimTarget extends Command {
     double xTarget, yTarget;
     switch(goal){
       case CLOSEST_PASS:
-        xTarget = 3;
+        xTarget = 2;
         yTarget = m_drive.getPose().getY() > 4 ? 8 - 2 : 2;
         break;
       case HUB:

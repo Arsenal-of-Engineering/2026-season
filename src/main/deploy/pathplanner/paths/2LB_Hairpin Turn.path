@@ -32,19 +32,40 @@
     },
     {
       "anchor": {
-        "x": 6.239,
-        "y": 5.2
+        "x": 6.199814550641939,
+        "y": 4.844
       },
       "prevControl": {
-        "x": 6.239,
-        "y": 5.45
+        "x": 6.43271041369472,
+        "y": 4.49432239657632
+      },
+      "nextControl": {
+        "x": 6.061231190925432,
+        "y": 5.052073670630584
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 5.54,
+        "y": 5.5
+      },
+      "prevControl": {
+        "x": 5.934813837375178,
+        "y": 5.359087018544935
       },
       "nextControl": null,
       "isLocked": false,
       "linkedName": null
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 1.8678038379530761,
+      "rotationDegrees": -90.0
+    }
+  ],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],
@@ -58,7 +79,7 @@
   },
   "goalEndState": {
     "velocity": 1.0,
-    "rotation": -45.0
+    "rotation": 0.0
   },
   "reversed": false,
   "folder": "Double Left Baller",

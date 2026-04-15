@@ -32,19 +32,40 @@
     },
     {
       "anchor": {
-        "x": 6.239,
-        "y": 2.8
+        "x": 6.2,
+        "y": 3.156
       },
       "prevControl": {
-        "x": 6.239,
-        "y": 3.05
+        "x": 6.432821167084002,
+        "y": 3.505563018864472
+      },
+      "nextControl": {
+        "x": 6.061415971973808,
+        "y": 2.9479267744854334
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 5.54,
+        "y": 2.5
+      },
+      "prevControl": {
+        "x": 5.9346189350606195,
+        "y": 2.6408435163279536
       },
       "nextControl": null,
       "isLocked": false,
       "linkedName": null
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 1.87,
+      "rotationDegrees": 90.0
+    }
+  ],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],
@@ -58,7 +79,7 @@
   },
   "goalEndState": {
     "velocity": 1.0,
-    "rotation": 45.0
+    "rotation": 0.0
   },
   "reversed": false,
   "folder": "Double Right Baller",
