@@ -315,8 +315,8 @@ public class RobotContainer {
     joystickInstantToggle(10, () -> m_ropeMotor.set(.2), () -> m_ropeMotor.set(0));
     joystickInstantToggle(1, () -> m_intakeMotor.set(-1), () -> m_intakeMotor.set(0));
     new JoystickButton(m_joystick,9).onTrue(new RunCommand(()->m_ropeMotor.set(.4)).withTimeout(.4).andThen(new InstantCommand(()->m_ropeMotor.set(-1))));
-    joystickInstantToggle(8, () -> m_feederMotor.set(-1), () -> m_feederMotor.set(0));
-    joystickInstantToggle(11, () -> m_feederMotor.set(1), () -> m_feederMotor.set(0));
+    joystickInstantToggle(8, () -> m_feederMotor.set(1), () -> m_feederMotor.set(0));
+    joystickInstantToggle(11, () -> m_feederMotor.set(-1), () -> m_feederMotor.set(0));
     joystickInstantToggle(6, () -> m_intakeMotor.set(1), () -> m_intakeMotor.set(0));
     joystickInstantToggle(3, () -> {m_leftAngleMotor.set(.3);m_rightAngleMotor.set(.3);}, () -> {m_leftAngleMotor.set(0);m_rightAngleMotor.set(0);});
     joystickInstantToggle(4, () -> {m_leftAngleMotor.set(-.3);m_rightAngleMotor.set(-.3);}, () -> {m_leftAngleMotor.set(0);m_rightAngleMotor.set(0);});
@@ -357,7 +357,7 @@ public class RobotContainer {
     NamedCommands.registerCommand("Intake", new InstantCommand(() -> {m_intakeMotor.set(-1);}));
     NamedCommands.registerCommand("Bump Intake", new RepeatCommand(new RunCommand(()->m_ropeMotor.set(.4)).withTimeout(.4).andThen(new RunCommand(()->m_ropeMotor.set(-1)).withTimeout(.3))));
     NamedCommands.registerCommand("Stop Intake", new InstantCommand(() -> { m_intakeMotor.set(0);}));
-    NamedCommands.registerCommand("Process", new InstantCommand(() -> {m_feederMotor.set(1);}));
+    NamedCommands.registerCommand("Process", new InstantCommand(() -> {m_feederMotor.set(-1);}));
     NamedCommands.registerCommand("Stop Feeder", new InstantCommand(() -> { m_feederMotor.set(0);}));
     NamedCommands.registerCommand("Deploy Hopper", new InstantCommand(() -> m_ropeMotor.set(-.2)));
     NamedCommands.registerCommand("Chomp", new InstantCommand(() -> System.out.println("surely there is a Chomp")));

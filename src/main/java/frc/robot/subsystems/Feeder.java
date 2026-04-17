@@ -24,7 +24,7 @@ public class Feeder extends SubsystemBase {
 
     public void set(double newSpeed) {
         topMotor.set(newSpeed);
-        bottomMotor.set(-newSpeed);
+        bottomMotor.set(newSpeed);
     }
 
 }
